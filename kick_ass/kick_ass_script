@@ -9,14 +9,14 @@
       var width = 960,
       height = 600;
 
-      var nodes = d3.range(2).map(function() { return {radius:  10}; }),
-      root = nodes[0],
-      color = d3.scale.category10();
+var nodes = d3.range(2).map(function() { return {radius:  10}; }),
+    root = nodes[0],
+    color = d3.scale.category10();
 
-      root.radius = 10;
-      root.fixed = true;
-  
-      var force = d3.layout.force().gravity(0.015)
+root.radius = 10;
+root.fixed = true;
+
+var force = d3.layout.force().gravity(0.015)
   .charge(function(d, i) { return i ? 0 : -2000; })
 .nodes(nodes)
   .size([width, height]);
@@ -85,4 +85,5 @@ function collide(node) {
   };
 }
     </script>
-  </html>
+  </body>
+</html>
