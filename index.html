@@ -4,36 +4,48 @@
     <meta charset="utf-8">
     <title>Welcome to Gen's Home</title>
     <style>
-      @import url("style.css");
+      @import url("css/style.css");
     </style>
+    <!-- Include CSS File Here -->
+    <link rel="stylesheet" href="css/login_style.css"/>
+    <!-- Include JS File Here -->
+    <script src="js/login.js"></script>
     <style id="style-1-cropbar-clipper">
       /* Copyright 2014 Evernote Corporation. All rights reserved. */
-    .en-markup-crop-options {
-      top: 18px !important;
-      left: 50% !important;
-      margin-left: -100px !important;
-      width: 200px !important;
-      border: 2px rgba(255,255,255,.38) solid !important;
-      border-radius: 4px !important;
-    }
-    .en-markup-crop-options div div:first-of-type {
-      margin-left: 0px !important;
-    }
+      .en-markup-crop-options {
+        top: 18px !important;
+        left: 50% !important;
+        margin-left: -100px !important;
+        width: 200px !important;
+        border: 2px rgba(255,255,255,.38) solid !important;
+        border-radius: 4px !important;
+      }
+      .en-markup-crop-options div div:first-of-type {
+        margin-left: 0px !important;
+      }
     </style>
   </head>
   <body>
     <header>
       <div class="column">
-        <div class="navigation">
-          <a href="catch_me/catch_me.html">
-            <strong>来</strong>捉<em>我</em>呀
-          </a>/
-          <a href="kick_ass/kick_ass.html"><strong>打</strong>你<em>屁</em></a>
-        </div>
         <a class="user self", title="View Gen on GitHub" href="https://github.com/GenTang">
           <img class="avatar", src="https://avatars.githubusercontent.com/gentang?v=3&s=100" width="30" height="30">
           TANG Gen
         </a>'s page
-    </div>
-  </header>
-</html>
+      </div>
+    </header>
+    <body>
+      <div class="container">
+        <div class="main">
+          <h2>Please Login</h2>
+          <form id="form_id" method="post" name="myform">
+            <label>User Name :</label>
+            <input type="text" name="username" id="username"/>
+            <label>Password :</label>
+            <input type="password" name="password" id="password"/>
+            <input type="button" value="Login" id="submit" onclick="validate()"/>
+          </form>
+        </div>
+      </div>
+    </body>
+  </html>
