@@ -55,4 +55,4 @@ function click(d) {
       .attrTween("d", function(d) { return function() { return arc(d); }; });
 }
 
-d3.select(self.frameElement).style("height", height + "px");
+//d3.select(self.frameElement).style("height", height + "px");
