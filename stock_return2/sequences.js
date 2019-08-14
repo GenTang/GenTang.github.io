@@ -11,9 +11,7 @@ var svg = d3.select("body").append("svg")
     .attr("height", height)
   .append("g")
     .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
-var partition = d3.partition()
-    .sort(null)
-    .value(function(d) { return 1; });
+var partition = d3.partition();
 var arc = d3.svg.arc()
     .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
     .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
