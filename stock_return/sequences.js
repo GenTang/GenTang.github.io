@@ -10,10 +10,10 @@ var b = {
 
 // Mapping of step names to colors.
 var colors = {
-  "home": "#5687d1",
-  "product": "#7b615c",
-  "search": "#de783b",
-  "account": "#6ab975",
+  "工业": "#5687d1",
+  "冶金工业": "#7b615c",
+  "采矿业": "#de783b",
+  "贵金属": "#6ab975",
   "other": "#a173d1",
   "end": "#bbbbbb"
 };
