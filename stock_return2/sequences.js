@@ -12,7 +12,8 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
 var partition = d3.partition();
-var arc = d3.svg.arc()
+
+var arc = d3.arc()
     .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
     .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
     .innerRadius(function(d) { return Math.max(0, y(d.y)); })
@@ -38,7 +39,7 @@ function createVisualization(root) {
       .each(stash);
   d3.selectAll("input").on("change", function change() {
     var value = this.value === "count"
-        ? function() { return 1; }
+        ? function() { return d.size; }
         : function(d) { return d.size; };
     path
         .data(partition.value(value).nodes)
