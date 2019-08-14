@@ -120,7 +120,7 @@ function breadcrumbPoints(x, i) {
 }
 
 function buildHierarchy(csv) {
-  var root = {"name": "root", "children": []};
+  var root = {"name": "总收益", "children": []};
   for (var i = 0; i < csv.length; i++) {
     var sequence = csv[i][0];
     var size = +csv[i][1];
