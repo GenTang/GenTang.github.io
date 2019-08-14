@@ -157,6 +157,4 @@ function toggleLegend() {
   } else {
     legend.style("visibility", "hidden");
   }
-}
-
-d3.select(self.frameElement).style("height", height + "px");
+};
