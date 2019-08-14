@@ -112,8 +112,16 @@ function createVisualization(json) {
       .attr("fill-rule", "evenodd")
       .style("fill", function(d) { return colors[d.data.name]; })
       .style("opacity", 1)
-      .on("mouseover", mouseover)
-      .on("click", click);
+      .on("mouseover", mouseover);
+    
+  vis.data([json]).selectAll("path")
+        .data(nodes)
+        .enter().append("svg:path")
+        .attr("d", arc)
+        .style("fill", function(d) { return colors[d.data.name]; })
+        .on("click", click)
+        .append("title")
+        .text(function(d) { return d.data.name + "\n" + formatNumber(d.value); });
 
   // Add the mouseleave handler to the bounding circle.
   d3.select("#container").on("mouseleave", mouseleave);
