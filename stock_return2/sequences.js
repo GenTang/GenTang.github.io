@@ -21,11 +21,12 @@ var arc = d3.arc()
     .outerRadius(function(d) { return Math.max(0, y(d.y1)); });
 
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#chart").append("svg:svg")
     .attr("width", width)
     .attr("height", height)
-  .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
+    .append("svg:g")
+    .attr("id", "container")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
 d3.text("visit-sequences.csv", function(text) {
   var csv = d3.csvParseRows(text);
@@ -50,6 +51,41 @@ function createVisualization(root) {
       .on("click", click)
     .append("title")
       .text(function(d) { return d.data.name + "\n" + formatNumber(d.value); });
+
+
+    
+  // Bounding circle underneath the sunburst, to make it easier to detect
+  // when the mouse leaves the parent g.
+  svg.append("svg:circle")
+      .attr("r", radius)
+      .style("opacity", 0);
+
+  // Turn the data into a d3 hierarchy and calculate the sums.
+  var root = d3.hierarchy(json)
+      .sum(function(d) { return d.size; })
+      .sort(function(a, b) { return b.value - a.value; });
+  
+  // For efficiency, filter nodes to keep only those large enough to see.
+  var nodes = partition(root).descendants()
+      .filter(function(d) {
+          return (d.x1 - d.x0 > 0.005); // 0.005 radians = 0.29 degrees
+      });
+
+  var path = svg.data([json]).selectAll("path")
+      .data(nodes)
+      .enter().append("svg:path")
+      .attr("display", function(d) { return d.depth ? null : "none"; })
+      .attr("d", arc)
+      .attr("fill-rule", "evenodd")
+      .style("fill", function(d) { return colors[d.data.name]; })
+      .style("opacity", 1)
+      .on("mouseover", mouseover);
+
+  // Add the mouseleave handler to the bounding circle.
+  d3.select("#container").on("mouseleave", mouseleave);
+
+  // Get total size of the tree = value of root node from partition.
+  totalSize = path.datum().value;
 };
 
 function click(d) {
@@ -64,6 +100,62 @@ function click(d) {
     .selectAll("path")
       .attrTween("d", function(d) { return function() { return arc(d); }; });
 }
+
+
+// Fade all but the current sequence, and show it in the breadcrumb trail.
+function mouseover(d) {
+
+  var percentage = (100 * d.value / totalSize).toPrecision(3);
+  var percentageString = percentage + "%";
+  if (percentage < 0.1) {
+    percentageString = "< 0.1%";
+  }
+
+  d3.select("#percentage")
+      .text(percentageString);
+
+  d3.select("#explanation")
+      .style("visibility", "");
+
+  var sequenceArray = d.ancestors().reverse();
+  sequenceArray.shift(); // remove root node from the array
+  updateBreadcrumbs(sequenceArray, percentageString);
+
+  // Fade all the segments.
+  d3.selectAll("path")
+      .style("opacity", 0.3);
+
+  // Then highlight only those that are an ancestor of the current segment.
+  svg.selectAll("path")
+      .filter(function(node) {
+                return (sequenceArray.indexOf(node) >= 0);
+              })
+      .style("opacity", 1);
+}
+
+// Restore everything to full opacity when moving off the visualization.
+function mouseleave(d) {
+
+  // Hide the breadcrumb trail
+  d3.select("#trail")
+      .style("visibility", "hidden");
+
+  // Deactivate all segments during transition.
+  d3.selectAll("path").on("mouseover", null);
+
+  // Transition each segment to full opacity and then reactivate it.
+  d3.selectAll("path")
+      .transition()
+      .duration(1000)
+      .style("opacity", 1)
+      .on("end", function() {
+              d3.select(this).on("mouseover", mouseover);
+            });
+
+  d3.select("#explanation")
+      .style("visibility", "hidden");
+}
+
 
 function buildHierarchy(csv) {
   var root = {"name": "root", "children": []};
