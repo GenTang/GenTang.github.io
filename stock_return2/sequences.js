@@ -54,7 +54,7 @@ function createVisualization(root) {
       .duration(1000)
       .attrTween("d", arcTweenZoom(d));
   }
-});
+};
 
 
 d3.select(self.frameElement).style("height", height + "px");
