@@ -1,7 +1,7 @@
 var width = 960,
     height = 700,
     radius = Math.min(width, height) / 2;
-var x = d3.scale.linear()
+var x = d3.scaleLinear()
     .range([0, 2 * Math.PI]);
 var y = d3.scale.sqrt()
     .range([0, radius]);
