@@ -131,7 +131,7 @@ function createVisualization(json) {
       .on("mouseover", mouseover);
 
 
-  svg.selectAll("path")
+  vis.selectAll("path")
       .data(partition(root).descendants())
     .enter().append("path")
       .attr("d", arc2)
@@ -158,7 +158,7 @@ function createVisualization(json) {
  };
 
 function click(d) {
-  svg.transition()
+  vis.transition()
       .duration(750)
       .tween("scale", function() {
         var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
