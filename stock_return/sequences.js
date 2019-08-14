@@ -106,18 +106,18 @@ function createVisualization(json) {
       .attr("fill-rule", "evenodd")
       .style("fill", function(d) { return colors[d.data.name]; })
       .style("opacity", 1)
-      .on("mouseover", mouseover);
+      .on("mouseover", mouseover)
+      .on("click", click);
 
   // Add the mouseleave handler to the bounding circle.
   d3.select("#container").on("mouseleave", mouseleave);
-  d3.select("#container").on("click", click)
 
   // Get total size of the tree = value of root node from partition.
   totalSize = path.datum().value;
  };
 
 function click(d) {
-  svg.transition()
+  vis.transition()
       .duration(750)
       .tween("scale", function() {
         var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
