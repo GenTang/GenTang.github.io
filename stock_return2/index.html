@@ -1,135 +1,31 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<style>
-path {
-  stroke: #fff;
-}
-#sequence {
-  width: 600px;
-  height: 70px;
-}
-#sequence text {
-  font-weight: 600;
-  fill: #fff;
-}
-</style>
-<body>
-<div id="sequence"></div>
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script>
-var width = 960,
-    height = 700,
-    radius = (Math.min(width, height) / 2) - 10;
-var formatNumber = d3.format(",d");
-var b = {
-  w: 140, h: 30, s: 3, t: 10
-};
-var x = d3.scaleLinear()
-    .range([0, 2 * Math.PI]);
-var y = d3.scaleSqrt()
-    .range([0, radius]);
-var color = d3.scaleOrdinal(d3.schemeCategory20);
-var partition = d3.partition();
-var arc = d3.arc()
-    .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
-    .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
-    .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
-    .outerRadius(function(d) { return Math.max(0, y(d.y1)); });
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height)
-  .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
-d3.json("https://gist.githubusercontent.com/mbostock/4348373/raw/85f18ac90409caa5529b32156aa6e71cf985263f/flare.json", function(error, root) {
-  if (error) throw error;
-  initializeBreadcrumbTrail();
-  root = d3.hierarchy(root);
-  root.sum(function(d) { return d.size; });
-  svg.selectAll("path")
-      .data(partition(root).descendants())
-    .enter().append("path")
-      .attr("d", arc)
-      .style("fill", function(d) { return color((d.children ? d : d.parent).data.name); })
-      .on("click", click)
-    .append("title")
-      .text(function(d) { return d.data.name + "\n" + formatNumber(d.value); });
-  updateBreadcrumbs(getParents(root),root.value);
-});
-  
-function getParents(a){
-  var nodeArray = [a];
-  while(a.parent){
-    nodeArray.push(a.parent);
-    a = a.parent
-  }
-  return nodeArray.reverse();
-}
-  
-function click(d) {
-  updateBreadcrumbs(getParents(d), d.value);
-  svg.transition()
-      .duration(750)
-      .tween("scale", function() {
-        var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
-            yd = d3.interpolate(y.domain(), [d.y0, 1]),
-            yr = d3.interpolate(y.range(), [d.y0 ? 20 : 0, radius]);
-        return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
-      })
-    .selectAll("path")
-      .attrTween("d", function(d) { return function() { return arc(d); }; });
-}
-function initializeBreadcrumbTrail() {
-  // Add the svg area.
-  var trail = d3.select("#sequence").append("svg:svg")
-    .attr("width", width)
-    .attr("height", width/10)
-    .attr("id", "trail");
-  // Add the label at the end, for the percentage.
-  trail.append("svg:text")
-    .attr("id", "endlabel")
-    .style("fill", "#000");
-}
-function updateBreadcrumbs(nodeArray, percentageString) {
-  // Data join; key function combines name and depth (= position in sequence).
-  var g = d3.select("#trail")
-    .selectAll("g")
-    .data(nodeArray, function(x) { return percentageString + x.data.name + x.depth; });
-  // Add breadcrumb and label for entering nodes.
-  var entering = g.enter().append("svg:g");
-  entering.append("svg:polygon")
-    .attr("points", breadcrumbPoints)
-    .style("fill", function(x) { return color(x.data.name); });
-  entering.append("svg:text")
-    .attr("x", (b.w + b.t) / 2)
-    .attr("y", b.h / 2)
-    .attr("dy", "0.35em")
-    .attr("text-anchor", "middle")
-    .text(function(x) { return x.data.name; });
-  entering.attr("transform", function(x, i) { return "translate(" + i* (b.w + b.s) + ", 0)"; });
-  // Remove exiting nodes.
-  g.exit().remove();
-  // Now move and update the percentage at the end.
-  d3.select("#trail").select("#endlabel")
-    .attr("x", (nodeArray.length + 0.5) * (b.w + b.s))
-    .attr("y", b.h / 2)
-    .attr("dy", "0.35em")
-    .attr("text-anchor", "middle")
-    .text(percentageString);
-  // Make the breadcrumb trail visible, if it's hidden.
-  d3.select("#trail")
-    .style("visibility", "");
-}
-function breadcrumbPoints(x, i) {
-  var points = [];
-  points.push("0,0");
-  points.push(b.w + ",0");
-  points.push(b.w + b.t + "," + (b.h / 2));
-  points.push(b.w + "," + b.h);
-  points.push("0," + b.h);
-  if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-    points.push(b.t + "," + (b.h / 2));
-  }
-  return points.join(" ");
-}
-d3.select(self.frameElement).style("height", height + "px");
-</script>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Sequences sunburst</title>
+    <script src="//d3js.org/d3.v4.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+      href="https://fonts.googleapis.com/css?family=Open+Sans:400,600">
+    <link rel="stylesheet" type="text/css" href="sequences.css"/>
+  </head>
+  <body>
+    <div id="main">
+      <div id="sequence"></div>
+      <div id="chart">
+        <div id="explanation" style="visibility: hidden;">
+          <span id="percentage"></span><br/>
+          收益占比
+        </div>
+      </div>
+    </div>
+    <div id="sidebar">
+      <input type="checkbox" id="togglelegend"> Legend<br/>
+      <div id="legend" style="visibility: hidden;"></div>
+    </div>
+    <script type="text/javascript" src="sequences.js"></script>
+    <script type="text/javascript">
+      // Hack to make this example display correctly in an iframe on bl.ocks.org
+      d3.select(self.frameElement).style("height", "700px");
+  </script> 
+  </body>
+</html>
