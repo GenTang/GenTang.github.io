@@ -133,7 +133,7 @@ function createVisualization(json) {
       .data(partition(root).descendants())
     .enter().append("path")
       .attr("d", arc2)
-      .style("fill", function(d) { return color((d.children ? d : d.parent).data.name); })
+      .style("fill", function(d) { return colors[d.data.name]; })
       .on("click", click)
     .append("title")
       .text(function(d) { return d.data.name + "\n" + formatNumber(d.value); });
