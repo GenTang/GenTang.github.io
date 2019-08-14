@@ -10,13 +10,39 @@ var b = {
 
 // Mapping of step names to colors.
 var colors = {
-  "工业": "#5687d1",
-  "冶金工业": "#7b615c",
-  "采矿业": "#de783b",
-  "贵金属": "#6ab975",
-  "other": "#a173d1",
-  "end": "#bbbbbb"
+//  "工业": "#5687d1",
+//  "冶金工业": "#7b615c",
+//  "采矿业": "#de783b",
+//  "贵金属": "#6ab975",
+//  "other": "#a173d1",
+//  "end": "#bbbbbb"
 };
+
+
+// Get random color
+function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+function initColor(csv) {
+    for (var i = 0; i < csv.length; i++) {
+    var sequence = csv[i][0];
+    var size = +csv[i][1];
+    if (isNaN(size)) { // e.g. if this is a header row
+      continue;
+    }
+    var parts = sequence.split("-");
+    for (var j = 0; j < parts.length; j++) {
+        colors[parts[j]] = getRandomColor();
+    }
+    }
+}
+
 
 // Total size of all segments; we set this later, after loading the data.
 var totalSize = 0; 
@@ -41,6 +67,7 @@ var arc = d3.arc()
 // row, and can receive the csv as an array of arrays.
 d3.text("visit-sequences.csv", function(text) {
   var csv = d3.csvParseRows(text);
+  initColor(csv);
   var json = buildHierarchy(csv);
   createVisualization(json);
 });
