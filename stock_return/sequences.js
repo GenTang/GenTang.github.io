@@ -3,6 +3,12 @@ var width = 750;
 var height = 600;
 var radius = Math.min(width, height) / 2;
 
+var x = d3.scaleLinear()
+    .range([0, 2 * Math.PI]);
+
+var y = d3.scaleSqrt()
+    .range([0, radius]);
+
 // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
 var b = {
   w: 75, h: 30, s: 3, t: 10
