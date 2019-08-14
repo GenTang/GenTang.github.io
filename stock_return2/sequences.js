@@ -33,7 +33,13 @@ d3.text("visit-sequences.csv", function(text) {
   createVisualization(json);
 });
     
-function createVisualization(root) { 
+function createVisualization(root) {
+
+  // Basic setup of page elements.
+  initializeBreadcrumbTrail();
+  drawLegend();
+  d3.select("#togglelegend").on("click", toggleLegend);
+
   root = d3.hierarchy(root);
   root.sum(function(d) { return d.size; });
   svg.selectAll("path")
@@ -98,5 +104,59 @@ function buildHierarchy(csv) {
   }
   return root;
 };
+
+function initializeBreadcrumbTrail() {
+  // Add the svg area.
+  var trail = d3.select("#sequence").append("svg:svg")
+      .attr("width", width)
+      .attr("height", 50)
+      .attr("id", "trail");
+  // Add the label at the end, for the percentage.
+  trail.append("svg:text")
+    .attr("id", "endlabel")
+    .style("fill", "#000");
+}
+
+function drawLegend() {
+
+  // Dimensions of legend item: width, height, spacing, radius of rounded rect.
+  var li = {
+    w: 75, h: 30, s: 3, r: 3
+  };
+
+  var legend = d3.select("#legend").append("svg:svg")
+      .attr("width", li.w)
+      .attr("height", d3.keys(colors).length * (li.h + li.s));
+
+  var g = legend.selectAll("g")
+      .data(d3.entries(colors))
+      .enter().append("svg:g")
+      .attr("transform", function(d, i) {
+              return "translate(0," + i * (li.h + li.s) + ")";
+           });
+
+  g.append("svg:rect")
+      .attr("rx", li.r)
+      .attr("ry", li.r)
+      .attr("width", li.w)
+      .attr("height", li.h)
+      .style("fill", function(d) { return d.value; });
+
+  g.append("svg:text")
+      .attr("x", li.w / 2)
+      .attr("y", li.h / 2)
+      .attr("dy", "0.35em")
+      .attr("text-anchor", "middle")
+      .text(function(d) { return d.key; });
+}
+
+function toggleLegend() {
+  var legend = d3.select("#legend");
+  if (legend.style("visibility") == "hidden") {
+    legend.style("visibility", "");
+  } else {
+    legend.style("visibility", "hidden");
+  }
+}
 
 d3.select(self.frameElement).style("height", height + "px");
