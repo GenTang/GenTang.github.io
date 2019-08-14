@@ -3,9 +3,9 @@ var width = 960,
     radius = Math.min(width, height) / 2;
 var x = d3.scaleLinear()
     .range([0, 2 * Math.PI]);
-var y = d3.scale.sqrt()
+var y = d3.scaleSqrt()
     .range([0, radius]);
-var color = d3.scale.category20c();
+var color = d3.scaleOrdinal(d3.schemeCategory10);
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height)
