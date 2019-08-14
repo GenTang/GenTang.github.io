@@ -3,6 +3,8 @@ var width = 750;
 var height = 600;
 var radius = Math.min(width, height) / 2;
 
+var formatNumber = d3.format(",d");
+
 var x = d3.scaleLinear()
     .range([0, 2 * Math.PI]);
 
