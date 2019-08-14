@@ -69,6 +69,20 @@ var arc = d3.arc()
     .innerRadius(function(d) { return Math.sqrt(d.y0); })
     .outerRadius(function(d) { return Math.sqrt(d.y1); });
 
+
+var arc2 = d3.arc()
+    .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
+    .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
+    .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
+    .outerRadius(function(d) { return Math.max(0, y(d.y1)); });
+
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
+
 // Use d3.text and d3.csvParseRows so that we do not need to have a header
 // row, and can receive the csv as an array of arrays.
 d3.text("visit-sequences.csv", function(text) {
@@ -112,8 +126,18 @@ function createVisualization(json) {
       .attr("fill-rule", "evenodd")
       .style("fill", function(d) { return colors[d.data.name]; })
       .style("opacity", 1)
-      .on("click", click);
-      //.on("mouseover", mouseover);
+      .on("mouseover", mouseover);
+
+
+  svg.selectAll("path")
+      .data(partition(root).descendants())
+    .enter().append("path")
+      .attr("d", arc2)
+      .style("fill", function(d) { return color((d.children ? d : d.parent).data.name); })
+      .on("click", click)
+    .append("title")
+      .text(function(d) { return d.data.name + "\n" + formatNumber(d.value); });
+
     
 //  vis.data([json]).selectAll("path")
 //        .data(nodes)
@@ -132,7 +156,7 @@ function createVisualization(json) {
  };
 
 function click(d) {
-  vis.transition()
+  svg.transition()
       .duration(750)
       .tween("scale", function() {
         var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
@@ -141,7 +165,7 @@ function click(d) {
         return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
       })
     .selectAll("path")
-      .attrTween("d", function(d) { return function() { return arc(d); }; });
+      .attrTween("d", function(d) { return function() { return arc2(d); }; });
 }
 
 // Fade all but the current sequence, and show it in the breadcrumb trail.
