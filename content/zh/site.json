@@ -1,0 +1,44 @@
+{
+  "hero": {
+    "eyebrow": "",
+    "title": ["万一我证明了【黎曼猜想】，", "这里总比信纸的【空白处】宽敞一点"],
+    "intro": "为了不让有趣的想法消失在记忆的空白页里，我把值得琢磨的念头和思考留在这里",
+    "primaryCta": {
+      "label": "阅读最新博客",
+      "href": "/blog/ai-as-collaborator"
+    },
+    "secondaryCta": {
+      "label": "解构大语言模型",
+      "href": "/books/deconstructing_LLM/chapter-1"
+    },
+    "previewLabel": "研究札记预览",
+    "updateState": "持续更新"
+  },
+  "book": {
+    "sectionLabel": "02 / BOOK",
+    "sectionTitle": "书籍",
+    "sectionDescription": "全书按章节持续更新，目前已发布绪论与数学基础两章",
+    "coverLabel": "BOOK / 01",
+    "coverTitle": ["解构", "大语言模型"],
+    "coverCaption": "从线性回归到通用智能",
+    "coverImage": "/images/deconstructing-llm-cover.png",
+    "status": "持续更新",
+    "title": "解构大语言模型",
+    "subtitle": "从线性回归到通用智能",
+    "description": "从线性回归出发，沿着模型与数据的发展脉络，逐步理解大语言模型",
+    "publishedLabel": "已发布",
+    "publishedValue": "2 章",
+    "chapterLabel": "阅读第一章：绪论",
+    "chapterHref": "/books/deconstructing_LLM/chapter-1"
+  },
+  "essay": {
+    "sectionLabel": "01 / BLOG",
+    "sectionTitle": "博客",
+    "sectionDescription": "关于人工智能前沿的个人观察与长期思考，正在整理中",
+    "date": "TODO",
+    "title": "第一篇文章正在写作中，敬请期待",
+    "topic": "COMING SOON",
+    "href": "/blog/ai-as-collaborator",
+    "available": false
+  }
+}

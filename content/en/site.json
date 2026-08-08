@@ -1,0 +1,44 @@
+{
+  "hero": {
+    "eyebrow": "",
+    "title": ["Should I prove the 【Riemann hypothesis】,", "this page is at least wider than 【the margin】"],
+    "intro": "So that interesting ideas never disappear into memory's blank pages, I leave the thoughts worth revisiting here",
+    "primaryCta": {
+      "label": "Read the latest blog",
+      "href": "/en/blog/ai-as-collaborator"
+    },
+    "secondaryCta": {
+      "label": "Deconstructing Large Language Models",
+      "href": "/en/books/deconstructing_LLM/chapter-1"
+    },
+    "previewLabel": "Research note preview",
+    "updateState": "Updating"
+  },
+  "book": {
+    "sectionLabel": "02 / BOOK",
+    "sectionTitle": "Books",
+    "sectionDescription": "Published chapter by chapter, with the introduction and mathematical foundations now available.",
+    "coverLabel": "BOOK / 01",
+    "coverTitle": ["Notes on", "AI Systems"],
+    "coverCaption": "A BOOK IN PROGRESS",
+    "coverImage": "/images/deconstructing-llm-cover.png",
+    "status": "UPDATED CONTINUOUSLY",
+    "title": "Notes on AI Systems (working title)",
+    "subtitle": "From Linear Regression to General Intelligence",
+    "description": "Starting with linear regression, follow the evolution of models and data to understand large language models step by step",
+    "publishedLabel": "Published",
+    "publishedValue": "2 chapters",
+    "chapterLabel": "Read Chapter 1: Begin with the question",
+    "chapterHref": "/en/books/deconstructing_LLM/chapter-1"
+  },
+  "essay": {
+    "sectionLabel": "01 / BLOG",
+    "sectionTitle": "Blog",
+    "sectionDescription": "Long-form observations on the frontiers of artificial intelligence are being prepared",
+    "date": "TODO",
+    "title": "The first essay is in progress — coming soon",
+    "topic": "COMING SOON",
+    "href": "/en/blog/ai-as-collaborator",
+    "available": false
+  }
+}
