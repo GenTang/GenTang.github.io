@@ -5,6 +5,7 @@ export type BookSection = {
   id: string;
   chapterId: string;
   title: string;
+  description: string;
   href: string;
   source: string;
 };
@@ -35,6 +36,29 @@ function headingTitle(source: string, fallback: string) {
     .trim() || fallback;
 }
 
+function markdownDescription(source: string, fallback: string) {
+  const paragraphs = source
+    .replace(/^---[\s\S]*?---\s*/m, "")
+    .replace(/^#{1,6}\s+.+$/gm, "")
+    .replace(/^(?:>\s?.*(?:\n|$))+/gm, "")
+    .replace(/!\[[^\]]*]\([^)]+\)/g, "")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/\$\$[\s\S]*?\$\$/g, "")
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph
+      .replace(/^[-*+]\s+/gm, "")
+      .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+      .replace(/[*_`~]/g, "")
+      .replace(/<[^>]+>/g, "")
+      .replace(/\[\^[^\]]+]/g, "")
+      .replace(/\s+/g, " ")
+      .trim())
+    .filter((paragraph) => paragraph.length >= 18 && !/^[-—–]/.test(paragraph));
+  const description = paragraphs[0] || fallback;
+
+  return description.length > 128 ? `${description.slice(0, 125).trimEnd()}…` : description;
+}
+
 function sectionOrder(sectionId: string) {
   return sectionId === "overview" ? "0" : sectionId;
 }
@@ -61,6 +85,7 @@ const sections: BookSection[] = Object.entries(markdownModules)
       id: sectionId,
       chapterId,
       title: headingTitle(source, fallbackTitle),
+      description: markdownDescription(source, `《${bookConfig.title}》${fallbackTitle}`),
       href: `${chapterHref}${routeSegment}`,
       source,
     }];
@@ -110,6 +135,10 @@ export function getDeconstructingLlmNavigation(): BookNavigation {
       };
     }),
   };
+}
+
+export function getDeconstructingLlmLatestSection() {
+  return sections.at(-1);
 }
 
 export function getDeconstructingLlmNeighbors(currentHref: string) {

@@ -1,8 +1,8 @@
 import { spawn } from "node:child_process";
-import { writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateContent } from "./generate-content.mjs";
+import { prepareExport } from "./prepare-export.mjs";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -32,6 +32,6 @@ if (process.argv.includes("--lint")) {
 
 await generateContent();
 await runScript(resolve(projectRoot, "node_modules", "next", "dist", "bin", "next"), ["build", "--webpack"]);
-await writeFile(resolve(projectRoot, "out", ".nojekyll"), "", "utf8");
+await prepareExport();
 await runNode(["--test", "tests/static-export.test.mjs"]);
 console.log("\n本地发布检查完成：out/ 已准备好，可继续提交和推送。\n");

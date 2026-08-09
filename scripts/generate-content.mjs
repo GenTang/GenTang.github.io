@@ -32,10 +32,19 @@ async function walk(directory) {
 
 async function chapterIds() {
   const entries = await readdir(bookRoot, { withFileTypes: true });
-  return entries
+  const candidates = entries
     .filter((entry) => entry.isDirectory() && /^chapter_\d+$/.test(entry.name))
     .map((entry) => entry.name)
     .sort((left, right) => left.localeCompare(right, "zh-CN", { numeric: true }));
+
+  const published = await Promise.all(candidates.map(async (chapterId) => {
+    const chapterEntries = await readdir(join(bookRoot, chapterId), { withFileTypes: true });
+    return chapterEntries.some((entry) => entry.isFile() && extname(entry.name).toLowerCase() === ".md")
+      ? chapterId
+      : undefined;
+  }));
+
+  return published.filter(Boolean);
 }
 
 async function collectMarkdown() {

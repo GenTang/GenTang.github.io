@@ -1,6 +1,10 @@
 import type { CSSProperties } from "react";
 import enContent from "@/content/en/site.json";
 import zhContent from "@/content/zh/site.json";
+import {
+  getDeconstructingLlmLatestSection,
+  getDeconstructingLlmNavigation,
+} from "@/app/lib/deconstructingLlmContent";
 import { sitePath } from "@/app/lib/sitePath";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
@@ -16,6 +20,21 @@ function highlightedTitle(line: string) {
 export function HomeView({ lang }: { lang: "zh" | "en" }) {
   const content = lang === "en" ? enContent : zhContent;
   const { hero, book, essay } = content;
+  const publishedChapters = lang === "zh"
+    ? getDeconstructingLlmNavigation().chapters.filter((chapter) => chapter.href)
+    : [];
+  const latestBookPage = lang === "zh"
+    ? getDeconstructingLlmLatestSection()
+    : { href: "/en/books/deconstructing_LLM/chapter-1" };
+  const primaryCta = essay.available
+    ? hero.primaryCta
+    : {
+        label: lang === "zh" ? "阅读最新章节" : "Read the latest chapter",
+        href: latestBookPage?.href ?? book.chapterHref,
+      };
+  const publishedValue = lang === "zh"
+    ? `${publishedChapters.length} 章`
+    : book.publishedValue;
 
   return (
     <div
@@ -33,8 +52,8 @@ export function HomeView({ lang }: { lang: "zh" | "en" }) {
             </h1>
             <p className="hero-intro">{hero.intro}</p>
             <div className="hero-actions">
-              <a className="primary-link" href={sitePath(hero.primaryCta.href)}>
-                {hero.primaryCta.label}<span>→</span>
+              <a className="primary-link" href={sitePath(primaryCta.href)}>
+                {primaryCta.label}<span>→</span>
               </a>
               <a className="secondary-link" href={sitePath(hero.secondaryCta.href)}>
                 {hero.secondaryCta.label}
@@ -85,7 +104,7 @@ export function HomeView({ lang }: { lang: "zh" | "en" }) {
               <h3><a href={sitePath(book.overviewHref)}>{book.title}</a></h3>
               <p className="book-subtitle">{book.subtitle}</p>
               <p className="book-description">{book.description}</p>
-              <div className="chapter-line"><span>{book.publishedLabel}</span><strong>{book.publishedValue}</strong></div>
+              <div className="chapter-line"><span>{book.publishedLabel}</span><strong>{publishedValue}</strong></div>
               <div className="book-link-group">
                 <a className="text-link is-overview" href={sitePath(book.overviewHref)}>{book.overviewLabel}<span>→</span></a>
                 <a className="text-link" href={sitePath(book.chapterHref)}>{book.chapterLabel}<span>↗</span></a>

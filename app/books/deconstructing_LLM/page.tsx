@@ -6,14 +6,17 @@ import { SiteFooter } from "@/app/components/SiteFooter";
 import { SiteHeader } from "@/app/components/SiteHeader";
 import { getMarkdownContent } from "@/app/lib/content";
 import { sitePath } from "@/app/lib/sitePath";
+import { createPageMetadata } from "@/app/lib/siteMetadata";
 
 const overviewSource = getMarkdownContent("/content/zh/books/deconstructing_LLM/overview.md");
 const firstChapterHref = "/books/deconstructing_LLM/chapter-1";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: `${bookConfig.title}：${bookConfig.subtitle}`,
   description: bookConfig.overview.description,
-};
+  path: "/books/deconstructing_LLM",
+  kind: "website",
+});
 
 export default function DeconstructingLlmOverview() {
   return (

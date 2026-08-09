@@ -4,8 +4,8 @@
     "title": ["万一我证明了【黎曼猜想】，", "这里总比信纸的【空白处】宽敞一点"],
     "intro": "为了不让有趣的想法消失在记忆的空白页里，我把值得琢磨的念头和思考留在这里",
     "primaryCta": {
-      "label": "阅读最新博客",
-      "href": "/blog/ai-as-collaborator"
+      "label": "阅读最新章节",
+      "href": "/books/deconstructing_LLM/chapter-6/6-5"
     },
     "secondaryCta": {
       "label": "解构大语言模型",
@@ -27,7 +27,7 @@
     "subtitle": "从线性回归到通用智能",
     "description": "从线性回归出发，沿着数据基础与模型结构的发展脉络，逐步理解大语言模型",
     "publishedLabel": "已发布",
-    "publishedValue": "2 章",
+    "publishedValue": "6 章",
     "overviewLabel": "查看全书总览",
     "overviewHref": "/books/deconstructing_LLM",
     "chapterLabel": "阅读第一章：绪论",

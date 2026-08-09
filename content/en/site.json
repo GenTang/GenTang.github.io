@@ -4,8 +4,8 @@
     "title": ["Should I prove the 【Riemann hypothesis】,", "this page is at least wider than 【the margin】"],
     "intro": "So that interesting ideas never disappear into memory's blank pages, I leave the thoughts worth revisiting here",
     "primaryCta": {
-      "label": "Read the latest blog",
-      "href": "/en/blog/ai-as-collaborator"
+      "label": "Read the latest chapter",
+      "href": "/en/books/deconstructing_LLM/chapter-1"
     },
     "secondaryCta": {
       "label": "Deconstructing Large Language Models",
@@ -27,7 +27,7 @@
     "subtitle": "From Linear Regression to General Intelligence",
     "description": "Starting with linear regression, follow the evolution of models and data to understand large language models step by step",
     "publishedLabel": "Published",
-    "publishedValue": "2 chapters",
+    "publishedValue": "1 chapter",
     "overviewLabel": "Book overview",
     "overviewHref": "/en/books/deconstructing_LLM/chapter-1",
     "chapterLabel": "Read Chapter 1: Begin with the question",

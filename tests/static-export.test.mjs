@@ -5,6 +5,13 @@ import test from "node:test";
 
 const outputRoot = resolve("out");
 const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "");
+const siteRoot = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://gentang.github.io/");
+
+function publicUrl(route) {
+  if (route === "/") return siteRoot.toString();
+  const relative = route.replace(/^\//, "");
+  return new URL(/\/[^/]+\.[a-z0-9]+$/i.test(route) ? relative : `${relative.replace(/\/$/, "")}/`, siteRoot).toString();
+}
 
 function exportedPage(route) {
   if (route === "/") return join(outputRoot, "index.html");
@@ -19,16 +26,53 @@ test("exports the homepage with local assets and the intended section order", as
   const source = await html("/");
   assert.match(source, /小胖笔记/);
   assert.match(source, /万一我证明了<em>黎曼猜想<\/em>/);
-  assert.match(source, /阅读最新博客/);
+  assert.match(source, /阅读最新章节/);
   assert.match(source, /解构大语言模型/);
+  assert.match(source, /已发布<\/span><strong>6 章<\/strong>/);
   assert.match(source, /第一篇文章正在写作中，敬请期待/);
   assert.match(source, /持续更新/);
   assert.doesNotMatch(source, /NOTE \/ 001/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/"`));
+  assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-6/6-5/"`));
   assert.ok(source.indexOf(">BLOG<") < source.indexOf(">BOOK<"));
   assert.doesNotMatch(source, /01 \/ BLOG|02 \/ BOOK|全书按章节持续更新，目前已发布绪论与数学基础两章/);
   assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover\\.png"`));
   assert.doesNotMatch(source, /MVP|AI · BOOKS · NOTES|第一本书，从这里开始/);
+});
+
+test("exports crawl controls, sitemap, feeds, canonical metadata, and correct page languages", async () => {
+  const [robots, sitemap, rss, atom, home, latest, draftBlog, english] = await Promise.all([
+    readFile(join(outputRoot, "robots.txt"), "utf8"),
+    readFile(join(outputRoot, "sitemap.xml"), "utf8"),
+    readFile(join(outputRoot, "rss.xml"), "utf8"),
+    readFile(join(outputRoot, "atom.xml"), "utf8"),
+    html("/"),
+    html("/books/deconstructing_LLM/chapter-6/6-5"),
+    html("/blog/ai-as-collaborator"),
+    html("/en/"),
+  ]);
+
+  assert.match(robots, /User-agent: \*\nAllow: \//);
+  assert.match(robots, /User-agent: OAI-SearchBot\nAllow: \//);
+  assert.match(robots, /User-agent: GPTBot\nDisallow: \//);
+  assert.match(robots, /User-agent: Google-Extended\nDisallow: \//);
+  assert.match(robots, new RegExp(`Sitemap: ${publicUrl("/sitemap.xml").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
+
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/")}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/books/deconstructing_LLM/chapter-6/6-5")}</loc>`));
+  assert.ok(!sitemap.includes("blog/ai-as-collaborator"));
+  assert.ok(rss.includes(`<link>${publicUrl("/books/deconstructing_LLM/chapter-6/6-5")}</link>`));
+  assert.match(rss, /6\.5 本章小结/);
+  assert.ok(atom.includes(`<id>${publicUrl("/books/deconstructing_LLM/chapter-6/6-5")}</id>`));
+
+  assert.ok(home.includes(`rel="canonical" href="${publicUrl("/")}"`));
+  assert.ok(home.includes(`type="application/rss+xml"`));
+  assert.ok(latest.includes(`rel="canonical" href="${publicUrl("/books/deconstructing_LLM/chapter-6/6-5")}"`));
+  assert.match(latest, /property="og:title" content="6\.5 本章小结"/);
+  assert.match(draftBlog, /name="robots" content="noindex, follow"/);
+  assert.match(english, /<html lang="en"/);
+  assert.match(home, /© 2026 唐亘 · 小胖笔记/);
+  assert.match(home, new RegExp(`href="${basePath}/rss\\.xml"`));
 });
 
 test("exports every current reading route", async () => {

@@ -715,10 +715,28 @@ a {
 
 .footer-meta {
   display: grid;
-  gap: 6px;
+  justify-items: end;
+  gap: 7px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 9px;
+  font-size: 11px;
+  line-height: 1.55;
   text-align: right;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 16px;
+}
+
+.footer-links a {
+  color: var(--ink);
+  text-underline-offset: 4px;
+}
+
+.footer-links a:hover {
+  color: var(--accent);
 }
 
 /* Book overview */
@@ -2200,7 +2218,12 @@ a {
   }
 
   .footer-meta {
+    justify-items: start;
     text-align: left;
+  }
+
+  .footer-links {
+    justify-content: flex-start;
   }
 
   .reading-main {

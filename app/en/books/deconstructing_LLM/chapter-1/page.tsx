@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import { ReadingPage } from "@/app/components/ReadingPage";
 import { getMarkdownContent } from "@/app/lib/content";
+import { createPageMetadata } from "@/app/lib/siteMetadata";
 
 const source = getMarkdownContent("/content/en/books/ai-systems/chapter-1.md");
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Chapter 1: Begin with the question",
   description: "Chapter one of Notes on AI Systems: before discussing models, decide what problem intelligence is being asked to solve.",
-};
+  path: "/en/books/deconstructing_LLM/chapter-1",
+  alternatePath: "/books/deconstructing_LLM/chapter-1",
+  locale: "en_US",
+});
 
 export default function EnglishChapterOne() {
   return (

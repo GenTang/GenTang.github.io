@@ -1,30 +1,34 @@
 import type { Metadata } from "next";
 import "katex/dist/katex.min.css";
 import "./globals.css";
-import { sitePath } from "./lib/sitePath";
+import {
+  absoluteSiteUrl,
+  siteDescription,
+  siteName,
+  siteUrl,
+} from "./lib/siteMetadata";
 
-const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-const siteUrl = new URL(configuredSiteUrl);
-const socialImage = new URL(sitePath("/og.png"), siteUrl.origin).toString();
+const socialImage = absoluteSiteUrl("/og.png");
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
   title: {
-    default: "小胖笔记",
-    template: "%s · 小胖笔记",
+    default: siteName,
+    template: `%s · ${siteName}`,
   },
-  description: "两本持续更新的书，以及关于人工智能前沿的长期笔记。",
+  description: siteDescription,
   openGraph: {
-    title: "小胖笔记",
-    description: "两本持续更新的书，以及关于人工智能前沿的长期笔记。",
+    title: siteName,
+    description: siteDescription,
     type: "website",
     locale: "zh_CN",
-    images: [{ url: socialImage, width: 1728, height: 910, alt: "小胖笔记" }],
+    siteName,
+    images: [{ url: socialImage, width: 1728, height: 910, alt: siteName }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "小胖笔记",
-    description: "两本持续更新的书，以及关于人工智能前沿的长期笔记。",
+    title: siteName,
+    description: siteDescription,
     images: [socialImage],
   },
 };
@@ -32,6 +36,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
+      <head>
+        <link rel="alternate" type="application/rss+xml" title="小胖笔记 RSS" href={absoluteSiteUrl("/rss.xml")} />
+        <link rel="alternate" type="application/atom+xml" title="小胖笔记 Atom" href={absoluteSiteUrl("/atom.xml")} />
+      </head>
       <body>{children}</body>
     </html>
   );

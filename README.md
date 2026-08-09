@@ -13,6 +13,8 @@
 
 每一章使用一个 `chapter_N/` 文件夹，小节使用独立 Markdown 文件，图片放在该章的 `images/` 中。新增章节和小节后，全书目录会在开发和构建时自动更新。
 
+首页的“已发布”章数和“阅读最新章节”链接也从这些 Markdown 自动计算：只要章节目录中存在 Markdown，它就会计入；空章节目录不会提前显示。博客的 `available` 为 `false` 时，首页主按钮会自动指向最新书稿；以后正式发布博客并改为 `true`，它会改用 `site.json` 中配置的博客链接。
+
 ## 本地浏览
 
 直接运行：
@@ -44,6 +46,14 @@ pnpm run dev
 
 这个命令会检查代码、生成所有章节的静态 HTML 并运行页面测试。成功后，静态网站位于 `out/`。它不会 commit，也不会 push。
 
+构建过程还会自动生成以下公开文件，不要手工维护 `out/` 中的副本：
+
+- `sitemap.xml`：包含当前可公开检索的首页、书籍总览、章节、小节和已发布博客
+- `robots.txt`：允许普通搜索与回答型爬虫，拒绝已明确列出的模型训练爬虫
+- `rss.xml`、`atom.xml`：按最新章节在前的顺序提供订阅
+
+博客占位页带有 `noindex`，不会进入站点地图；正式发布时再解除。
+
 如需检查最终静态文件：
 
 ```bash
@@ -71,8 +81,20 @@ git push
 https://gentang.github.io/
 ```
 
+上线后可分别向 Google Search Console 和 Bing Webmaster Tools 提交：
+
+```text
+https://gentang.github.io/sitemap.xml
+```
+
+站点页脚提供 RSS、Atom 和版权说明入口。页面分享摘要、canonical 地址和中英文首页的语言对应关系会在构建时生成。
+
 工作流也支持普通项目仓库；如果以后更改仓库名，它会自动处理对应的子路径。
 
 ## 授权
 
 网站代码采用 MIT License。书稿、博客内容、封面和原创图片不包含在 MIT 授权中，保留全部权利；详见 `LICENSE`。
+
+## 关于 `next-env.d.ts`
+
+`next-env.d.ts` 由 Next.js 自动生成，不应手工编辑。`next dev` 会引用 `.next/dev/types/routes.d.ts`，`next build` 会引用 `.next/types/routes.d.ts`；二者分别对应开发和生产类型目录，切换命令时自动变化是正常现象。本项目的 `tsconfig.json` 已同时包含这两个生成目录。

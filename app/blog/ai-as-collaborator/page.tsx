@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { getMarkdownContent } from "@/app/lib/content";
 import { ReadingPage } from "../../components/ReadingPage";
+import { createPageMetadata } from "@/app/lib/siteMetadata";
 
 const source = getMarkdownContent("/content/zh/blog/ai-as-collaborator.md");
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "敬请期待",
   description: "第一篇博客正在写作中，敬请期待。",
-};
+  path: "/blog/ai-as-collaborator",
+  noIndex: true,
+});
 
 export default function FirstBlogPost() {
   return (

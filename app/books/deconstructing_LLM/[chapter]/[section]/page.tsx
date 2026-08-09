@@ -7,6 +7,7 @@ import {
   getDeconstructingLlmSections,
 } from "@/app/lib/deconstructingLlmContent";
 import { DeconstructingLlmPage } from "@/app/components/DeconstructingLlmPage";
+import { createPageMetadata } from "@/app/lib/siteMetadata";
 
 type SectionPageProps = {
   params: Promise<{ chapter: string; section: string }>;
@@ -29,11 +30,17 @@ export async function generateMetadata({ params }: SectionPageProps): Promise<Me
   const section = chapterId ? getDeconstructingLlmSection(chapterId, route.section) : undefined;
 
   return section
-    ? {
+    ? createPageMetadata({
         title: section.title,
-        description: `《解构大语言模型：从线性回归到通用智能》${section.title}。`,
-      }
-    : { title: "小节未找到" };
+        description: section.description,
+        path: section.href,
+      })
+    : createPageMetadata({
+        title: "小节未找到",
+        description: "没有找到请求的小节。",
+        path: `/books/deconstructing_LLM/${route.chapter}/${route.section}`,
+        noIndex: true,
+      });
 }
 
 export default async function BookSection({ params }: SectionPageProps) {
