@@ -271,6 +271,7 @@ export function MarkdownContent({ source, images }: MarkdownContentProps) {
             const imageNode = onlyChild?.type === "element" && onlyChild.tagName === "img"
               ? onlyChild
               : undefined;
+            const paragraphText = node ? htmlNodeText(node as HtmlNode).trim() : "";
 
             if (imageNode) {
               const rawAlt = typeof imageNode.properties.alt === "string" ? imageNode.properties.alt : "";
@@ -282,6 +283,10 @@ export function MarkdownContent({ source, images }: MarkdownContentProps) {
                   {caption && <figcaption>{caption}</figcaption>}
                 </figure>
               );
+            }
+
+            if (/^表\s*\d+(?:[-.]\d+)*(?:\s+.+)?$/u.test(paragraphText)) {
+              return <p className="table-title" {...props}>{children}</p>;
             }
 
             return <p {...props}>{children}</p>;
@@ -298,6 +303,18 @@ export function MarkdownContent({ source, images }: MarkdownContentProps) {
                 title={title}
                 style={width ? { width, maxWidth: "100%" } : undefined}
               />
+            );
+          },
+          table: ({ node, children, ...props }) => {
+            void node;
+            return (
+              <div
+                className="markdown-table-scroll"
+                role="region"
+                aria-label="可横向滚动的表格"
+              >
+                <table {...props}>{children}</table>
+              </div>
             );
           },
         }}

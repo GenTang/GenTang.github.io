@@ -17,8 +17,8 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
     ? "/books/deconstructing_LLM"
     : "/en/books/deconstructing_LLM/chapter-1";
   const labels = lang === "zh"
-    ? { home: "首页", book: "书籍", blog: "博客", about: "关于", lang: "EN", theme: "切换深色模式", menu: "打开导航" }
-    : { home: "Home", book: "Book", blog: "AI Essays", about: "About", lang: "中文", theme: "Toggle dark mode", menu: "Open navigation" };
+    ? { home: "首页", book: "书籍", blog: "博客", about: "关于", lang: "EN", theme: "切换深色模式", menu: "打开导航", closeMenu: "关闭导航" }
+    : { home: "Home", book: "Book", blog: "AI Essays", about: "About", lang: "中文", theme: "Toggle dark mode", menu: "Open navigation", closeMenu: "Close navigation" };
 
   useEffect(() => {
     const saved = window.localStorage.getItem("xp-theme");
@@ -64,7 +64,7 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
             className="round-action mobile-menu-button"
             type="button"
             aria-expanded={menuOpen}
-            aria-label={labels.menu}
+            aria-label={menuOpen ? labels.closeMenu : labels.menu}
             onClick={() => setMenuOpen(!menuOpen)}
           >
             {menuOpen ? "×" : "☰"}
@@ -74,10 +74,11 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
 
       {menuOpen && (
         <nav className="mobile-nav" aria-label={lang === "zh" ? "移动导航" : "Mobile navigation"}>
-          <a href={sitePath(`${prefix}/`)}>{labels.home}</a>
-          <a href={sitePath(`${prefix}/blog/ai-as-collaborator`)}>{labels.blog}</a>
-          <a href={sitePath(bookHref)}>{labels.book}</a>
-          <a href={sitePath(`${prefix}/#about`)}>{labels.about}</a>
+          <a href={sitePath(`${prefix}/`)} onClick={() => setMenuOpen(false)}>{labels.home}</a>
+          <a href={sitePath(`${prefix}/blog/ai-as-collaborator`)} onClick={() => setMenuOpen(false)}>{labels.blog}</a>
+          <a href={sitePath(bookHref)} onClick={() => setMenuOpen(false)}>{labels.book}</a>
+          <a href={sitePath(`${prefix}/#about`)} onClick={() => setMenuOpen(false)}>{labels.about}</a>
+          <a className="mobile-nav-language" href={sitePath(languageHref)}>{lang === "zh" ? "English" : "中文"}</a>
         </nav>
       )}
     </>

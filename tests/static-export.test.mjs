@@ -47,6 +47,13 @@ test("exports every current reading route", async () => {
     ["/books/deconstructing_LLM/chapter-3/3-3", /3.3 模型陷阱/],
     ["/books/deconstructing_LLM/chapter-3/3-4", /3.4 面向未来的准备/],
     ["/books/deconstructing_LLM/chapter-3/3-5", /3.5 本章小结/],
+    ["/books/deconstructing_LLM/chapter-4", /第四章：逻辑回归——隐藏因子/],
+    ["/books/deconstructing_LLM/chapter-4/4-1", /4.1 二元分类问题：是与否/],
+    ["/books/deconstructing_LLM/chapter-4/4-2", /4.2 模型实现/],
+    ["/books/deconstructing_LLM/chapter-4/4-3", /4.3 评估模型效果/],
+    ["/books/deconstructing_LLM/chapter-4/4-4", /4.4 非均衡数据集/],
+    ["/books/deconstructing_LLM/chapter-4/4-5", /4.5 多元分类问题：超越是与否/],
+    ["/books/deconstructing_LLM/chapter-4/4-6", /4.6 本章小结/],
     ["/en/books/deconstructing_LLM/chapter-1", /Begin with the question/],
     ["/blog/ai-as-collaborator", /第一篇文章正在写作中，敬请期待/],
     ["/en/blog/ai-as-collaborator", /From tool to collaborator/],
@@ -85,6 +92,7 @@ test("derives the two-level book navigation from content files", async () => {
   assert.match(source, /第一章：绪论/);
   assert.match(source, /第二章：数学基础——不可或缺的知识/);
   assert.match(source, /第三章：线性回归——模型之母/);
+  assert.match(source, /第四章：逻辑回归——隐藏因子/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-1/1-4/"`));
   assert.match(source, /下一节.*1\.1 是数字鹦鹉，还是自我意识/s);
   assert.match(source, /<details class="toc-chapter is-open"[^>]*open/);
@@ -128,6 +136,45 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
     implementation,
     /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch03_linear\/linear_stat\.ipynb/,
   );
+
+  const chapterFour = await html("/books/deconstructing_LLM/chapter-4/4-1");
+  assert.match(chapterFour, /id="eq-4-1"/);
+  assert.match(chapterFour, new RegExp(`src="${basePath}/generated/book-images/chapter_4/4-1[.]png"`));
+
+  const chapterFourImplementation = await html("/books/deconstructing_LLM/chapter-4/4-2");
+  assert.match(chapterFourImplementation, /程序清单 4-1/);
+  assert.match(chapterFourImplementation, /class="code-line" data-line-number="10"/);
+  assert.match(
+    chapterFourImplementation,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch04_logit\/logit_regression\.ipynb/,
+  );
+
+  for (const section of ["4_1", "4_2", "4_3", "4_4", "4_5", "4_6"]) {
+    const markdown = await readFile(
+      resolve(`content/zh/books/deconstructing_LLM/chapter_4/${section}.md`),
+      "utf8",
+    );
+    assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
+  }
   await access(join(outputRoot, "generated", "book-images", "chapter_3", "3-23.png"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_4", "4-24.png"));
   await access(join(outputRoot, ".nojekyll"));
+});
+
+test("keeps mobile navigation compact and long-form content scrollable", async () => {
+  const home = await html("/");
+  const reading = await html("/books/deconstructing_LLM/chapter-4/4-2");
+  const styles = await readFile(resolve("app/globals.css"), "utf8");
+  const header = await readFile(resolve("app/components/SiteHeader.tsx"), "utf8");
+
+  assert.match(home, /mobile-menu-button/);
+  assert.match(reading, /<aside class="mobile-reading-sidebar"><details>/);
+  assert.match(reading, /<p class="table-title">表 4-1<\/p>/);
+  assert.match(reading, /class="markdown-table-scroll"/);
+  assert.match(header, /className="mobile-nav-language"/);
+  assert.match(styles, /@media \(max-width: 430px\)/);
+  assert.match(styles, /\.mobile-reading-sidebar-panel/);
+  assert.match(styles, /\.markdown-content \.table-title/);
+  assert.match(styles, /\.markdown-table-scroll table\s*{\s*min-width: 560px/);
+  assert.match(styles, /\.markdown-content \.katex-display > \.katex > \.katex-html\s*{\s*padding-inline: 34px/);
 });

@@ -80,45 +80,73 @@ export function ReadingPage({
         { href: "#人的判断反而更重要", label: "03 · 人的判断" },
       ];
   const blogOutline = article?.outline ?? defaultBlogOutline;
+  const currentBookTitle = bookNavigation?.chapters
+    .map((chapter) => {
+      if (chapter.href === currentHref) return chapter.title;
+      return chapter.sections.find((section) => section.href === currentHref)?.title;
+    })
+    .find((title): title is string => Boolean(title));
+  const mobileOutlineTitle = isBook
+    ? currentBookTitle ?? bookNavigation?.title ?? (en ? "Book contents" : "全书目录")
+    : article?.title ?? (en ? "Article outline" : "文章目录");
+
+  const renderSidebarContent = () => (
+    <>
+      <a
+        className="back-link"
+        href={sitePath(isBook && !en ? "/books/deconstructing_LLM" : `${prefix}/`)}
+      >
+        ← {isBook && !en ? "全书总览" : en ? "Back to home" : "返回首页"}
+      </a>
+      {isBook ? (
+        <>
+          <span className="sidebar-label">{en ? "BOOK CONTENTS" : "全书目录"}</span>
+          <div className="sidebar-book-title">
+            <strong>{bookNavigation?.title ?? (en ? "Notes on AI Systems" : "解构大语言模型")}</strong>
+            {bookNavigation?.subtitle && <span>{bookNavigation.subtitle}</span>}
+          </div>
+          {bookNavigation ? (
+            <BookTableOfContents navigation={bookNavigation} currentHref={currentHref} />
+          ) : (
+            <nav aria-label={en ? "Book chapters" : "书籍章节"}>
+              <a className="current-chapter" href={sitePath(`${prefix}/books/deconstructing_LLM/chapter-1`)}>01 · {en ? "Begin with the question" : "绪论"}</a>
+              <span>02 · {en ? "Models and representations" : "即将发布"}</span>
+              <span>03 · {en ? "The role of context" : "即将发布"}</span>
+            </nav>
+          )}
+          <small>{en ? "Upcoming chapters are placeholders for your manuscript." : "后续章节可按相同目录结构逐步发布。"}</small>
+        </>
+      ) : (
+        <>
+          <span className="sidebar-label">AI ESSAY / 001</span>
+          <strong>{en ? "Frontier notes" : "前沿笔记"}</strong>
+          <nav aria-label={en ? "Article outline" : "文章目录"}>
+            {blogOutline.map(({ href, label }) => <a href={href} key={href}>{label}</a>)}
+          </nav>
+        </>
+      )}
+    </>
+  );
 
   return (
     <div className="site-shell reading-shell">
       <SiteHeader lang={lang} active={kind} languageHref={languageHref} />
       <main className="reading-main">
-        <aside className="reading-sidebar">
-          <a
-            className="back-link"
-            href={sitePath(isBook && !en ? "/books/deconstructing_LLM" : `${prefix}/`)}
-          >
-            ← {isBook && !en ? "全书总览" : en ? "Back to home" : "返回首页"}
-          </a>
-          {isBook ? (
-            <>
-              <span className="sidebar-label">{en ? "BOOK CONTENTS" : "全书目录"}</span>
-              <div className="sidebar-book-title">
-                <strong>{bookNavigation?.title ?? (en ? "Notes on AI Systems" : "解构大语言模型")}</strong>
-                {bookNavigation?.subtitle && <span>{bookNavigation.subtitle}</span>}
-              </div>
-              {bookNavigation ? (
-                <BookTableOfContents navigation={bookNavigation} currentHref={currentHref} />
-              ) : (
-                <nav aria-label={en ? "Book chapters" : "书籍章节"}>
-                  <a className="current-chapter" href={sitePath(`${prefix}/books/deconstructing_LLM/chapter-1`)}>01 · {en ? "Begin with the question" : "绪论"}</a>
-                  <span>02 · {en ? "Models and representations" : "即将发布"}</span>
-                  <span>03 · {en ? "The role of context" : "即将发布"}</span>
-                </nav>
-              )}
-              <small>{en ? "Upcoming chapters are placeholders for your manuscript." : "后续章节可按相同目录结构逐步发布。"}</small>
-            </>
-          ) : (
-            <>
-              <span className="sidebar-label">AI ESSAY / 001</span>
-              <strong>{en ? "Frontier notes" : "前沿笔记"}</strong>
-              <nav aria-label={en ? "Article outline" : "文章目录"}>
-                {blogOutline.map(({ href, label }) => <a href={href} key={href}>{label}</a>)}
-              </nav>
-            </>
-          )}
+        <aside className="reading-sidebar desktop-reading-sidebar">
+          {renderSidebarContent()}
+        </aside>
+
+        <aside className="mobile-reading-sidebar">
+          <details>
+            <summary>
+              <span>{isBook ? (en ? "CONTENTS" : "目录") : (en ? "OUTLINE" : "本文目录")}</span>
+              <strong>{mobileOutlineTitle}</strong>
+              <span className="mobile-reading-sidebar-arrow" aria-hidden="true">⌄</span>
+            </summary>
+            <div className="reading-sidebar mobile-reading-sidebar-panel">
+              {renderSidebarContent()}
+            </div>
+          </details>
         </aside>
 
         <article className={`longform-article ${isBook ? "book-article" : "blog-article"}`}>
