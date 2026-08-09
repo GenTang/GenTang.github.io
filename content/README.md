@@ -14,6 +14,7 @@
 ## 正文
 
 - 中文书稿目录：`content/zh/books/deconstructing_LLM/`
+- 全书总览（内容简介）：`content/zh/books/deconstructing_LLM/overview.md`
 - 第一章概览：`content/zh/books/deconstructing_LLM/chapter_1/overview.md`
 - 第一章小节：`content/zh/books/deconstructing_LLM/chapter_1/1_1.md` 等
 - 英文第一章：`content/en/books/ai-systems/chapter-1.md`
@@ -23,6 +24,8 @@
 Markdown 支持标题、列表、引用、表格、代码高亮和数学公式。行内公式写作 `$E=mc^2$`，独立公式使用一对 `$$` 包裹。
 
 每一章拥有独立文件夹，小节各自使用一个 Markdown 文件；该章图片放在章目录下的 `images/`，正文中使用 `./images/文件名` 引用。
+
+书籍根目录下的 `overview.md` 是全书总览，只存放总览页的 Markdown 正文；`book.json` 存放书名、作者、外部链接和阅读路径等结构化信息。各章目录中的 `overview.md` 则是对应章节的概览页。
 
 新增第三章时，可以采用下面的结构：
 

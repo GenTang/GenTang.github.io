@@ -40,6 +40,9 @@ function sectionOrder(sectionId: string) {
 }
 
 function chapterFallbackTitle(chapterId: string) {
+  const configuredTitles = bookConfig.chapterTitles as Record<string, string>;
+  if (configuredTitles[chapterId]) return configuredTitles[chapterId];
+
   const chapterNumber = Number(chapterId.match(/\d+$/)?.[0]);
   return Number.isFinite(chapterNumber) ? `第 ${chapterNumber} 章` : chapterId;
 }

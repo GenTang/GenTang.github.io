@@ -22,6 +22,7 @@ test("exports the homepage with local assets and the intended section order", as
   assert.match(source, /阅读最新博客/);
   assert.match(source, /解构大语言模型/);
   assert.match(source, /第一篇文章正在写作中，敬请期待/);
+  assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/"`));
   assert.ok(source.indexOf("01 / BLOG") < source.indexOf("02 / BOOK"));
   assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover\\.png"`));
   assert.doesNotMatch(source, /MVP|AI · BOOKS · NOTES|第一本书，从这里开始/);
@@ -29,6 +30,7 @@ test("exports the homepage with local assets and the intended section order", as
 
 test("exports every current reading route", async () => {
   const routes = [
+    ["/books/deconstructing_LLM", /READING MAP/],
     ["/books/deconstructing_LLM/chapter-1", /绪论/],
     ["/books/deconstructing_LLM/chapter-1/1-1", /1.1 是数字鹦鹉，还是自我意识/],
     ["/books/deconstructing_LLM/chapter-1/1-2", /1.2 数据基础/],
@@ -49,12 +51,34 @@ test("exports every current reading route", async () => {
   }
 });
 
+test("exports the concise book overview with its outline and resources", async () => {
+  const source = await html("/books/deconstructing_LLM");
+  const overviewMarkdown = await readFile(
+    resolve("content/zh/books/deconstructing_LLM/overview.md"),
+    "utf8",
+  );
+  const bookConfig = JSON.parse(await readFile(
+    resolve("content/zh/books/deconstructing_LLM/book.json"),
+    "utf8",
+  ));
+  assert.ok(overviewMarkdown.trim().length > 0);
+  assert.match(source, /在理论基础方面/);
+  assert.match(source, /READING MAP/);
+  for (const part of bookConfig.parts) assert.ok(source.includes(part.title));
+  assert.match(source, /https:\/\/space\.bilibili\.com\/417265639\/lists\/3138772/);
+  assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt/);
+  assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-outline\\.png"`));
+  assert.doesNotMatch(source, /从基础模型，一直走到智能系统|三个部分构成一条连续的学习路径/);
+  assert.doesNotMatch(source, /在线目录|完整图书介绍|已上线|准备中/);
+  await access(join(outputRoot, "images", "deconstructing-llm-outline.png"));
+});
+
 test("derives the two-level book navigation from content files", async () => {
   const source = await html("/books/deconstructing_LLM/chapter-1");
   assert.doesNotMatch(source, />概览</);
   assert.match(source, /第一章：绪论/);
   assert.match(source, /第二章：数学基础——不可或缺的知识/);
-  assert.match(source, /第 3 章/);
+  assert.match(source, /第三章：线性回归——模型之母/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-1/1-4/"`));
   assert.match(source, /下一节.*1\.1 是数字鹦鹉，还是自我意识/s);
 });

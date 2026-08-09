@@ -77,17 +77,20 @@ export function HomeView({ lang }: { lang: "zh" | "en" }) {
           </div>
 
           <article className="book-feature">
-            <div className="book-cover">
+            <a className="book-cover" href={sitePath(book.overviewHref)} aria-label={book.overviewLabel}>
               {/* eslint-disable-next-line @next/next/no-img-element -- User-provided cover is a public static asset. */}
               <img className="book-cover-image" src={sitePath(book.coverImage)} alt={`${book.title}：${book.subtitle}`} />
-            </div>
+            </a>
             <div className="book-details">
               <span className="status-label">{book.status}</span>
-              <h3>{book.title}</h3>
+              <h3><a href={sitePath(book.overviewHref)}>{book.title}</a></h3>
               <p className="book-subtitle">{book.subtitle}</p>
               <p className="book-description">{book.description}</p>
               <div className="chapter-line"><span>{book.publishedLabel}</span><strong>{book.publishedValue}</strong></div>
-              <a className="text-link" href={sitePath(book.chapterHref)}>{book.chapterLabel}<span>↗</span></a>
+              <div className="book-link-group">
+                <a className="text-link is-overview" href={sitePath(book.overviewHref)}>{book.overviewLabel}<span>→</span></a>
+                <a className="text-link" href={sitePath(book.chapterHref)}>{book.chapterLabel}<span>↗</span></a>
+              </div>
             </div>
           </article>
         </section>

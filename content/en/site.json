@@ -28,6 +28,8 @@
     "description": "Starting with linear regression, follow the evolution of models and data to understand large language models step by step",
     "publishedLabel": "Published",
     "publishedValue": "2 chapters",
+    "overviewLabel": "Book overview",
+    "overviewHref": "/en/books/deconstructing_LLM/chapter-1",
     "chapterLabel": "Read Chapter 1: Begin with the question",
     "chapterHref": "/en/books/deconstructing_LLM/chapter-1"
   },

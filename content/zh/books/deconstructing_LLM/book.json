@@ -1,4 +1,35 @@
 {
   "title": "解构大语言模型",
-  "subtitle": "从线性回归到通用智能"
+  "subtitle": "从线性回归到通用人工智能",
+  "author": "唐亘",
+  "overview": {
+    "kicker": "BOOK / 01",
+    "description": "从线性回归出发，沿着数据基础与模型结构的发展脉络，逐步理解大语言模型",
+    "coverImage": "/images/deconstructing-llm-cover.png",
+    "outlineImage": "/images/deconstructing-llm-outline.png",
+    "videoUrl": "https://space.bilibili.com/417265639/lists/3138772",
+    "githubUrl": "https://github.com/GenTang/regression2chatgpt"
+  },
+  "chapterTitles": {
+    "chapter_1": "第一章：绪论",
+    "chapter_2": "第二章：数学基础——不可或缺的知识",
+    "chapter_3": "第三章：线性回归——模型之母"
+  },
+  "parts": [
+    {
+      "label": "第一部分 · 第 2—5 章",
+      "title": "神经网络的基础",
+      "description": "讨论神经网络的基石：线性回归与逻辑回归，并介绍过拟合、惩罚项等机器学习的通用问题"
+    },
+    {
+      "label": "第二部分 · 第 6—12 章",
+      "title": "从零开始搭建ChatGPT",
+      "description": "以优化算法和反向传播为起点，逐一介绍经典神经网络的核心结构，进而从零实现GPT-2并演进为ChatGPT"
+    },
+    {
+      "label": "第三部分 · 第 13 章",
+      "title": "其他经典模型",
+      "description": "简要介绍其他与神经网络相关的经典模型，帮助读者理解神经网络之外的重要建模思想"
+    }
+  ]
 }

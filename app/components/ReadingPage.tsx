@@ -86,7 +86,12 @@ export function ReadingPage({
       <SiteHeader lang={lang} active={kind} languageHref={languageHref} />
       <main className="reading-main">
         <aside className="reading-sidebar">
-          <a className="back-link" href={sitePath(`${prefix}/`)}>← {en ? "Back to home" : "返回首页"}</a>
+          <a
+            className="back-link"
+            href={sitePath(isBook && !en ? "/books/deconstructing_LLM" : `${prefix}/`)}
+          >
+            ← {isBook && !en ? "全书总览" : en ? "Back to home" : "返回首页"}
+          </a>
           {isBook ? (
             <>
               <span className="sidebar-label">{en ? "BOOK CONTENTS" : "全书目录"}</span>

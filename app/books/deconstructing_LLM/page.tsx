@@ -1,0 +1,87 @@
+/* eslint-disable @next/next/no-img-element -- Local book artwork is exported as a static asset. */
+import type { Metadata } from "next";
+import bookConfig from "@/content/zh/books/deconstructing_LLM/book.json";
+import { MarkdownContent } from "@/app/components/MarkdownContent";
+import { SiteFooter } from "@/app/components/SiteFooter";
+import { SiteHeader } from "@/app/components/SiteHeader";
+import { getMarkdownContent } from "@/app/lib/content";
+import { sitePath } from "@/app/lib/sitePath";
+
+const overviewSource = getMarkdownContent("/content/zh/books/deconstructing_LLM/overview.md");
+const firstChapterHref = "/books/deconstructing_LLM/chapter-1";
+
+export const metadata: Metadata = {
+  title: `${bookConfig.title}：${bookConfig.subtitle}`,
+  description: bookConfig.overview.description,
+};
+
+export default function DeconstructingLlmOverview() {
+  return (
+    <div className="site-shell book-overview-shell">
+      <SiteHeader
+        lang="zh"
+        active="book"
+        languageHref="/en/books/deconstructing_LLM/chapter-1"
+      />
+
+      <main className="book-overview-main">
+        <section className="book-overview-hero">
+          <a
+            className="overview-cover-link"
+            href={sitePath(firstChapterHref)}
+            aria-label={`开始阅读《${bookConfig.title}》`}
+          >
+            <img
+              src={sitePath(bookConfig.overview.coverImage)}
+              alt={`${bookConfig.title}：${bookConfig.subtitle}`}
+            />
+            <span>点击封面开始阅读 <b>↗</b></span>
+          </a>
+
+          <div className="book-overview-intro">
+            <span className="book-overview-kicker">{bookConfig.overview.kicker}</span>
+            <h1>
+              {bookConfig.title}
+              <small>{bookConfig.subtitle}</small>
+            </h1>
+            <p>{bookConfig.overview.description}</p>
+            <span className="book-overview-author">作者 · {bookConfig.author}</span>
+
+            <div className="book-overview-actions">
+              <a className="primary-link" href={sitePath(firstChapterHref)}>从第一章开始 <span>→</span></a>
+              <a className="secondary-link" href={bookConfig.overview.videoUrl} target="_blank" rel="noreferrer">视频解读 <span>↗</span></a>
+              <a className="secondary-link" href={bookConfig.overview.githubUrl} target="_blank" rel="noreferrer">配套代码 <span>↗</span></a>
+            </div>
+          </div>
+        </section>
+
+        <section className="book-overview-content">
+          <div className="book-overview-reading">
+            <article className="book-overview-prose">
+              <MarkdownContent source={overviewSource} />
+            </article>
+            <figure className="book-outline-figure">
+              <img src={sitePath(bookConfig.overview.outlineImage)} alt="《解构大语言模型》全书知识脉络图" />
+            </figure>
+          </div>
+
+          <div className="book-roadmap" aria-label="阅读路径">
+            <span className="book-roadmap-label">READING MAP</span>
+            <div className="book-roadmap-grid">
+              {bookConfig.parts.map((part, index) => (
+                <article key={part.label}>
+                  <span>0{index + 1}</span>
+                  <small>{part.label}</small>
+                  <h3>{part.title}</h3>
+                  <p>{part.description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter lang="zh" />
+    </div>
+  );
+}

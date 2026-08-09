@@ -9,7 +9,7 @@
     },
     "secondaryCta": {
       "label": "解构大语言模型",
-      "href": "/books/deconstructing_LLM/chapter-1"
+      "href": "/books/deconstructing_LLM"
     },
     "previewLabel": "研究札记预览",
     "updateState": "持续更新"
@@ -25,9 +25,11 @@
     "status": "持续更新",
     "title": "解构大语言模型",
     "subtitle": "从线性回归到通用智能",
-    "description": "从线性回归出发，沿着模型与数据的发展脉络，逐步理解大语言模型",
+    "description": "从线性回归出发，沿着数据基础与模型结构的发展脉络，逐步理解大语言模型",
     "publishedLabel": "已发布",
     "publishedValue": "2 章",
+    "overviewLabel": "查看全书总览",
+    "overviewHref": "/books/deconstructing_LLM",
     "chapterLabel": "阅读第一章：绪论",
     "chapterHref": "/books/deconstructing_LLM/chapter-1"
   },
