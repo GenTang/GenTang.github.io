@@ -63,6 +63,12 @@ test("exports every current reading route", async () => {
     ["/books/deconstructing_LLM/chapter-5/5-3", /5.3 定量特征的处理/],
     ["/books/deconstructing_LLM/chapter-5/5-4", /5.4 多重共线性：多变量的烦恼/],
     ["/books/deconstructing_LLM/chapter-5/5-5", /5.5 本章小结/],
+    ["/books/deconstructing_LLM/chapter-6", /第六章：最优化算法——参数估计/],
+    ["/books/deconstructing_LLM/chapter-6/6-1", /6.1 算法思路：模拟滚动/],
+    ["/books/deconstructing_LLM/chapter-6/6-2", /6.2 梯度下降法/],
+    ["/books/deconstructing_LLM/chapter-6/6-3", /6.3 梯度下降法的代码实现/],
+    ["/books/deconstructing_LLM/chapter-6/6-4", /6.4 随机梯度下降法：更优化的算法/],
+    ["/books/deconstructing_LLM/chapter-6/6-5", /6.5 本章小结/],
     ["/en/books/deconstructing_LLM/chapter-1", /Begin with the question/],
     ["/blog/ai-as-collaborator", /第一篇文章正在写作中，敬请期待/],
     ["/en/blog/ai-as-collaborator", /From tool to collaborator/],
@@ -103,6 +109,7 @@ test("derives the two-level book navigation from content files", async () => {
   assert.match(source, /第三章：线性回归——模型之母/);
   assert.match(source, /第四章：逻辑回归——隐藏因子/);
   assert.match(source, /第五章：计量经济学的启示——他山之石/);
+  assert.match(source, /第六章：最优化算法——参数估计/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-1/1-4/"`));
   assert.match(source, /下一节.*1\.1 是数字鹦鹉，还是自我意识/s);
   assert.match(source, /<details class="toc-chapter is-open"[^>]*open/);
@@ -188,10 +195,34 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
     );
     assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
   }
+  const chapterSix = await html("/books/deconstructing_LLM/chapter-6/6-3");
+  assert.match(chapterSix, /程序清单 6-1/);
+  assert.match(chapterSix, /程序清单 6-5/);
+  assert.match(chapterSix, /class="code-line" data-line-number="33"/);
+  assert.match(
+    chapterSix,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch06_optimizer\/gradient_descent\.ipynb/,
+  );
+
+  const chapterSixSgd = await html("/books/deconstructing_LLM/chapter-6/6-4");
+  assert.match(chapterSixSgd, /id="eq-6-7"/);
+  assert.match(chapterSixSgd, /程序清单 6-6/);
+  assert.match(
+    chapterSixSgd,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch06_optimizer\/stochastic_gradient_descent\.ipynb/,
+  );
+
+  for (const section of ["6_1", "6_2", "6_3", "6_4", "6_5"]) {
+    const markdown = await readFile(
+      resolve(`content/zh/books/deconstructing_LLM/chapter_6/${section}.md`),
+      "utf8",
+    );
+    assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
+  }
   await access(join(outputRoot, "generated", "book-images", "chapter_3", "3-23.png"));
   await access(join(outputRoot, "generated", "book-images", "chapter_4", "4-24.png"));
   await access(join(outputRoot, "generated", "book-images", "chapter_5", "5-13.png"));
-  await access(join(outputRoot, "generated", "book-images", "chapter_5", "summary.png"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_6", "6-9.png"));
   await access(join(outputRoot, ".nojekyll"));
 });
 
