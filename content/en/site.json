@@ -15,9 +15,9 @@
     "updateState": "Updating"
   },
   "book": {
-    "sectionLabel": "02 / BOOK",
+    "sectionLabel": "BOOK",
     "sectionTitle": "Books",
-    "sectionDescription": "Published chapter by chapter, with the introduction and mathematical foundations now available.",
+    "sectionDescription": "",
     "coverLabel": "BOOK / 01",
     "coverTitle": ["Notes on", "AI Systems"],
     "coverCaption": "A BOOK IN PROGRESS",
@@ -34,7 +34,7 @@
     "chapterHref": "/en/books/deconstructing_LLM/chapter-1"
   },
   "essay": {
-    "sectionLabel": "01 / BLOG",
+    "sectionLabel": "BLOG",
     "sectionTitle": "Blog",
     "sectionDescription": "Long-form observations on the frontiers of artificial intelligence are being prepared",
     "date": "TODO",

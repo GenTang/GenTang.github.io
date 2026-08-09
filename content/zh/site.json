@@ -15,9 +15,9 @@
     "updateState": "持续更新"
   },
   "book": {
-    "sectionLabel": "02 / BOOK",
+    "sectionLabel": "BOOK",
     "sectionTitle": "书籍",
-    "sectionDescription": "全书按章节持续更新，目前已发布绪论与数学基础两章",
+    "sectionDescription": "",
     "coverLabel": "BOOK / 01",
     "coverTitle": ["解构", "大语言模型"],
     "coverCaption": "从线性回归到通用智能",
@@ -34,7 +34,7 @@
     "chapterHref": "/books/deconstructing_LLM/chapter-1"
   },
   "essay": {
-    "sectionLabel": "01 / BLOG",
+    "sectionLabel": "BLOG",
     "sectionTitle": "博客",
     "sectionDescription": "关于人工智能前沿的个人观察与长期思考，正在整理中",
     "date": "TODO",

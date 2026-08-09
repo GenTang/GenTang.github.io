@@ -44,7 +44,6 @@ export function HomeView({ lang }: { lang: "zh" | "en" }) {
 
           <aside className="research-card" aria-label={hero.previewLabel}>
             <div className="research-meta">
-              <span>NOTE / 001</span>
               <span className="live-state">{hero.updateState}</span>
             </div>
             <pre><code><span className="code-keyword">def</span> <span className="code-name">understand</span>(question):{"\n"}    evidence = observe(question){"\n"}    <span className="code-keyword">return</span> revise(evidence)</code></pre>
@@ -73,7 +72,7 @@ export function HomeView({ lang }: { lang: "zh" | "en" }) {
         <section className="content-section books-section">
           <div className="section-heading">
             <div><span>{book.sectionLabel}</span>{book.sectionTitle && <h2>{book.sectionTitle}</h2>}</div>
-            <p>{book.sectionDescription}</p>
+            {book.sectionDescription && <p>{book.sectionDescription}</p>}
           </div>
 
           <article className="book-feature">

@@ -377,15 +377,16 @@ a {
   width: min(100%, 430px);
   padding: 22px;
   justify-self: end;
-  color: var(--code-ink);
+  color: #dbe7ec;
   background:
-    linear-gradient(rgba(22, 200, 207, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(22, 200, 207, 0.055) 1px, transparent 1px),
-    var(--code);
-  background-size: 20px 20px;
-  border: 1px solid color-mix(in srgb, var(--accent-bright) 56%, #17323a);
+    radial-gradient(circle at 88% 8%, rgba(59, 130, 246, 0.16), transparent 42%),
+    linear-gradient(rgba(148, 187, 204, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 187, 204, 0.055) 1px, transparent 1px),
+    #0b1f2a;
+  background-size: 100% 100%, 20px 20px, 20px 20px, 100% 100%;
+  border: 1px solid #315366;
   border-radius: 3px 22px 3px 22px;
-  box-shadow: 0 25px 70px rgba(0, 33, 42, 0.32), 0 0 0 1px rgba(22, 200, 207, 0.06);
+  box-shadow: 0 24px 64px rgba(3, 24, 33, 0.26), 0 0 0 1px rgba(96, 165, 250, 0.04);
 }
 
 .research-card::before {
@@ -401,10 +402,10 @@ a {
 
 .research-meta {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   margin-bottom: 15px;
-  color: #8baab0;
+  color: #8eb1c5;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 9px;
   letter-spacing: 0.09em;
@@ -414,7 +415,7 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--accent-bright);
+  color: #67b7f7;
 }
 
 .live-state::before {
@@ -439,12 +440,18 @@ a {
   line-height: 1.8;
 }
 
+.research-card pre {
+  color: #d7e3e8;
+  background: rgba(5, 18, 26, 0.72);
+  border-color: rgba(148, 187, 204, 0.18);
+}
+
 .code-keyword {
-  color: #ef9d72;
+  color: #93c5fd;
 }
 
 .code-name {
-  color: #b7d489;
+  color: #38bdf8;
 }
 
 .formula {
@@ -452,8 +459,8 @@ a {
   font-family: "Times New Roman", Georgia, serif;
   font-size: clamp(20px, 3vw, 27px);
   text-align: center;
-  color: #ddfbf6;
-  text-shadow: 0 0 24px rgba(22, 200, 207, 0.22);
+  color: #e6edf1;
+  text-shadow: 0 0 18px rgba(56, 189, 248, 0.12);
 }
 
 .content-section {

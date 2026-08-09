@@ -22,8 +22,11 @@ test("exports the homepage with local assets and the intended section order", as
   assert.match(source, /阅读最新博客/);
   assert.match(source, /解构大语言模型/);
   assert.match(source, /第一篇文章正在写作中，敬请期待/);
+  assert.match(source, /持续更新/);
+  assert.doesNotMatch(source, /NOTE \/ 001/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/"`));
-  assert.ok(source.indexOf("01 / BLOG") < source.indexOf("02 / BOOK"));
+  assert.ok(source.indexOf(">BLOG<") < source.indexOf(">BOOK<"));
+  assert.doesNotMatch(source, /01 \/ BLOG|02 \/ BOOK|全书按章节持续更新，目前已发布绪论与数学基础两章/);
   assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover\\.png"`));
   assert.doesNotMatch(source, /MVP|AI · BOOKS · NOTES|第一本书，从这里开始/);
 });
@@ -54,6 +57,12 @@ test("exports every current reading route", async () => {
     ["/books/deconstructing_LLM/chapter-4/4-4", /4.4 非均衡数据集/],
     ["/books/deconstructing_LLM/chapter-4/4-5", /4.5 多元分类问题：超越是与否/],
     ["/books/deconstructing_LLM/chapter-4/4-6", /4.6 本章小结/],
+    ["/books/deconstructing_LLM/chapter-5", /第五章：计量经济学的启示——他山之石/],
+    ["/books/deconstructing_LLM/chapter-5/5-1", /5.1 定量与定性：特征的数学运算合理吗/],
+    ["/books/deconstructing_LLM/chapter-5/5-2", /5.2 定性特征的处理/],
+    ["/books/deconstructing_LLM/chapter-5/5-3", /5.3 定量特征的处理/],
+    ["/books/deconstructing_LLM/chapter-5/5-4", /5.4 多重共线性：多变量的烦恼/],
+    ["/books/deconstructing_LLM/chapter-5/5-5", /5.5 本章小结/],
     ["/en/books/deconstructing_LLM/chapter-1", /Begin with the question/],
     ["/blog/ai-as-collaborator", /第一篇文章正在写作中，敬请期待/],
     ["/en/blog/ai-as-collaborator", /From tool to collaborator/],
@@ -93,6 +102,7 @@ test("derives the two-level book navigation from content files", async () => {
   assert.match(source, /第二章：数学基础——不可或缺的知识/);
   assert.match(source, /第三章：线性回归——模型之母/);
   assert.match(source, /第四章：逻辑回归——隐藏因子/);
+  assert.match(source, /第五章：计量经济学的启示——他山之石/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-1/1-4/"`));
   assert.match(source, /下一节.*1\.1 是数字鹦鹉，还是自我意识/s);
   assert.match(source, /<details class="toc-chapter is-open"[^>]*open/);
@@ -156,8 +166,32 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
     );
     assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
   }
+  const chapterFive = await html("/books/deconstructing_LLM/chapter-5/5-2");
+  assert.match(chapterFive, /id="eq-5-1"/);
+  assert.match(chapterFive, new RegExp(`src="${basePath}/generated/book-images/chapter_5/5-2[.]png"`));
+  assert.match(
+    chapterFive,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch05_econometrics\/categorical_variable\.ipynb/,
+  );
+
+  const chapterFiveCollinearity = await html("/books/deconstructing_LLM/chapter-5/5-4");
+  assert.match(chapterFiveCollinearity, /<p class="table-title">表 5-1<\/p>/);
+  assert.match(
+    chapterFiveCollinearity,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch05_econometrics\/multicollinearity\.ipynb/,
+  );
+
+  for (const section of ["5_1", "5_2", "5_3", "5_4", "5_5"]) {
+    const markdown = await readFile(
+      resolve(`content/zh/books/deconstructing_LLM/chapter_5/${section}.md`),
+      "utf8",
+    );
+    assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
+  }
   await access(join(outputRoot, "generated", "book-images", "chapter_3", "3-23.png"));
   await access(join(outputRoot, "generated", "book-images", "chapter_4", "4-24.png"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_5", "5-13.png"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_5", "summary.png"));
   await access(join(outputRoot, ".nojekyll"));
 });
 
