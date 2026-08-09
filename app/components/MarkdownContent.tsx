@@ -60,7 +60,17 @@ function referenceAnchors() {
       }
 
       if (node.type === "heading") {
-        const label = nodeText(node).match(/^(\d+(?:\.\d+)+)\b/)?.[1];
+        const headingText = nodeText(node);
+
+        if (/^程序清单\s/.test(headingText)) {
+          node.data ??= {};
+          node.data.hProperties = {
+            ...node.data.hProperties,
+            className: ["code-listing-title"],
+          };
+        }
+
+        const label = headingText.match(/^(\d+(?:\.\d+)+)\b/)?.[1];
         if (label) {
           const id = referenceId(label);
           sections.add(id);
@@ -171,6 +181,66 @@ function katexEquationAnchors() {
   };
 }
 
+function splitHtmlChildrenIntoLines(children: HtmlNode[]): HtmlNode[][] {
+  const lines: HtmlNode[][] = [[]];
+
+  for (const child of children) {
+    const childLines = splitHtmlNodeIntoLines(child);
+    lines.at(-1)?.push(...childLines[0]);
+
+    for (const childLine of childLines.slice(1)) {
+      lines.push([...childLine]);
+    }
+  }
+
+  return lines;
+}
+
+function splitHtmlNodeIntoLines(node: HtmlNode): HtmlNode[][] {
+  if (node.type === "text") {
+    return (node.value ?? "").split("\n").map((value) => (
+      value ? [{ ...node, value }] : []
+    ));
+  }
+
+  if (!node.children) return [[{ ...node }]];
+
+  return splitHtmlChildrenIntoLines(node.children).map((children) => (
+    children.length ? [{ ...node, children }] : []
+  ));
+}
+
+function codeLineNumbers() {
+  return (tree: HtmlNode) => {
+    const addLineNumbers = (node: HtmlNode) => {
+      if (node.type === "element" && node.tagName === "pre") {
+        const code = node.children?.find(
+          (child) => child.type === "element" && child.tagName === "code",
+        );
+
+        if (code) {
+          const lines = splitHtmlChildrenIntoLines(code.children ?? []);
+          if (lines.length > 1 && lines.at(-1)?.length === 0) lines.pop();
+
+          code.children = lines.map((children, index) => ({
+            type: "element",
+            tagName: "span",
+            properties: {
+              className: ["code-line"],
+              dataLineNumber: String(index + 1),
+            },
+            children: children.length ? children : [{ type: "text", value: " " }],
+          }));
+        }
+      }
+
+      node.children?.forEach(addLineNumbers);
+    };
+
+    addLineNumbers(tree);
+  };
+}
+
 function imagePresentation(alt = "") {
   const sizeMatch = alt.match(/\s*\|\s*(\d+(?:\.\d+)?)(%|px)\s*$/i);
 
@@ -190,7 +260,7 @@ export function MarkdownContent({ source, images }: MarkdownContentProps) {
           footnoteBackLabel: "返回正文",
           footnoteLabelProperties: { className: ["footnote-label"] },
         }}
-        rehypePlugins={[rehypeSlug, rehypeKatex, katexEquationAnchors, rehypeHighlight]}
+        rehypePlugins={[rehypeSlug, rehypeKatex, katexEquationAnchors, rehypeHighlight, codeLineNumbers]}
         components={{
           a: ({ href, children, node, ...props }) => {
             void node;

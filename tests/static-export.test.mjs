@@ -41,6 +41,12 @@ test("exports every current reading route", async () => {
     ["/books/deconstructing_LLM/chapter-2/2-2", /2.2 概率/],
     ["/books/deconstructing_LLM/chapter-2/2-3", /2.3 微积分/],
     ["/books/deconstructing_LLM/chapter-2/2-4", /2.4 本章小结/],
+    ["/books/deconstructing_LLM/chapter-3", /第三章：线性回归——模型之母/],
+    ["/books/deconstructing_LLM/chapter-3/3-1", /3.1 一个简单的例子/],
+    ["/books/deconstructing_LLM/chapter-3/3-2", /3.2 模型实现/],
+    ["/books/deconstructing_LLM/chapter-3/3-3", /3.3 模型陷阱/],
+    ["/books/deconstructing_LLM/chapter-3/3-4", /3.4 面向未来的准备/],
+    ["/books/deconstructing_LLM/chapter-3/3-5", /3.5 本章小结/],
     ["/en/books/deconstructing_LLM/chapter-1", /Begin with the question/],
     ["/blog/ai-as-collaborator", /第一篇文章正在写作中，敬请期待/],
     ["/en/blog/ai-as-collaborator", /From tool to collaborator/],
@@ -81,6 +87,8 @@ test("derives the two-level book navigation from content files", async () => {
   assert.match(source, /第三章：线性回归——模型之母/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-1/1-4/"`));
   assert.match(source, /下一节.*1\.1 是数字鹦鹉，还是自我意识/s);
+  assert.match(source, /<details class="toc-chapter is-open"[^>]*open/);
+  assert.match(source, /<details class="toc-chapter">/);
 });
 
 test("exports formulas, footnotes, chapter images, and their anchors", async () => {
@@ -98,5 +106,28 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.match(chapterOne, /<figcaption>[^<]+<\/figcaption>/);
   await access(join(outputRoot, "generated", "book-images", "chapter_1", "1-1.png"));
   await access(join(outputRoot, "generated", "book-images", "chapter_2", "2-15.png"));
+  const chapterThree = await html("/books/deconstructing_LLM/chapter-3/3-1");
+  assert.match(chapterThree, /id="eq-3-1"/);
+  assert.match(chapterThree, new RegExp(`src="${basePath}/generated/book-images/chapter_3/3-1[.]png"`));
+  assert.match(
+    chapterThree,
+    new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-3/3-2/#section-3-2-2"`),
+  );
+  assert.doesNotMatch(chapterThree, /chapter-2\/3-2/);
+
+  const implementation = await html("/books/deconstructing_LLM/chapter-3/3-2");
+  assert.match(implementation, /class="code-line" data-line-number="1"/);
+  assert.match(implementation, /class="code-line" data-line-number="20"/);
+  assert.match(implementation, /class="code-line" data-line-number="24"/);
+  assert.match(implementation, /class="code-listing-title"/);
+  assert.match(
+    implementation,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch03_linear\/linear_ml\.ipynb/,
+  );
+  assert.match(
+    implementation,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch03_linear\/linear_stat\.ipynb/,
+  );
+  await access(join(outputRoot, "generated", "book-images", "chapter_3", "3-23.png"));
   await access(join(outputRoot, ".nojekyll"));
 });

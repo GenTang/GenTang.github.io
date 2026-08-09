@@ -170,12 +170,15 @@ function BookTableOfContents({ navigation, currentHref }: { navigation: BookNavi
         const chapterIsOpen = chapter.href === currentHref || chapter.sections.some((section) => section.href === currentHref);
 
         return (
-          <div className={`toc-chapter ${chapterIsOpen ? "is-open" : ""}`} key={chapter.id}>
-            {chapter.href ? (
-              <a className="toc-chapter-link" href={sitePath(chapter.href)}>{chapter.title}</a>
-            ) : (
-              <span className="toc-chapter-link is-disabled">{chapter.title}</span>
-            )}
+          <details className={chapterIsOpen ? "toc-chapter is-open" : "toc-chapter"} key={chapter.id} open={chapterIsOpen}>
+            <summary className="toc-chapter-summary">
+              {chapter.href ? (
+                <a className="toc-chapter-link" href={sitePath(chapter.href)}>{chapter.title}</a>
+              ) : (
+                <span className="toc-chapter-link is-disabled">{chapter.title}</span>
+              )}
+              <span className="toc-disclosure" aria-hidden="true">⌄</span>
+            </summary>
             {chapter.sections.length > 0 && (
               <div className="toc-section-list">
                 {chapter.sections.map((section) => (
@@ -189,7 +192,7 @@ function BookTableOfContents({ navigation, currentHref }: { navigation: BookNavi
                 ))}
               </div>
             )}
-          </div>
+          </details>
         );
       })}
     </nav>
