@@ -46,7 +46,6 @@ function referenceId(value: string) {
 function referenceAnchors() {
   return (tree: MarkdownNode) => {
     const equations = new Set<string>();
-    const sections = new Set<string>();
 
     const collectAnchors = (node: MarkdownNode) => {
       if (node.type === "math" && node.value) {
@@ -73,7 +72,6 @@ function referenceAnchors() {
         const label = headingText.match(/^(\d+(?:\.\d+)+)\b/)?.[1];
         if (label) {
           const id = referenceId(label);
-          sections.add(id);
           node.data ??= {};
           node.data.hProperties = { ...node.data.hProperties, id: `section-${id}` };
         }
@@ -82,7 +80,7 @@ function referenceAnchors() {
       node.children?.forEach(collectAnchors);
     };
 
-    const referencePattern = /公式[（(](\d+(?:[-.]\d+)+)[）)]|(\d+(?:\.\d+)+)\s*节/g;
+    const referencePattern = /公式[（(](\d+(?:[-.]\d+)+)[）)]/g;
     const skippedParents = new Set([
       "code",
       "definition",
@@ -110,12 +108,9 @@ function referenceAnchors() {
         for (const match of child.value.matchAll(referencePattern)) {
           const start = match.index ?? 0;
           const formulaId = match[1] ? referenceId(match[1]) : undefined;
-          const sectionId = match[2] ? referenceId(match[2]) : undefined;
           const target = formulaId && equations.has(formulaId)
             ? `#eq-${formulaId}`
-            : sectionId && sections.has(sectionId)
-              ? `#section-${sectionId}`
-              : undefined;
+            : undefined;
 
           if (!target) continue;
           if (start > cursor) {

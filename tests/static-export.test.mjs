@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import test from "node:test";
 
@@ -20,6 +20,39 @@ function exportedPage(route) {
 
 async function html(route) {
   return readFile(exportedPage(route), "utf8");
+}
+
+function expectedBookReferenceHref(label) {
+  const chapter = label.match(/^第\s*(\d+)\s*章$/)?.[1];
+  if (chapter) return `/books/deconstructing_LLM/chapter-${chapter}`;
+
+  const section = label.match(/^(\d+)\.(\d+)(?:\.(\d+))?\s*节$/);
+  if (!section) return undefined;
+  const [, chapterNumber, sectionNumber, subsectionNumber] = section;
+  const page = `/books/deconstructing_LLM/chapter-${chapterNumber}/${chapterNumber}-${sectionNumber}`;
+  return subsectionNumber ? `${page}#section-${chapterNumber}-${sectionNumber}-${subsectionNumber}` : page;
+}
+
+function unlinkedBookReferences(source) {
+  let insideFence = false;
+  let insideDisplayMath = false;
+  const prose = source.split("\n").map((line) => {
+    if (/^```/.test(line.trim())) {
+      insideFence = !insideFence;
+      return "";
+    }
+    if (!insideFence && /^\$\$\s*$/.test(line.trim())) {
+      insideDisplayMath = !insideDisplayMath;
+      return "";
+    }
+    if (insideFence || insideDisplayMath || /^#{1,6}\s/.test(line)) return "";
+    return line
+      .replace(/\[[^\]]+\]\([^)]+\)/g, "")
+      .replace(/`[^`]*`/g, "")
+      .replace(/\$[^$\n]*\$/g, "");
+  }).join("\n");
+
+  return [...prose.matchAll(/第\s*\d+\s*章|\d+\.\d+(?:\.\d+)?\s*节/g)].map((match) => match[0]);
 }
 
 test("exports the homepage with local assets and the intended section order", async () => {
@@ -135,6 +168,32 @@ test("exports every current reading route", async () => {
   for (const [route, expected] of routes) {
     assert.match(await html(route), expected, route);
   }
+});
+
+test("keeps every published book reference explicit and normalized", async () => {
+  const bookRoot = resolve("content/zh/books/deconstructing_LLM");
+  const chapters = (await readdir(bookRoot, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory() && /^chapter_\d+$/.test(entry.name));
+  const explicitReference = /\[((?:第\s*\d+\s*章)|(?:\d+\.\d+(?:\.\d+)?\s*节))\]\((\/books\/deconstructing_LLM\/chapter-[^)]+)\)/g;
+
+  for (const chapter of chapters) {
+    const chapterRoot = join(bookRoot, chapter.name);
+    const files = (await readdir(chapterRoot)).filter((file) => file.endsWith(".md"));
+    for (const file of files) {
+      const source = await readFile(join(chapterRoot, file), "utf8");
+      const context = `${chapter.name}/${file}`;
+      assert.deepEqual(unlinkedBookReferences(source), [], context);
+
+      for (const match of source.matchAll(explicitReference)) {
+        assert.equal(match[2], expectedBookReferenceHref(match[1]), `${context}: ${match[1]}`);
+      }
+    }
+  }
+
+  const renderer = await readFile(resolve("app/components/MarkdownContent.tsx"), "utf8");
+  assert.match(renderer, /id: `section-\$\{id\}`/);
+  assert.match(renderer, /const referencePattern = \/公式/);
+  assert.doesNotMatch(renderer, /const sections =|sectionId/);
 });
 
 test("exports the concise book overview with its outline and resources", async () => {
