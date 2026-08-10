@@ -61,12 +61,12 @@ test("exports the homepage with local assets and the intended section order", as
   assert.match(source, /万一我证明了<em>黎曼猜想<\/em>/);
   assert.match(source, /阅读最新章节/);
   assert.match(source, /解构大语言模型/);
-  assert.match(source, /已发布<\/span><strong>9 章<\/strong>/);
+  assert.match(source, /已发布<\/span><strong>10 章<\/strong>/);
   assert.match(source, /第一篇文章正在写作中，敬请期待/);
   assert.match(source, /持续更新/);
   assert.doesNotMatch(source, /NOTE \/ 001/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/"`));
-  assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-9/9-4/"`));
+  assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-10/10-6/"`));
   assert.ok(source.indexOf(">BLOG<") < source.indexOf(">BOOK<"));
   assert.doesNotMatch(source, /01 \/ BLOG|02 \/ BOOK|全书按章节持续更新，目前已发布绪论与数学基础两章/);
   assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover\\.png"`));
@@ -80,7 +80,7 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
     readFile(join(outputRoot, "rss.xml"), "utf8"),
     readFile(join(outputRoot, "atom.xml"), "utf8"),
     html("/"),
-    html("/books/deconstructing_LLM/chapter-9/9-4"),
+    html("/books/deconstructing_LLM/chapter-10/10-6"),
     html("/blog/ai-as-collaborator"),
     html("/en/"),
   ]);
@@ -92,16 +92,16 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
   assert.match(robots, new RegExp(`Sitemap: ${publicUrl("/sitemap.xml").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
 
   assert.ok(sitemap.includes(`<loc>${publicUrl("/")}</loc>`));
-  assert.ok(sitemap.includes(`<loc>${publicUrl("/books/deconstructing_LLM/chapter-9/9-4")}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/books/deconstructing_LLM/chapter-10/10-6")}</loc>`));
   assert.ok(!sitemap.includes("blog/ai-as-collaborator"));
-  assert.ok(rss.includes(`<link>${publicUrl("/books/deconstructing_LLM/chapter-9/9-4")}</link>`));
-  assert.match(rss, /9\.4 本章小结/);
-  assert.ok(atom.includes(`<id>${publicUrl("/books/deconstructing_LLM/chapter-9/9-4")}</id>`));
+  assert.ok(rss.includes(`<link>${publicUrl("/books/deconstructing_LLM/chapter-10/10-6")}</link>`));
+  assert.match(rss, /10\.6 本章小结/);
+  assert.ok(atom.includes(`<id>${publicUrl("/books/deconstructing_LLM/chapter-10/10-6")}</id>`));
 
   assert.ok(home.includes(`rel="canonical" href="${publicUrl("/")}"`));
   assert.ok(home.includes(`type="application/rss+xml"`));
-  assert.ok(latest.includes(`rel="canonical" href="${publicUrl("/books/deconstructing_LLM/chapter-9/9-4")}"`));
-  assert.match(latest, /property="og:title" content="9\.4 本章小结"/);
+  assert.ok(latest.includes(`rel="canonical" href="${publicUrl("/books/deconstructing_LLM/chapter-10/10-6")}"`));
+  assert.match(latest, /property="og:title" content="10\.6 本章小结"/);
   assert.match(draftBlog, /name="robots" content="noindex, follow"/);
   assert.match(english, /<html lang="en"/);
   assert.match(home, /© 2026 唐亘 · 小胖笔记/);
@@ -165,6 +165,13 @@ test("exports every current reading route", async () => {
     ["/books/deconstructing_LLM/chapter-9/9-2", /9.2 卷积神经网络/],
     ["/books/deconstructing_LLM/chapter-9/9-3", /9.3 残差网络/],
     ["/books/deconstructing_LLM/chapter-9/9-4", /9.4 本章小结/],
+    ["/books/deconstructing_LLM/chapter-10", /第十章：循环神经网络——尝试理解人类语言/],
+    ["/books/deconstructing_LLM/chapter-10/10-1", /10.1 自然语言处理的基本要素/],
+    ["/books/deconstructing_LLM/chapter-10/10-2", /10.2 利用多层感知器学习语言/],
+    ["/books/deconstructing_LLM/chapter-10/10-3", /10.3 循环神经网络/],
+    ["/books/deconstructing_LLM/chapter-10/10-4", /10.4 深度循环神经网络/],
+    ["/books/deconstructing_LLM/chapter-10/10-5", /10.5 长短期记忆网络/],
+    ["/books/deconstructing_LLM/chapter-10/10-6", /10.6 本章小结/],
     ["/en/books/deconstructing_LLM/chapter-1", /Begin with the question/],
     ["/blog/ai-as-collaborator", /第一篇文章正在写作中，敬请期待/],
     ["/en/blog/ai-as-collaborator", /From tool to collaborator/],
@@ -437,6 +444,23 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   for (const section of ["9_1", "9_2", "9_3", "9_4"]) {
     const markdown = await readFile(
       resolve(`content/zh/books/deconstructing_LLM/chapter_9/${section}.md`),
+      "utf8",
+    );
+    assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
+  }
+  const chapterTen = await html("/books/deconstructing_LLM/chapter-10/10-5");
+  assert.match(chapterTen, /id="eq-10-1"/);
+  assert.match(chapterTen, /href="#eq-10-1">公式（10-1）<\/a>/);
+  assert.match(chapterTen, /程序清单 10-8/);
+  assert.match(chapterTen, /程序清单 10-9/);
+  assert.match(chapterTen, /class="code-line" data-line-number="30"/);
+  assert.match(
+    chapterTen,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch10_rnn\/lstm\.ipynb/,
+  );
+  for (const section of ["10_1", "10_2", "10_3", "10_4", "10_5", "10_6"]) {
+    const markdown = await readFile(
+      resolve(`content/zh/books/deconstructing_LLM/chapter_10/${section}.md`),
       "utf8",
     );
     assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
