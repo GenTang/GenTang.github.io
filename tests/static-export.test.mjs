@@ -413,7 +413,6 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   await access(join(outputRoot, "generated", "book-images", "chapter_6", "6-9.png"));
   await access(join(outputRoot, "generated", "book-images", "chapter_7", "7-28.png"));
   await access(join(outputRoot, "generated", "book-images", "chapter_8", "8-33.png"));
-  await access(join(outputRoot, "generated", "book-images", "chapter_8", "8-summary.png"));
   const chapterNine = await html("/books/deconstructing_LLM/chapter-9/9-1");
   assert.match(chapterNine, /程序清单 9-1/);
   assert.match(chapterNine, /class="code-line" data-line-number="27"/);
@@ -442,7 +441,19 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
     );
     assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
   }
-  await access(join(outputRoot, "generated", "book-images", "chapter_9", "9-24.png"));
+  const bookRoot = resolve("content/zh/books/deconstructing_LLM");
+  const chapterDirectories = (await readdir(bookRoot, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory() && /^chapter_\d+$/.test(entry.name));
+  for (const chapter of chapterDirectories) {
+    const chapterRoot = join(bookRoot, chapter.name);
+    const markdownFiles = (await readdir(chapterRoot)).filter((file) => file.endsWith(".md"));
+    for (const markdownFile of markdownFiles) {
+      const markdown = await readFile(join(chapterRoot, markdownFile), "utf8");
+      for (const match of markdown.matchAll(/!\[[^\]]*\]\(\.\/images\/([^)]+)\)/g)) {
+        await access(join(outputRoot, "generated", "book-images", chapter.name, match[1]));
+      }
+    }
+  }
   await access(join(outputRoot, ".nojekyll"));
 });
 
