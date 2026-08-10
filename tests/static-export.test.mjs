@@ -61,12 +61,12 @@ test("exports the homepage with local assets and the intended section order", as
   assert.match(source, /万一我证明了<em>黎曼猜想<\/em>/);
   assert.match(source, /阅读最新章节/);
   assert.match(source, /解构大语言模型/);
-  assert.match(source, /已发布<\/span><strong>8 章<\/strong>/);
+  assert.match(source, /已发布<\/span><strong>9 章<\/strong>/);
   assert.match(source, /第一篇文章正在写作中，敬请期待/);
   assert.match(source, /持续更新/);
   assert.doesNotMatch(source, /NOTE \/ 001/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/"`));
-  assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-8/8-6/"`));
+  assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-9/9-4/"`));
   assert.ok(source.indexOf(">BLOG<") < source.indexOf(">BOOK<"));
   assert.doesNotMatch(source, /01 \/ BLOG|02 \/ BOOK|全书按章节持续更新，目前已发布绪论与数学基础两章/);
   assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover\\.png"`));
@@ -80,7 +80,7 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
     readFile(join(outputRoot, "rss.xml"), "utf8"),
     readFile(join(outputRoot, "atom.xml"), "utf8"),
     html("/"),
-    html("/books/deconstructing_LLM/chapter-8/8-6"),
+    html("/books/deconstructing_LLM/chapter-9/9-4"),
     html("/blog/ai-as-collaborator"),
     html("/en/"),
   ]);
@@ -92,16 +92,16 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
   assert.match(robots, new RegExp(`Sitemap: ${publicUrl("/sitemap.xml").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
 
   assert.ok(sitemap.includes(`<loc>${publicUrl("/")}</loc>`));
-  assert.ok(sitemap.includes(`<loc>${publicUrl("/books/deconstructing_LLM/chapter-8/8-6")}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/books/deconstructing_LLM/chapter-9/9-4")}</loc>`));
   assert.ok(!sitemap.includes("blog/ai-as-collaborator"));
-  assert.ok(rss.includes(`<link>${publicUrl("/books/deconstructing_LLM/chapter-8/8-6")}</link>`));
-  assert.match(rss, /8\.6 本章小结/);
-  assert.ok(atom.includes(`<id>${publicUrl("/books/deconstructing_LLM/chapter-8/8-6")}</id>`));
+  assert.ok(rss.includes(`<link>${publicUrl("/books/deconstructing_LLM/chapter-9/9-4")}</link>`));
+  assert.match(rss, /9\.4 本章小结/);
+  assert.ok(atom.includes(`<id>${publicUrl("/books/deconstructing_LLM/chapter-9/9-4")}</id>`));
 
   assert.ok(home.includes(`rel="canonical" href="${publicUrl("/")}"`));
   assert.ok(home.includes(`type="application/rss+xml"`));
-  assert.ok(latest.includes(`rel="canonical" href="${publicUrl("/books/deconstructing_LLM/chapter-8/8-6")}"`));
-  assert.match(latest, /property="og:title" content="8\.6 本章小结"/);
+  assert.ok(latest.includes(`rel="canonical" href="${publicUrl("/books/deconstructing_LLM/chapter-9/9-4")}"`));
+  assert.match(latest, /property="og:title" content="9\.4 本章小结"/);
   assert.match(draftBlog, /name="robots" content="noindex, follow"/);
   assert.match(english, /<html lang="en"/);
   assert.match(home, /© 2026 唐亘 · 小胖笔记/);
@@ -160,6 +160,11 @@ test("exports every current reading route", async () => {
     ["/books/deconstructing_LLM/chapter-8/8-4", /8.4 训练优化的关键：激活函数/],
     ["/books/deconstructing_LLM/chapter-8/8-5", /8.5 从第一步开始优化训练/],
     ["/books/deconstructing_LLM/chapter-8/8-6", /8.6 本章小结/],
+    ["/books/deconstructing_LLM/chapter-9", /第九章：卷积神经网络——深度学习的“出埃及记”/],
+    ["/books/deconstructing_LLM/chapter-9/9-1", /9.1 利用多层感知器识别数字/],
+    ["/books/deconstructing_LLM/chapter-9/9-2", /9.2 卷积神经网络/],
+    ["/books/deconstructing_LLM/chapter-9/9-3", /9.3 残差网络/],
+    ["/books/deconstructing_LLM/chapter-9/9-4", /9.4 本章小结/],
     ["/en/books/deconstructing_LLM/chapter-1", /Begin with the question/],
     ["/blog/ai-as-collaborator", /第一篇文章正在写作中，敬请期待/],
     ["/en/blog/ai-as-collaborator", /From tool to collaborator/],
@@ -229,6 +234,7 @@ test("derives the two-level book navigation from content files", async () => {
   assert.match(source, /第六章：最优化算法——参数估计/);
   assert.match(source, /第七章：反向传播——神经网络的工程基础/);
   assert.match(source, /第八章：多层感知器——神经网络的“创世记”/);
+  assert.match(source, /第九章：卷积神经网络——深度学习的“出埃及记”/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-1/1-4/"`));
   assert.match(source, /下一节.*1\.1 是数字鹦鹉，还是自我意识/s);
   assert.match(source, /<details class="toc-chapter is-open"[^>]*open/);
@@ -408,6 +414,35 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   await access(join(outputRoot, "generated", "book-images", "chapter_7", "7-28.png"));
   await access(join(outputRoot, "generated", "book-images", "chapter_8", "8-33.png"));
   await access(join(outputRoot, "generated", "book-images", "chapter_8", "8-summary.png"));
+  const chapterNine = await html("/books/deconstructing_LLM/chapter-9/9-1");
+  assert.match(chapterNine, /程序清单 9-1/);
+  assert.match(chapterNine, /class="code-line" data-line-number="27"/);
+  assert.match(chapterNine, /href="#eq-9-1">公式（9-1）<\/a>/);
+  assert.match(
+    chapterNine,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch09_cnn\/mlp\.ipynb/,
+  );
+  const chapterNineCnn = await html("/books/deconstructing_LLM/chapter-9/9-2");
+  assert.match(chapterNineCnn, /id="eq-9-4"/);
+  assert.match(chapterNineCnn, /程序清单 9-5/);
+  assert.match(
+    chapterNineCnn,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch09_cnn\/cnn\.ipynb/,
+  );
+  const chapterNineResNet = await html("/books/deconstructing_LLM/chapter-9/9-3");
+  assert.match(chapterNineResNet, /程序清单 9-6/);
+  assert.match(
+    chapterNineResNet,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch09_cnn\/res_nets\.ipynb/,
+  );
+  for (const section of ["9_1", "9_2", "9_3", "9_4"]) {
+    const markdown = await readFile(
+      resolve(`content/zh/books/deconstructing_LLM/chapter_9/${section}.md`),
+      "utf8",
+    );
+    assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
+  }
+  await access(join(outputRoot, "generated", "book-images", "chapter_9", "9-24.png"));
   await access(join(outputRoot, ".nojekyll"));
 });
 
