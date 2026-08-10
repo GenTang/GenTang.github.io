@@ -59,14 +59,21 @@ test("exports the homepage with local assets and the intended section order", as
   const source = await html("/");
   assert.match(source, /小胖笔记/);
   assert.match(source, /万一我证明了<em>黎曼猜想<\/em>/);
-  assert.match(source, /阅读最新章节/);
+  assert.match(source, /阅读最近博客/);
   assert.match(source, /解构大语言模型/);
-  assert.match(source, /已发布<\/span><strong>13 章<\/strong>/);
+  assert.match(source.replaceAll("<!-- -->", ""), /全书已完成 · 13 章/);
+  assert.doesNotMatch(source, /class="chapter-line"/);
   assert.match(source, /第一篇文章正在写作中，敬请期待/);
   assert.match(source, /持续更新/);
   assert.doesNotMatch(source, /NOTE \/ 001/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/"`));
-  assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-13/13-6/"`));
+  assert.match(source, new RegExp(`href="${basePath}/blog/ai-as-collaborator/"`));
+  const chapterLinksStart = source.indexOf('class="home-book-chapters"');
+  const chapterLinks = source.slice(chapterLinksStart, source.indexOf("</nav>", chapterLinksStart));
+  assert.ok(chapterLinksStart >= 0);
+  assert.ok(chapterLinks.includes(`href="${basePath}/books/deconstructing_LLM/chapter-1/"`));
+  assert.ok(chapterLinks.includes(`href="${basePath}/books/deconstructing_LLM/chapter-13/"`));
+  assert.doesNotMatch(source, /BOOK · COMPLETE/);
   assert.ok(source.indexOf(">BLOG<") < source.indexOf(">BOOK<"));
   assert.doesNotMatch(source, /01 \/ BLOG|02 \/ BOOK|全书按章节持续更新，目前已发布绪论与数学基础两章/);
   assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover\\.png"`));
@@ -243,7 +250,13 @@ test("exports the concise book overview with its outline and resources", async (
   assert.ok(overviewMarkdown.trim().length > 0);
   assert.match(source, /在理论基础方面/);
   assert.match(source, /READING MAP/);
-  for (const part of bookConfig.parts) assert.ok(source.includes(part.title));
+  for (const part of bookConfig.parts) {
+    assert.ok(source.includes(part.title));
+    for (const chapter of part.chapters) {
+      assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-${chapter}/"`));
+    }
+  }
+  assert.match(source.replaceAll("<!-- -->", ""), /全书已完成 · 13 章/);
   assert.match(source, /https:\/\/space\.bilibili\.com\/417265639\/lists\/3138772/);
   assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt/);
   assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-outline\\.png"`));
@@ -266,10 +279,13 @@ test("derives the two-level book navigation from content files", async () => {
   assert.match(source, /第九章：卷积神经网络——深度学习的“出埃及记”/);
   assert.match(source, /第十二章：强化学习——在动态交互中进化/);
   assert.match(source, /第十三章：其他经典模型——扩展视野/);
+  assert.doesNotMatch(source, />← 全书总览<|<span class="sidebar-label">全书目录<\/span>/);
+  assert.match(source, /全部展开/);
+  assert.match(source, /全部收起/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-1/1-4/"`));
   assert.match(source, /下一节.*1\.1 是数字鹦鹉，还是自我意识/s);
   assert.match(source, /<details class="toc-chapter is-open"[^>]*open/);
-  assert.match(source, /<details class="toc-chapter">/);
+  assert.match(source, /<details class="toc-chapter"[^>]*>/);
 });
 
 test("exports formulas, footnotes, chapter images, and their anchors", async () => {
@@ -564,7 +580,7 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   }
   const chapterThirteenTree = await html("/books/deconstructing_LLM/chapter-13/13-1");
   assert.match(chapterThirteenTree, /id="eq-13-1"/);
-  assert.match(chapterThirteenTree, /href="#eq-13-1">公式（13-1）<\/a>/);
+  assert.match(chapterThirteenTree, /href="#eq-13-2">公式（13-2）<\/a>/);
   assert.match(
     chapterThirteenTree,
     /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch13_others\/dt_logit\.ipynb/,
@@ -622,6 +638,7 @@ test("keeps mobile navigation compact and long-form content scrollable", async (
   const styles = await readFile(resolve("app/globals.css"), "utf8");
   const header = await readFile(resolve("app/components/SiteHeader.tsx"), "utf8");
   const tocScroller = await readFile(resolve("app/components/ActiveTocScroller.tsx"), "utf8");
+  const tocControls = await readFile(resolve("app/components/BookTocControls.tsx"), "utf8");
 
   assert.match(home, /mobile-menu-button/);
   assert.match(reading, /<aside class="mobile-reading-sidebar"><details>/);
@@ -638,4 +655,9 @@ test("keeps mobile navigation compact and long-form content scrollable", async (
   assert.match(tocScroller, /currentRect\.top[\s\S]*container\.clientHeight - currentRect\.height/);
   assert.match(tocScroller, /container\.scrollTo\(/);
   assert.match(tocScroller, /mobileDetails\?\.addEventListener\("toggle"/);
+  assert.match(tocControls, /querySelectorAll<HTMLDetailsElement>\("\.toc-chapter"\)/);
+  assert.match(tocControls, /useLayoutEffect/);
+  assert.match(tocControls, /openChapterIds\.add\(currentChapterId\)/);
+  assert.match(tocControls, /detail\.open = open/);
+  assert.match(tocControls, /sessionStorage\.setItem/);
 });

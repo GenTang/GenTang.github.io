@@ -555,10 +555,15 @@ a {
 }
 
 .status-label {
+  align-self: flex-start;
+  padding: 5px 9px;
   color: var(--accent);
+  background: color-mix(in srgb, var(--accent-soft) 62%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+  border-radius: 999px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 9px;
-  letter-spacing: 0.12em;
+  font-size: 10px;
+  letter-spacing: 0.07em;
 }
 
 .book-details h3 {
@@ -624,14 +629,37 @@ a {
 }
 
 .book-link-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 22px;
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
 }
 
 .book-link-group .is-overview {
   color: var(--accent);
   font-weight: 600;
+}
+
+.home-book-chapters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.home-book-chapters a {
+  padding: 5px 9px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-soft) 78%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.home-book-chapters a:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--line));
 }
 
 .essay-section {
@@ -821,6 +849,24 @@ a {
   letter-spacing: 0.1em;
 }
 
+.book-overview-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: center;
+}
+
+.book-overview-complete {
+  padding: 5px 9px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent-soft) 62%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+  border-radius: 999px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.07em;
+}
+
 .book-overview-intro h1 {
   margin: 13px 0 17px;
   font-family: Georgia, "Songti SC", "Noto Serif SC", serif;
@@ -946,13 +992,15 @@ a {
 }
 
 .book-roadmap-grid article {
+  display: flex;
   position: relative;
-  min-height: 195px;
+  min-height: 230px;
   padding: 22px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px 2px 12px 2px;
   overflow: hidden;
+  flex-direction: column;
 }
 
 .book-roadmap-grid article > span {
@@ -985,6 +1033,15 @@ a {
   line-height: 1.4;
 }
 
+.book-roadmap-grid h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.book-roadmap-grid h3 a:hover {
+  color: var(--accent);
+}
+
 .book-roadmap-grid p {
   position: relative;
   z-index: 1;
@@ -992,6 +1049,33 @@ a {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.72;
+}
+
+.book-roadmap-grid nav {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 17px;
+}
+
+.book-roadmap-grid nav a {
+  padding: 4px 8px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-soft) 78%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.book-roadmap-grid nav a:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--line));
 }
 
 .book-online-contents,
@@ -1135,6 +1219,12 @@ a {
   background: var(--paper);
 }
 
+.book-reading-main {
+  grid-template-columns: minmax(260px, 320px) minmax(0, 800px);
+  gap: clamp(28px, 4vw, 58px);
+  padding: 52px clamp(20px, 4vw, 64px) 100px;
+}
+
 .reading-sidebar {
   position: sticky;
   top: 128px;
@@ -1231,11 +1321,40 @@ a {
 
 .reading-sidebar .book-toc {
   gap: 0;
+  margin-top: 14px;
   padding-bottom: max(190px, calc((100vh - 156px) / 2));
+}
+
+.book-reading-main .sidebar-book-title {
+  margin-top: 0;
 }
 
 .toc-auto-center-sentinel {
   display: none;
+}
+
+.book-toc-controls {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 3px;
+  color: var(--line-strong);
+}
+
+.book-toc-controls button {
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.book-toc-controls button:hover {
+  color: var(--accent);
 }
 
 .reading-sidebar .book-toc .toc-chapter {
@@ -1257,11 +1376,12 @@ a {
 .reading-sidebar .book-toc .toc-chapter-link {
   display: block;
   flex: 1;
-  padding: 14px 3px 11px;
+  padding: 8px 3px 7px;
   color: var(--ink);
   border-bottom: 0;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
+  line-height: 1.35;
   text-decoration: none;
 }
 

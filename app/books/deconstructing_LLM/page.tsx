@@ -10,6 +10,7 @@ import { createPageMetadata } from "@/app/lib/siteMetadata";
 
 const overviewSource = getMarkdownContent("/content/zh/books/deconstructing_LLM/overview.md");
 const firstChapterHref = "/books/deconstructing_LLM/chapter-1";
+const chapterCount = Object.keys(bookConfig.chapterTitles).length;
 
 export const metadata: Metadata = createPageMetadata({
   title: `${bookConfig.title}：${bookConfig.subtitle}`,
@@ -42,7 +43,10 @@ export default function DeconstructingLlmOverview() {
           </a>
 
           <div className="book-overview-intro">
-            <span className="book-overview-kicker">{bookConfig.overview.kicker}</span>
+            <div className="book-overview-meta">
+              <span className="book-overview-kicker">{bookConfig.overview.kicker}</span>
+              <span className="book-overview-complete">全书已完成 · {chapterCount} 章</span>
+            </div>
             <h1>
               {bookConfig.title}
               <small>{bookConfig.subtitle}</small>
@@ -75,8 +79,22 @@ export default function DeconstructingLlmOverview() {
                 <article key={part.label}>
                   <span>0{index + 1}</span>
                   <small>{part.label}</small>
-                  <h3>{part.title}</h3>
+                  <h3>
+                    <a href={sitePath(`/books/deconstructing_LLM/chapter-${part.chapters[0]}`)}>
+                      {part.title}
+                    </a>
+                  </h3>
                   <p>{part.description}</p>
+                  <nav aria-label={`${part.title}章节`}>
+                    {part.chapters.map((chapter) => (
+                      <a
+                        href={sitePath(`/books/deconstructing_LLM/chapter-${chapter}`)}
+                        key={chapter}
+                      >
+                        第 {chapter} 章
+                      </a>
+                    ))}
+                  </nav>
                 </article>
               ))}
             </div>

@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { sitePath } from "@/app/lib/sitePath";
 import { ActiveTocScroller } from "./ActiveTocScroller";
+import { BookTocControls } from "./BookTocControls";
 import { MarkdownContent } from "./MarkdownContent";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
@@ -93,15 +95,13 @@ export function ReadingPage({
 
   const renderSidebarContent = () => (
     <>
-      <a
-        className="back-link"
-        href={sitePath(isBook && !en ? "/books/deconstructing_LLM" : `${prefix}/`)}
-      >
-        ← {isBook && !en ? "全书总览" : en ? "Back to home" : "返回首页"}
-      </a>
+      {!isBook && (
+        <a className="back-link" href={sitePath(`${prefix}/`)}>
+          ← {en ? "Back to home" : "返回首页"}
+        </a>
+      )}
       {isBook ? (
         <>
-          <span className="sidebar-label">{en ? "BOOK CONTENTS" : "全书目录"}</span>
           <div className="sidebar-book-title">
             <strong>{bookNavigation?.title ?? (en ? "Notes on AI Systems" : "解构大语言模型")}</strong>
             {bookNavigation?.subtitle && <span>{bookNavigation.subtitle}</span>}
@@ -115,7 +115,7 @@ export function ReadingPage({
               <span>03 · {en ? "The role of context" : "即将发布"}</span>
             </nav>
           )}
-          <small>{en ? "Upcoming chapters are placeholders for your manuscript." : "后续章节可按相同目录结构逐步发布。"}</small>
+          {en && <small>Upcoming chapters are placeholders for your manuscript.</small>}
         </>
       ) : (
         <>
@@ -132,7 +132,7 @@ export function ReadingPage({
   return (
     <div className="site-shell reading-shell">
       <SiteHeader lang={lang} active={kind} languageHref={languageHref} />
-      <main className="reading-main">
+      <main className={`reading-main ${isBook ? "book-reading-main" : "blog-reading-main"}`}>
         <aside className="reading-sidebar desktop-reading-sidebar">
           {renderSidebarContent()}
         </aside>
@@ -193,23 +193,33 @@ export function ReadingPage({
 }
 
 function BookTableOfContents({ navigation, currentHref }: { navigation: BookNavigation; currentHref?: string }) {
+  const currentChapterId = navigation.chapters.find((chapter) =>
+    chapter.href === currentHref || chapter.sections.some((section) => section.href === currentHref)
+  )?.id;
+
   return (
     <nav className="book-toc" aria-label="全书目录">
       <ActiveTocScroller currentHref={currentHref} />
+      <BookTocControls currentChapterId={currentChapterId} />
       {navigation.chapters.map((chapter) => {
         const chapterIsOpen = chapter.href === currentHref || chapter.sections.some((section) => section.href === currentHref);
 
         return (
-          <details className={chapterIsOpen ? "toc-chapter is-open" : "toc-chapter"} key={chapter.id} open={chapterIsOpen}>
+          <details
+            className={chapterIsOpen ? "toc-chapter is-open" : "toc-chapter"}
+            data-chapter-id={chapter.id}
+            key={chapter.id}
+            open={chapterIsOpen}
+          >
             <summary className="toc-chapter-summary">
               {chapter.href ? (
-                <a
+                <Link
                   aria-current={chapter.href === currentHref ? "page" : undefined}
                   className="toc-chapter-link"
                   href={sitePath(chapter.href)}
                 >
                   {chapter.title}
-                </a>
+                </Link>
               ) : (
                 <span className="toc-chapter-link is-disabled">{chapter.title}</span>
               )}
@@ -218,14 +228,14 @@ function BookTableOfContents({ navigation, currentHref }: { navigation: BookNavi
             {chapter.sections.length > 0 && (
               <div className="toc-section-list">
                 {chapter.sections.map((section) => (
-                  <a
+                  <Link
                     aria-current={section.href === currentHref ? "page" : undefined}
                     className={section.href === currentHref ? "current-chapter" : ""}
                     href={sitePath(section.href)}
                     key={section.id}
                   >
                     {section.title}
-                  </a>
+                  </Link>
                 ))}
               </div>
             )}
