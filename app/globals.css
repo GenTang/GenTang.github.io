@@ -1231,6 +1231,11 @@ a {
 
 .reading-sidebar .book-toc {
   gap: 0;
+  padding-bottom: max(190px, calc((100vh - 156px) / 2));
+}
+
+.toc-auto-center-sentinel {
+  display: none;
 }
 
 .reading-sidebar .book-toc .toc-chapter {
@@ -2044,6 +2049,10 @@ a {
 
   .mobile-reading-sidebar-panel nav a.current-chapter::before {
     left: -10px;
+  }
+
+  .mobile-reading-sidebar-panel .book-toc {
+    padding-bottom: min(29vh, 260px);
   }
 }
 

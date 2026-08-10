@@ -28,12 +28,12 @@ test("exports the homepage with local assets and the intended section order", as
   assert.match(source, /万一我证明了<em>黎曼猜想<\/em>/);
   assert.match(source, /阅读最新章节/);
   assert.match(source, /解构大语言模型/);
-  assert.match(source, /已发布<\/span><strong>6 章<\/strong>/);
+  assert.match(source, /已发布<\/span><strong>8 章<\/strong>/);
   assert.match(source, /第一篇文章正在写作中，敬请期待/);
   assert.match(source, /持续更新/);
   assert.doesNotMatch(source, /NOTE \/ 001/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/"`));
-  assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-6/6-5/"`));
+  assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-8/8-6/"`));
   assert.ok(source.indexOf(">BLOG<") < source.indexOf(">BOOK<"));
   assert.doesNotMatch(source, /01 \/ BLOG|02 \/ BOOK|全书按章节持续更新，目前已发布绪论与数学基础两章/);
   assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover\\.png"`));
@@ -47,7 +47,7 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
     readFile(join(outputRoot, "rss.xml"), "utf8"),
     readFile(join(outputRoot, "atom.xml"), "utf8"),
     html("/"),
-    html("/books/deconstructing_LLM/chapter-6/6-5"),
+    html("/books/deconstructing_LLM/chapter-8/8-6"),
     html("/blog/ai-as-collaborator"),
     html("/en/"),
   ]);
@@ -59,16 +59,16 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
   assert.match(robots, new RegExp(`Sitemap: ${publicUrl("/sitemap.xml").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
 
   assert.ok(sitemap.includes(`<loc>${publicUrl("/")}</loc>`));
-  assert.ok(sitemap.includes(`<loc>${publicUrl("/books/deconstructing_LLM/chapter-6/6-5")}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/books/deconstructing_LLM/chapter-8/8-6")}</loc>`));
   assert.ok(!sitemap.includes("blog/ai-as-collaborator"));
-  assert.ok(rss.includes(`<link>${publicUrl("/books/deconstructing_LLM/chapter-6/6-5")}</link>`));
-  assert.match(rss, /6\.5 本章小结/);
-  assert.ok(atom.includes(`<id>${publicUrl("/books/deconstructing_LLM/chapter-6/6-5")}</id>`));
+  assert.ok(rss.includes(`<link>${publicUrl("/books/deconstructing_LLM/chapter-8/8-6")}</link>`));
+  assert.match(rss, /8\.6 本章小结/);
+  assert.ok(atom.includes(`<id>${publicUrl("/books/deconstructing_LLM/chapter-8/8-6")}</id>`));
 
   assert.ok(home.includes(`rel="canonical" href="${publicUrl("/")}"`));
   assert.ok(home.includes(`type="application/rss+xml"`));
-  assert.ok(latest.includes(`rel="canonical" href="${publicUrl("/books/deconstructing_LLM/chapter-6/6-5")}"`));
-  assert.match(latest, /property="og:title" content="6\.5 本章小结"/);
+  assert.ok(latest.includes(`rel="canonical" href="${publicUrl("/books/deconstructing_LLM/chapter-8/8-6")}"`));
+  assert.match(latest, /property="og:title" content="8\.6 本章小结"/);
   assert.match(draftBlog, /name="robots" content="noindex, follow"/);
   assert.match(english, /<html lang="en"/);
   assert.match(home, /© 2026 唐亘 · 小胖笔记/);
@@ -113,6 +113,20 @@ test("exports every current reading route", async () => {
     ["/books/deconstructing_LLM/chapter-6/6-3", /6.3 梯度下降法的代码实现/],
     ["/books/deconstructing_LLM/chapter-6/6-4", /6.4 随机梯度下降法：更优化的算法/],
     ["/books/deconstructing_LLM/chapter-6/6-5", /6.5 本章小结/],
+    ["/books/deconstructing_LLM/chapter-7", /第七章：反向传播——神经网络的工程基础/],
+    ["/books/deconstructing_LLM/chapter-7/7-1", /7.1 计算图和向前传播/],
+    ["/books/deconstructing_LLM/chapter-7/7-2", /7.2 链式法则和反向传播/],
+    ["/books/deconstructing_LLM/chapter-7/7-3", /7.3 参数估计的全流程/],
+    ["/books/deconstructing_LLM/chapter-7/7-4", /7.4 动态优化/],
+    ["/books/deconstructing_LLM/chapter-7/7-5", /7.5 真实世界：针对大规模模型的优化技巧/],
+    ["/books/deconstructing_LLM/chapter-7/7-6", /7.6 本章小结/],
+    ["/books/deconstructing_LLM/chapter-8", /第八章：多层感知器——神经网络的“创世记”/],
+    ["/books/deconstructing_LLM/chapter-8/8-1", /8.1 感知器模型/],
+    ["/books/deconstructing_LLM/chapter-8/8-2", /8.2 从神经网络的视角重新理解逻辑回归/],
+    ["/books/deconstructing_LLM/chapter-8/8-3", /8.3 多层感知器/],
+    ["/books/deconstructing_LLM/chapter-8/8-4", /8.4 训练优化的关键：激活函数/],
+    ["/books/deconstructing_LLM/chapter-8/8-5", /8.5 从第一步开始优化训练/],
+    ["/books/deconstructing_LLM/chapter-8/8-6", /8.6 本章小结/],
     ["/en/books/deconstructing_LLM/chapter-1", /Begin with the question/],
     ["/blog/ai-as-collaborator", /第一篇文章正在写作中，敬请期待/],
     ["/en/blog/ai-as-collaborator", /From tool to collaborator/],
@@ -154,6 +168,8 @@ test("derives the two-level book navigation from content files", async () => {
   assert.match(source, /第四章：逻辑回归——隐藏因子/);
   assert.match(source, /第五章：计量经济学的启示——他山之石/);
   assert.match(source, /第六章：最优化算法——参数估计/);
+  assert.match(source, /第七章：反向传播——神经网络的工程基础/);
+  assert.match(source, /第八章：多层感知器——神经网络的“创世记”/);
   assert.match(source, new RegExp(`href="${basePath}/books/deconstructing_LLM/chapter-1/1-4/"`));
   assert.match(source, /下一节.*1\.1 是数字鹦鹉，还是自我意识/s);
   assert.match(source, /<details class="toc-chapter is-open"[^>]*open/);
@@ -263,10 +279,76 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
     );
     assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
   }
+
+  const chapterSevenAutograd = await html("/books/deconstructing_LLM/chapter-7/7-2");
+  assert.match(chapterSevenAutograd, /id="eq-7-1"/);
+  assert.match(chapterSevenAutograd, /href="#eq-7-1">公式（7-1）<\/a>/);
+  assert.match(chapterSevenAutograd, /程序清单 7-3/);
+  assert.match(chapterSevenAutograd, /程序清单 7-5/);
+  assert.match(chapterSevenAutograd, /class="code-line" data-line-number="41"/);
+  assert.match(
+    chapterSevenAutograd,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch07_autograd\/utils\.py/,
+  );
+
+  const chapterSevenGpu = await html("/books/deconstructing_LLM/chapter-7/7-5");
+  assert.match(chapterSevenGpu, /程序清单 7-9/);
+  assert.match(chapterSevenGpu, /class="code-line" data-line-number="16"/);
+  assert.match(
+    chapterSevenGpu,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch07_autograd\/gpu\.ipynb/,
+  );
+
+  for (const section of ["7_1", "7_2", "7_3", "7_4", "7_5", "7_6"]) {
+    const markdown = await readFile(
+      resolve(`content/zh/books/deconstructing_LLM/chapter_7/${section}.md`),
+      "utf8",
+    );
+    assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
+  }
+
+  const chapterEightPerceptron = await html("/books/deconstructing_LLM/chapter-8/8-1");
+  assert.match(chapterEightPerceptron, /id="eq-8-1"/);
+  assert.match(chapterEightPerceptron, /id="eq-8-10"/);
+  assert.match(chapterEightPerceptron, /href="#eq-8-8">公式（8-8）<\/a>/);
+  assert.match(
+    chapterEightPerceptron,
+    new RegExp(`src="${basePath}/generated/book-images/chapter_8/8-1[.]png"`),
+  );
+
+  const chapterEightLogit = await html("/books/deconstructing_LLM/chapter-8/8-2");
+  assert.match(chapterEightLogit, /程序清单 8-1/);
+  assert.match(chapterEightLogit, /程序清单 8-2/);
+  assert.match(chapterEightLogit, /class="code-line" data-line-number="57"/);
+  assert.match(
+    chapterEightLogit,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch08_mlp\/logit_regression\.ipynb/,
+  );
+
+  const chapterEightTraining = await html("/books/deconstructing_LLM/chapter-8/8-5");
+  assert.match(chapterEightTraining, /id="eq-8-16"/);
+  assert.match(chapterEightTraining, /程序清单 8-6/);
+  assert.match(chapterEightTraining, /程序清单 8-8/);
+  assert.match(chapterEightTraining, /class="code-line" data-line-number="26"/);
+  assert.match(
+    chapterEightTraining,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch08_mlp\/normalization\.ipynb/,
+  );
+
+  for (const section of ["8_1", "8_2", "8_3", "8_4", "8_5", "8_6"]) {
+    const markdown = await readFile(
+      resolve(`content/zh/books/deconstructing_LLM/chapter_8/${section}.md`),
+      "utf8",
+    );
+    assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
+  }
   await access(join(outputRoot, "generated", "book-images", "chapter_3", "3-23.png"));
   await access(join(outputRoot, "generated", "book-images", "chapter_4", "4-24.png"));
   await access(join(outputRoot, "generated", "book-images", "chapter_5", "5-13.png"));
   await access(join(outputRoot, "generated", "book-images", "chapter_6", "6-9.png"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_7", "7-28.png"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_8", "8-33.png"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_8", "8-summary.png"));
   await access(join(outputRoot, ".nojekyll"));
 });
 
@@ -275,15 +357,21 @@ test("keeps mobile navigation compact and long-form content scrollable", async (
   const reading = await html("/books/deconstructing_LLM/chapter-4/4-2");
   const styles = await readFile(resolve("app/globals.css"), "utf8");
   const header = await readFile(resolve("app/components/SiteHeader.tsx"), "utf8");
+  const tocScroller = await readFile(resolve("app/components/ActiveTocScroller.tsx"), "utf8");
 
   assert.match(home, /mobile-menu-button/);
   assert.match(reading, /<aside class="mobile-reading-sidebar"><details>/);
+  assert.match(reading, /aria-current="page"/);
   assert.match(reading, /<p class="table-title">表 4-1<\/p>/);
   assert.match(reading, /class="markdown-table-scroll"/);
   assert.match(header, /className="mobile-nav-language"/);
   assert.match(styles, /@media \(max-width: 430px\)/);
   assert.match(styles, /\.mobile-reading-sidebar-panel/);
+  assert.match(styles, /\.reading-sidebar \.book-toc\s*{[^}]*padding-bottom:/s);
   assert.match(styles, /\.markdown-content \.table-title/);
   assert.match(styles, /\.markdown-table-scroll table\s*{\s*min-width: 560px/);
   assert.match(styles, /\.markdown-content \.katex-display > \.katex > \.katex-html\s*{\s*padding-inline: 34px/);
+  assert.match(tocScroller, /currentRect\.top[\s\S]*container\.clientHeight - currentRect\.height/);
+  assert.match(tocScroller, /container\.scrollTo\(/);
+  assert.match(tocScroller, /mobileDetails\?\.addEventListener\("toggle"/);
 });

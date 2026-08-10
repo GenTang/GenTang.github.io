@@ -1,4 +1,5 @@
 import { sitePath } from "@/app/lib/sitePath";
+import { ActiveTocScroller } from "./ActiveTocScroller";
 import { MarkdownContent } from "./MarkdownContent";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
@@ -194,6 +195,7 @@ export function ReadingPage({
 function BookTableOfContents({ navigation, currentHref }: { navigation: BookNavigation; currentHref?: string }) {
   return (
     <nav className="book-toc" aria-label="全书目录">
+      <ActiveTocScroller currentHref={currentHref} />
       {navigation.chapters.map((chapter) => {
         const chapterIsOpen = chapter.href === currentHref || chapter.sections.some((section) => section.href === currentHref);
 
@@ -201,7 +203,13 @@ function BookTableOfContents({ navigation, currentHref }: { navigation: BookNavi
           <details className={chapterIsOpen ? "toc-chapter is-open" : "toc-chapter"} key={chapter.id} open={chapterIsOpen}>
             <summary className="toc-chapter-summary">
               {chapter.href ? (
-                <a className="toc-chapter-link" href={sitePath(chapter.href)}>{chapter.title}</a>
+                <a
+                  aria-current={chapter.href === currentHref ? "page" : undefined}
+                  className="toc-chapter-link"
+                  href={sitePath(chapter.href)}
+                >
+                  {chapter.title}
+                </a>
               ) : (
                 <span className="toc-chapter-link is-disabled">{chapter.title}</span>
               )}
@@ -211,6 +219,7 @@ function BookTableOfContents({ navigation, currentHref }: { navigation: BookNavi
               <div className="toc-section-list">
                 {chapter.sections.map((section) => (
                   <a
+                    aria-current={section.href === currentHref ? "page" : undefined}
                     className={section.href === currentHref ? "current-chapter" : ""}
                     href={sitePath(section.href)}
                     key={section.id}
