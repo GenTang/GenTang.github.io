@@ -507,6 +507,33 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
     /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch06_optimizer\/stochastic_gradient_descent\.ipynb/,
   );
 
+  const englishChapterSix = await html("/en/books/deconstructing_LLM/chapter-6/6-1");
+  assert.match(englishChapterSix, /id="eq-6-1"/);
+  assert.match(englishChapterSix, /href="#eq-6-1">Equation \(6-1\)<\/a>/);
+  assert.match(
+    englishChapterSix,
+    new RegExp(`src="${basePath}/generated/book-images/en/chapter_6/6-1[.]png"`),
+  );
+
+  const englishChapterSixImplementation = await html("/en/books/deconstructing_LLM/chapter-6/6-3");
+  assert.match(englishChapterSixImplementation, /Listing 6-1 Creating Tensors/);
+  assert.match(englishChapterSixImplementation, /Listing 6-5 Gradient Descent/);
+  assert.match(englishChapterSixImplementation, /class="code-line" data-line-number="33"/);
+  assert.match(
+    englishChapterSixImplementation,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/en\/ch06_optimizer\/gradient_descent\.ipynb/,
+  );
+
+  const englishChapterSixSgd = await html("/en/books/deconstructing_LLM/chapter-6/6-4");
+  assert.match(englishChapterSixSgd, /id="eq-6-7"/);
+  assert.match(englishChapterSixSgd, /href="#eq-6-7">Equation \(6-7\)<\/a>/);
+  assert.match(englishChapterSixSgd, /Listing 6-6 Stochastic Gradient Descent/);
+  assert.match(
+    englishChapterSixSgd,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/en\/ch06_optimizer\/stochastic_gradient_descent\.ipynb/,
+  );
+  assert.doesNotMatch(englishChapterSixSgd, /regression2chatgpt\/blob\/zh\//);
+
   for (const section of ["6_1", "6_2", "6_3", "6_4", "6_5"]) {
     const markdown = await readFile(
       resolve(`content/zh/books/deconstructing_LLM/chapter_6/${section}.md`),
