@@ -1,57 +1,29 @@
 import type { Metadata } from "next";
-import { HomeView } from "./components/HomeView";
-import {
-  absoluteSiteUrl,
-  createPageMetadata,
-  homeTitle,
-  siteDescription,
-  siteName,
-} from "./lib/siteMetadata";
+import { createPageMetadata, siteDescription } from "./lib/siteMetadata";
+import { sitePath } from "./lib/sitePath";
 
-const generatedMetadata = createPageMetadata({
-  title: homeTitle,
+export const metadata: Metadata = createPageMetadata({
+  title: "小胖笔记",
   description: siteDescription,
-  path: "/",
+  path: "/zh/",
   alternatePath: "/en/",
   kind: "website",
-  keywords: [
-    "小胖笔记",
-    "LLM",
-    "大语言模型",
-    "模型架构",
-    "数据基础",
-    "工程实现",
-    "人工智能",
-    "AI",
-    "Deep Learning",
-  ],
+  noIndex: true,
 });
 
-export const metadata: Metadata = {
-  ...generatedMetadata,
-  title: { absolute: homeTitle },
-};
+export default function LanguageEntry() {
+  const target = sitePath("/zh/");
 
-const websiteStructuredData = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: siteName,
-  alternateName: "Xiaopang Notes",
-  url: absoluteSiteUrl("/"),
-  description: siteDescription,
-  inLanguage: ["zh-CN", "en"],
-};
-
-export default function Home() {
   return (
-    <>
+    <main className="root-language-entry">
       <script
-        type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(websiteStructuredData).replace(/</g, "\\u003c"),
+          __html: `window.location.replace(${JSON.stringify(target)});`,
         }}
       />
-      <HomeView lang="zh" />
-    </>
+      <p>
+        正在进入中文站点…… <a href={target}>继续访问</a>
+      </p>
+    </main>
   );
 }

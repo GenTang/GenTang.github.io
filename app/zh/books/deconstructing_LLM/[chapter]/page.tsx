@@ -27,6 +27,9 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
   const chapterId = getDeconstructingLlmChapterId(route.chapter);
   const overview = chapterId ? getDeconstructingLlmSection(chapterId) : undefined;
   const chapterSeo = chapterId ? getDeconstructingLlmChapterSeo(chapterId) : undefined;
+  const alternateSection = chapterId
+    ? getDeconstructingLlmSection(chapterId, "overview", "en")
+    : undefined;
 
   return overview
     ? createPageMetadata({
@@ -34,14 +37,12 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
         description: chapterSeo?.description || overview.description,
         path: overview.href,
         keywords: chapterSeo?.keywords,
-        alternatePath: chapterId === "chapter_1"
-          ? "/en/books/deconstructing_LLM/chapter-1"
-          : undefined,
+        alternatePath: alternateSection?.href,
       })
     : createPageMetadata({
         title: "章节未找到",
         description: "没有找到请求的章节。",
-        path: `/books/deconstructing_LLM/${route.chapter}`,
+        path: `/zh/books/deconstructing_LLM/${route.chapter}`,
         noIndex: true,
       });
 }

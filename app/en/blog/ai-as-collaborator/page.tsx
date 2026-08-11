@@ -9,6 +9,7 @@ export const metadata: Metadata = createPageMetadata({
   title: "From tool to collaborator",
   description: "The important change in AI is not only faster answers, but a moving boundary between tool use and collaboration.",
   path: "/en/blog/ai-as-collaborator",
+  alternatePath: "/zh/blog/ai-as-collaborator",
   locale: "en_US",
   noIndex: true,
 });

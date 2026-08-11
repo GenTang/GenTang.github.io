@@ -6,7 +6,7 @@ export const metadata: Metadata = createPageMetadata({
   title: "Xiaopang Notes",
   description: "An online book on large language models, with long-form notes on AI, mathematics, and intelligent systems.",
   path: "/en/",
-  alternatePath: "/",
+  alternatePath: "/zh/",
   locale: "en_US",
   kind: "website",
 });

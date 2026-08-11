@@ -8,6 +8,7 @@ import remarkMath from "remark-math";
 import { sitePath } from "@/app/lib/sitePath";
 
 type MarkdownContentProps = {
+  lang?: "zh" | "en";
   source: string;
   images?: Record<string, string>;
 };
@@ -245,21 +246,34 @@ function imagePresentation(alt = "") {
   };
 }
 
-export function MarkdownContent({ source, images }: MarkdownContentProps) {
+function localizedContentHref(href: string | undefined, lang: "zh" | "en") {
+  if (!href?.startsWith("/")) return href;
+  if (/^\/(?:zh|en)(?:\/|$)/.test(href)) return href;
+  if (/^\/(?:books|blog)(?:\/|$)/.test(href)) return `/${lang}${href}`;
+
+  return href;
+}
+
+export function MarkdownContent({ lang = "zh", source, images }: MarkdownContentProps) {
   return (
     <div className="markdown-content">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath, referenceAnchors]}
         remarkRehypeOptions={{
-          footnoteLabel: "注释",
-          footnoteBackLabel: "返回正文",
+          footnoteLabel: lang === "en" ? "Footnotes" : "注释",
+          footnoteBackLabel: lang === "en" ? "Back to content" : "返回正文",
           footnoteLabelProperties: { className: ["footnote-label"] },
         }}
         rehypePlugins={[rehypeSlug, rehypeKatex, katexEquationAnchors, rehypeHighlight, codeLineNumbers]}
         components={{
           a: ({ href, children, node, ...props }) => {
             void node;
-            return <a href={href?.startsWith("/") ? sitePath(href) : href} {...props}>{children}</a>;
+            const localizedHref = localizedContentHref(href, lang);
+            return (
+              <a href={localizedHref?.startsWith("/") ? sitePath(localizedHref) : localizedHref} {...props}>
+                {children}
+              </a>
+            );
           },
           p: ({ node, children, ...props }) => {
             const onlyChild = node?.children.length === 1 ? node.children[0] : undefined;
@@ -280,7 +294,7 @@ export function MarkdownContent({ source, images }: MarkdownContentProps) {
               );
             }
 
-            if (/^表\s*\d+(?:[-.]\d+)*(?:\s+.+)?$/u.test(paragraphText)) {
+            if (/^(?:表|Table)\s*\d+(?:[-.]\d+)*(?:\s+.+)?$/u.test(paragraphText)) {
               return <p className="table-title" {...props}>{children}</p>;
             }
 
@@ -306,7 +320,7 @@ export function MarkdownContent({ source, images }: MarkdownContentProps) {
               <div
                 className="markdown-table-scroll"
                 role="region"
-                aria-label="可横向滚动的表格"
+                aria-label={lang === "en" ? "Horizontally scrollable table" : "可横向滚动的表格"}
               >
                 <table {...props}>{children}</table>
               </div>

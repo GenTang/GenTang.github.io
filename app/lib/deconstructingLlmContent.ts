@@ -1,5 +1,8 @@
-import bookConfig from "@/content/zh/books/deconstructing_LLM/book.json";
-import { bookChapterIds, markdownContent } from "./content";
+import enBookConfig from "@/content/en/books/deconstructing_LLM/book.json";
+import zhBookConfig from "@/content/zh/books/deconstructing_LLM/book.json";
+import { bookChapterIdsByLanguage, markdownContent } from "./content";
+
+export type BookLanguage = "zh" | "en";
 
 export type BookSection = {
   id: string;
@@ -26,11 +29,11 @@ export type BookChapterSeo = {
   keywords: string[];
 };
 
-const markdownModules = Object.fromEntries(
-  Object.entries(markdownContent).filter(([path]) =>
-    /^\/content\/zh\/books\/deconstructing_LLM\/chapter_\d+\/[^/]+\.md$/.test(path)
-  ),
-) as Record<string, string>;
+const languages: BookLanguage[] = ["zh", "en"];
+const bookConfigs = {
+  zh: zhBookConfig,
+  en: enBookConfig,
+};
 
 function headingTitle(source: string, fallback: string) {
   const heading = source.match(/^#{1,6}\s+(.+?)\s*$/m)?.[1];
@@ -68,52 +71,85 @@ function sectionOrder(sectionId: string) {
   return sectionId === "overview" ? "0" : sectionId;
 }
 
-function chapterFallbackTitle(chapterId: string) {
-  const configuredTitles = bookConfig.chapterTitles as Record<string, string>;
+function chapterFallbackTitle(chapterId: string, language: BookLanguage) {
+  const configuredTitles = bookConfigs[language].chapterTitles as Record<string, string>;
   if (configuredTitles[chapterId]) return configuredTitles[chapterId];
 
   const chapterNumber = Number(chapterId.match(/\d+$/)?.[0]);
-  return Number.isFinite(chapterNumber) ? `第 ${chapterNumber} 章` : chapterId;
+  if (!Number.isFinite(chapterNumber)) return chapterId;
+
+  return language === "zh" ? `第 ${chapterNumber} 章` : `Chapter ${chapterNumber}`;
 }
 
-const sections: BookSection[] = Object.entries(markdownModules)
-  .flatMap(([path, source]) => {
-    const match = path.match(/\/(chapter_(\d+))\/([^/]+)\.md$/);
-    if (!match) return [];
+function buildSections(language: BookLanguage) {
+  const bookConfig = bookConfigs[language];
+  const languagePrefix = `/${language}`;
+  const markdownModules = Object.entries(markdownContent).filter(([path]) =>
+    new RegExp(`^/content/${language}/books/deconstructing_LLM/chapter_\\d+/[^/]+\\.md$`).test(path)
+  );
 
-    const [, chapterId, chapterNumber, sectionId] = match;
-    const chapterHref = `/books/deconstructing_LLM/chapter-${chapterNumber}`;
-    const routeSegment = sectionId === "overview" ? "" : `/${sectionId.replaceAll("_", "-")}`;
-    const fallbackTitle = sectionId === "overview" ? `第 ${chapterNumber} 章` : sectionId.replaceAll("_", ".");
+  return markdownModules
+    .flatMap(([path, source]) => {
+      const match = path.match(/\/(chapter_(\d+))\/([^/]+)\.md$/);
+      if (!match) return [];
 
-    return [{
-      id: sectionId,
-      chapterId,
-      title: headingTitle(source, fallbackTitle),
-      description: markdownDescription(source, `《${bookConfig.title}》${fallbackTitle}`),
-      href: `${chapterHref}${routeSegment}`,
-      source,
-    }];
-  })
-  .sort((left, right) => {
-    const chapterComparison = left.chapterId.localeCompare(right.chapterId, "zh-CN", { numeric: true });
-    if (chapterComparison !== 0) return chapterComparison;
+      const [, chapterId, chapterNumber, sectionId] = match;
+      const chapterHref = `${languagePrefix}/books/deconstructing_LLM/chapter-${chapterNumber}`;
+      const routeSegment = sectionId === "overview" ? "" : `/${sectionId.replaceAll("_", "-")}`;
+      const fallbackTitle = sectionId === "overview"
+        ? chapterFallbackTitle(chapterId, language)
+        : sectionId.replaceAll("_", ".");
+      const fallbackDescription = language === "zh"
+        ? `《${bookConfig.title}》${fallbackTitle}`
+        : `${bookConfig.title}: ${fallbackTitle}`;
 
-    return sectionOrder(left.id).localeCompare(sectionOrder(right.id), "zh-CN", { numeric: true });
-  });
+      return [{
+        id: sectionId,
+        chapterId,
+        title: headingTitle(source, fallbackTitle),
+        description: markdownDescription(source, fallbackDescription),
+        href: `${chapterHref}${routeSegment}`,
+        source,
+      }];
+    })
+    .sort((left, right) => {
+      const locale = language === "zh" ? "zh-CN" : "en";
+      const chapterComparison = left.chapterId.localeCompare(right.chapterId, locale, { numeric: true });
+      if (chapterComparison !== 0) return chapterComparison;
 
-export function getDeconstructingLlmSections(chapterId?: string) {
+      return sectionOrder(left.id).localeCompare(sectionOrder(right.id), locale, { numeric: true });
+    });
+}
+
+const sectionsByLanguage = Object.fromEntries(
+  languages.map((language) => [language, buildSections(language)]),
+) as Record<BookLanguage, BookSection[]>;
+
+export function getDeconstructingLlmSections(
+  chapterId?: string,
+  language: BookLanguage = "zh",
+) {
+  const sections = sectionsByLanguage[language];
   return chapterId ? sections.filter((section) => section.chapterId === chapterId) : sections;
 }
 
-export function getDeconstructingLlmChapterSeo(chapterId: string): BookChapterSeo | undefined {
-  const chapterSeo = bookConfig.chapterSeo as Record<string, BookChapterSeo>;
+export function getDeconstructingLlmChapterSeo(
+  chapterId: string,
+  language: BookLanguage = "zh",
+): BookChapterSeo | undefined {
+  const chapterSeo = bookConfigs[language].chapterSeo as Record<string, BookChapterSeo>;
   return chapterSeo[chapterId];
 }
 
-export function getDeconstructingLlmSection(chapterId: string, routeSection = "overview") {
+export function getDeconstructingLlmSection(
+  chapterId: string,
+  routeSection = "overview",
+  language: BookLanguage = "zh",
+) {
   const sectionId = decodeURIComponent(routeSection).replaceAll("-", "_");
-  return sections.find((section) => section.chapterId === chapterId && section.id === sectionId);
+  return sectionsByLanguage[language].find(
+    (section) => section.chapterId === chapterId && section.id === sectionId,
+  );
 }
 
 export function getDeconstructingLlmChapterId(routeChapter: string) {
@@ -125,19 +161,23 @@ export function getDeconstructingLlmRouteChapter(chapterId: string) {
   return chapterId.replace("chapter_", "chapter-");
 }
 
-export function getDeconstructingLlmNavigation(): BookNavigation {
+export function getDeconstructingLlmNavigation(
+  language: BookLanguage = "zh",
+): BookNavigation {
+  const bookConfig = bookConfigs[language];
+
   return {
     title: bookConfig.title,
     subtitle: bookConfig.subtitle,
-    chapters: bookChapterIds.map((chapterId) => {
-      const chapterSections = getDeconstructingLlmSections(chapterId);
+    chapters: bookChapterIdsByLanguage[language].map((chapterId) => {
+      const chapterSections = getDeconstructingLlmSections(chapterId, language);
       const chapterOverview = chapterSections.find((section) => section.id === "overview");
 
       return {
         id: chapterId,
         title: chapterOverview
-          ? headingTitle(chapterOverview.source, chapterFallbackTitle(chapterId))
-          : chapterFallbackTitle(chapterId),
+          ? headingTitle(chapterOverview.source, chapterFallbackTitle(chapterId, language))
+          : chapterFallbackTitle(chapterId, language),
         href: chapterOverview?.href,
         sections: chapterSections
           .filter((section) => section.id !== "overview")
@@ -147,11 +187,15 @@ export function getDeconstructingLlmNavigation(): BookNavigation {
   };
 }
 
-export function getDeconstructingLlmLatestSection() {
-  return sections.at(-1);
+export function getDeconstructingLlmLatestSection(language: BookLanguage = "zh") {
+  return sectionsByLanguage[language].at(-1);
 }
 
-export function getDeconstructingLlmNeighbors(currentHref: string) {
+export function getDeconstructingLlmNeighbors(
+  currentHref: string,
+  language: BookLanguage = "zh",
+) {
+  const sections = sectionsByLanguage[language];
   const currentIndex = sections.findIndex((section) => section.href === currentHref);
 
   return {

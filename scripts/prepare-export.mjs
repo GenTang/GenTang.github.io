@@ -4,7 +4,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputRoot = join(projectRoot, "out");
-const bookRoot = join(projectRoot, "content", "zh", "books", "deconstructing_LLM");
+const bookRoots = {
+  zh: join(projectRoot, "content", "zh", "books", "deconstructing_LLM"),
+  en: join(projectRoot, "content", "en", "books", "deconstructing_LLM"),
+};
 const defaultSiteUrl = "https://gentang.github.io/";
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || defaultSiteUrl;
 const siteRoot = new URL(configuredSiteUrl.endsWith("/") ? configuredSiteUrl : `${configuredSiteUrl}/`);
@@ -43,7 +46,9 @@ function sectionSortKey(name) {
   return name === "overview.md" ? "0" : name;
 }
 
-async function bookEntries() {
+async function bookEntries(language = "zh") {
+  const bookRoot = bookRoots[language];
+  const languagePrefix = `/${language}`;
   const directoryEntries = await readdir(bookRoot, { withFileTypes: true });
   const chapterDirectories = directoryEntries
     .filter((entry) => entry.isDirectory() && /^chapter_\d+$/.test(entry.name))
@@ -62,14 +67,19 @@ async function bookEntries() {
       const source = await readFile(join(bookRoot, chapterDirectory, file), "utf8");
       const sectionId = file.replace(/\.md$/i, "");
       const route = sectionId === "overview"
-        ? `/books/deconstructing_LLM/chapter-${chapterNumber}`
-        : `/books/deconstructing_LLM/chapter-${chapterNumber}/${sectionId.replaceAll("_", "-")}`;
-      const fallback = sectionId === "overview" ? `第 ${chapterNumber} 章` : sectionId.replaceAll("_", ".");
+        ? `${languagePrefix}/books/deconstructing_LLM/chapter-${chapterNumber}`
+        : `${languagePrefix}/books/deconstructing_LLM/chapter-${chapterNumber}/${sectionId.replaceAll("_", "-")}`;
+      const fallback = sectionId === "overview"
+        ? (language === "zh" ? `第 ${chapterNumber} 章` : `Chapter ${chapterNumber}`)
+        : sectionId.replaceAll("_", ".");
+      const title = headingTitle(source, fallback);
 
       entries.push({
         route,
-        title: headingTitle(source, fallback),
-        summary: `《解构大语言模型：从线性回归到通用智能》${headingTitle(source, fallback)}`,
+        title,
+        summary: language === "zh"
+          ? `《解构大语言模型：从线性回归到通用智能》${title}`
+          : `Deconstructing Large Language Models: ${title}`,
       });
     }
   }
@@ -88,11 +98,10 @@ async function blogEntries() {
 
 async function writeCrawlerFiles(entries) {
   const routes = [
-    "/",
+    "/zh/",
     "/en/",
-    "/books/deconstructing_LLM",
+    "/zh/books/deconstructing_LLM",
     ...entries.map((entry) => entry.route),
-    "/en/books/deconstructing_LLM/chapter-1",
   ];
   const uniqueRoutes = [...new Set(routes)];
   const sitemap = [
@@ -149,7 +158,7 @@ async function writeFeeds(entries) {
     '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
     "  <channel>",
     "    <title>小胖笔记</title>",
-    `    <link>${xmlEscape(absoluteUrl("/"))}</link>`,
+    `    <link>${xmlEscape(absoluteUrl("/zh/"))}</link>`,
     `    <description>${xmlEscape(siteDescription)}</description>`,
     "    <language>zh-CN</language>",
     `    <lastBuildDate>${now.toUTCString()}</lastBuildDate>`,
@@ -172,9 +181,9 @@ async function writeFeeds(entries) {
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">',
     "  <title>小胖笔记</title>",
-    `  <id>${xmlEscape(absoluteUrl("/"))}</id>`,
+    `  <id>${xmlEscape(absoluteUrl("/zh/"))}</id>`,
     `  <link href="${xmlEscape(absoluteUrl("/atom.xml"))}" rel="self" />`,
-    `  <link href="${xmlEscape(absoluteUrl("/"))}" />`,
+    `  <link href="${xmlEscape(absoluteUrl("/zh/"))}" />`,
     `  <updated>${now.toISOString()}</updated>`,
     "  <author><name>唐亘</name></author>",
     ...atomEntries,
@@ -216,17 +225,21 @@ async function markEnglishPages() {
 }
 
 export async function prepareExport() {
-  const entries = [
-    ...await bookEntries(),
+  const feedEntries = [
+    ...await bookEntries("zh"),
     ...await blogEntries(),
+  ];
+  const crawlerEntries = [
+    ...feedEntries,
+    ...await bookEntries("en"),
   ];
   await Promise.all([
     writeFile(join(outputRoot, ".nojekyll"), "", "utf8"),
-    writeCrawlerFiles(entries),
-    writeFeeds(entries),
+    writeCrawlerFiles(crawlerEntries),
+    writeFeeds(feedEntries),
     markEnglishPages(),
   ]);
-  console.log(`静态站点已生成到 out/，包含 ${entries.length} 个订阅条目。\n`);
+  console.log(`静态站点已生成到 out/，包含 ${feedEntries.length} 个订阅条目。\n`);
 }
 
 const invokedDirectly = process.argv[1]

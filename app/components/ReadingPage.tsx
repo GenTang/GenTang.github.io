@@ -14,6 +14,7 @@ type ReadingPageProps = {
   article?: ReadingArticleMeta;
   bookNavigation?: BookNavigation;
   currentHref?: string;
+  languageHref?: string;
   previousPage?: PaginationPage;
   nextPage?: PaginationPage;
   contentOnly?: boolean;
@@ -60,16 +61,17 @@ export function ReadingPage({
   article,
   bookNavigation,
   currentHref,
+  languageHref: providedLanguageHref,
   previousPage,
   nextPage,
   contentOnly = false,
 }: ReadingPageProps) {
   const en = lang === "en";
   const isBook = kind === "book";
-  const prefix = en ? "/en" : "";
-  const languageHref = isBook
-    ? (en ? "/books/deconstructing_LLM/chapter-1" : "/en/books/deconstructing_LLM/chapter-1")
-    : (en ? "/blog/ai-as-collaborator" : "/en/blog/ai-as-collaborator");
+  const prefix = `/${lang}`;
+  const languageHref = providedLanguageHref ?? (isBook
+    ? (en ? "/zh/books/deconstructing_LLM/chapter-1" : "/en/books/deconstructing_LLM/chapter-1")
+    : (en ? "/zh/blog/ai-as-collaborator" : "/en/blog/ai-as-collaborator"));
 
   const defaultBlogOutline = en
     ? [
@@ -107,10 +109,10 @@ export function ReadingPage({
             {bookNavigation?.subtitle && <span>{bookNavigation.subtitle}</span>}
           </div>
           {bookNavigation ? (
-            <BookTableOfContents navigation={bookNavigation} currentHref={currentHref} />
+              <BookTableOfContents lang={lang} navigation={bookNavigation} currentHref={currentHref} />
           ) : (
             <nav aria-label={en ? "Book chapters" : "书籍章节"}>
-              <a className="current-chapter" href={sitePath(`${prefix}/books/deconstructing_LLM/chapter-1`)}>01 · {en ? "Begin with the question" : "绪论"}</a>
+              <a className="current-chapter" href={sitePath(`${prefix}/books/deconstructing_LLM/chapter-1`)}>01 · {en ? "Chapter 1: Introduction" : "绪论"}</a>
               <span>02 · {en ? "Models and representations" : "即将发布"}</span>
               <span>03 · {en ? "The role of context" : "即将发布"}</span>
             </nav>
@@ -169,7 +171,7 @@ export function ReadingPage({
             </>
           )}
 
-          <MarkdownContent source={source} images={images} />
+          <MarkdownContent lang={lang} source={source} images={images} />
 
           {isBook ? (
             <nav className="article-pagination" aria-label={en ? "Section navigation" : "小节导航"}>
@@ -192,15 +194,23 @@ export function ReadingPage({
   );
 }
 
-function BookTableOfContents({ navigation, currentHref }: { navigation: BookNavigation; currentHref?: string }) {
+function BookTableOfContents({
+  lang,
+  navigation,
+  currentHref,
+}: {
+  lang: "zh" | "en";
+  navigation: BookNavigation;
+  currentHref?: string;
+}) {
   const currentChapterId = navigation.chapters.find((chapter) =>
     chapter.href === currentHref || chapter.sections.some((section) => section.href === currentHref)
   )?.id;
 
   return (
-    <nav className="book-toc" aria-label="全书目录">
+    <nav className="book-toc" aria-label={lang === "en" ? "Book contents" : "全书目录"}>
       <ActiveTocScroller currentHref={currentHref} />
-      <BookTocControls currentChapterId={currentChapterId} />
+      <BookTocControls currentChapterId={currentChapterId} lang={lang} />
       {navigation.chapters.map((chapter) => {
         const chapterIsOpen = chapter.href === currentHref || chapter.sections.some((section) => section.href === currentHref);
 

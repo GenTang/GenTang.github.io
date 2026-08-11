@@ -25,7 +25,7 @@ cd GenTang.github.io
 ./scripts/dev.sh
 ```
 
-然后打开 [http://localhost:3000](http://localhost:3000)。修改 Markdown、首页 JSON 或章节图片后，开发服务器会重新生成内容索引并刷新页面。按 `Control + C` 停止服务。
+然后打开中文站点 [http://localhost:3000/zh/](http://localhost:3000/zh/) 或英文站点 [http://localhost:3000/en/](http://localhost:3000/en/)。根路径 [http://localhost:3000/](http://localhost:3000/) 会自动进入中文站点。修改 Markdown、首页 JSON 或章节图片后，开发服务器会重新生成内容索引并刷新页面。按 `Control + C` 停止服务。
 
 脚本会自动使用系统中的 `pnpm`、`corepack` 或 `npm`，首次运行时会安装依赖。项目不依赖任何特定电脑、用户目录或开发工具的私有运行环境。
 
@@ -75,10 +75,12 @@ git push
 
 推送到 `main` 后，`.github/workflows/pages.yml` 会运行同样的静态构建并部署 `out/`。首次使用时，需要在 GitHub 仓库的 `Settings → Pages → Build and deployment` 中把 `Source` 设为 `GitHub Actions`。
 
-当前远程仓库属于 `GenTang`，仓库名也是 `GenTang.github.io`，因此默认 Pages 地址是：
+当前远程仓库属于 `GenTang`，仓库名也是 `GenTang.github.io`。根地址会进入中文站点，中英文站点地址分别是：
 
 ```text
 https://gentang.github.io/
+https://gentang.github.io/zh/
+https://gentang.github.io/en/
 ```
 
 上线后可分别向 Google Search Console 和 Bing Webmaster Tools 提交：

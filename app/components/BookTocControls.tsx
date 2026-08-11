@@ -20,7 +20,15 @@ function rememberOpenChapters(details: HTMLDetailsElement[]) {
   sessionStorage.setItem(storageKey, JSON.stringify(openChapterIds));
 }
 
-export function BookTocControls({ currentChapterId }: { currentChapterId?: string }) {
+type BookTocControlsProps = {
+  currentChapterId?: string;
+  lang?: "zh" | "en";
+};
+
+export function BookTocControls({
+  currentChapterId,
+  lang = "zh",
+}: BookTocControlsProps) {
   const controlsRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -59,9 +67,13 @@ export function BookTocControls({ currentChapterId }: { currentChapterId?: strin
 
   return (
     <div className="book-toc-controls" ref={controlsRef}>
-      <button type="button" onClick={() => setAllChapters(true)}>全部展开</button>
+      <button type="button" onClick={() => setAllChapters(true)}>
+        {lang === "en" ? "Expand all" : "全部展开"}
+      </button>
       <span aria-hidden="true">·</span>
-      <button type="button" onClick={() => setAllChapters(false)}>全部收起</button>
+      <button type="button" onClick={() => setAllChapters(false)}>
+        {lang === "en" ? "Collapse all" : "全部收起"}
+      </button>
     </div>
   );
 }

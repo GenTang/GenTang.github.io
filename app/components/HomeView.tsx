@@ -35,7 +35,7 @@ export function HomeView({ lang }: { lang: "zh" | "en" }) {
       className="site-shell"
       style={{ "--hero-manuscript": `url("${sitePath("/images/galois-manuscript.jpg")}")` } as CSSProperties}
     >
-      <SiteHeader lang={lang} languageHref={lang === "en" ? "/" : "/en/"} />
+      <SiteHeader lang={lang} languageHref={lang === "en" ? "/zh/" : "/en/"} />
       <main>
         <section className="home-hero">
           <div className="hero-copy">

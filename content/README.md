@@ -17,7 +17,7 @@
 - 全书总览（内容简介）：`content/zh/books/deconstructing_LLM/overview.md`
 - 第一章概览：`content/zh/books/deconstructing_LLM/chapter_1/overview.md`
 - 第一章小节：`content/zh/books/deconstructing_LLM/chapter_1/1_1.md` 等
-- 英文第一章：`content/en/books/ai-systems/chapter-1.md`
+- 英文书稿目录：`content/en/books/deconstructing_LLM/`，目录结构与中文版本一致
 - 中文博客：`content/zh/blog/ai-as-collaborator.md`
 - 英文博客：`content/en/blog/ai-as-collaborator.md`
 
@@ -39,4 +39,4 @@ chapter_3/
 
 章节名取自 `overview.md` 的第一个标题，小节名取自各小节 Markdown 的第一个标题。`overview.md` 只作为点击章节名后的页面，不会重复显示在第二级目录中。
 
-全书两层目录配置位于 `content/zh/books/deconstructing_LLM/book.json`。
+中英文全书两层目录配置分别位于 `content/zh/books/deconstructing_LLM/book.json` 和 `content/en/books/deconstructing_LLM/book.json`。

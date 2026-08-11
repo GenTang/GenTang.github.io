@@ -5,11 +5,11 @@
     "intro": "为了不让有趣的想法消失在记忆的空白页里，我把值得琢磨的念头和思考留在这里",
     "primaryCta": {
       "label": "阅读最近博客",
-      "href": "/blog/ai-as-collaborator"
+      "href": "/zh/blog/ai-as-collaborator"
     },
     "secondaryCta": {
       "label": "解构大语言模型",
-      "href": "/books/deconstructing_LLM"
+      "href": "/zh/books/deconstructing_LLM"
     },
     "previewLabel": "研究札记预览",
     "updateState": "持续更新"
@@ -29,9 +29,9 @@
     "publishedLabel": "全书",
     "publishedValue": "13 章",
     "overviewLabel": "查看全书总览",
-    "overviewHref": "/books/deconstructing_LLM",
+    "overviewHref": "/zh/books/deconstructing_LLM",
     "chapterLabel": "从第一章开始",
-    "chapterHref": "/books/deconstructing_LLM/chapter-1"
+    "chapterHref": "/zh/books/deconstructing_LLM/chapter-1"
   },
   "essay": {
     "sectionLabel": "BLOG",
@@ -40,7 +40,7 @@
     "date": "TODO",
     "title": "第一篇文章正在写作中，敬请期待",
     "topic": "COMING SOON",
-    "href": "/blog/ai-as-collaborator",
+    "href": "/zh/blog/ai-as-collaborator",
     "available": false
   }
 }
