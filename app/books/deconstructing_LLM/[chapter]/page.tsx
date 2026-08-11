@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   getDeconstructingLlmChapterId,
+  getDeconstructingLlmChapterSeo,
   getDeconstructingLlmNavigation,
   getDeconstructingLlmSection,
   getDeconstructingLlmRouteChapter,
@@ -25,12 +26,14 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
   const route = await params;
   const chapterId = getDeconstructingLlmChapterId(route.chapter);
   const overview = chapterId ? getDeconstructingLlmSection(chapterId) : undefined;
+  const chapterSeo = chapterId ? getDeconstructingLlmChapterSeo(chapterId) : undefined;
 
   return overview
     ? createPageMetadata({
         title: overview.title,
-        description: overview.description,
+        description: chapterSeo?.description || overview.description,
         path: overview.href,
+        keywords: chapterSeo?.keywords,
         alternatePath: chapterId === "chapter_1"
           ? "/en/books/deconstructing_LLM/chapter-1"
           : undefined,

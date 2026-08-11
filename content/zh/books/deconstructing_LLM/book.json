@@ -5,6 +5,16 @@
   "overview": {
     "kicker": "BOOK / 01",
     "description": "从线性回归出发，沿着数据基础与模型结构的发展脉络，逐步理解大语言模型",
+    "seoDescription": "在线阅读《解构大语言模型》：从数据基础与模型结构出发，串联线性回归、Deep Learning 与大语言模型，并结合代码理解工程实现。",
+    "keywords": [
+      "大语言模型",
+      "LLM",
+      "Deep Learning",
+      "深度学习",
+      "模型结构",
+      "数据基础",
+      "工程实现"
+    ],
     "coverImage": "/images/deconstructing-llm-cover.png",
     "outlineImage": "/images/deconstructing-llm-outline.png",
     "videoUrl": "https://space.bilibili.com/417265639/lists/3138772",
@@ -24,6 +34,60 @@
     "chapter_11": "第十一章：大语言模型——是通用人工智能的开始吗",
     "chapter_12": "第十二章：强化学习——在动态交互中进化",
     "chapter_13": "第十三章：其他经典模型——扩展视野"
+  },
+  "chapterSeo": {
+    "chapter_1": {
+      "description": "从数据、模型与智能体的关系出发，定义人工智能的数据基础和模型结构，并建立理解全书技术脉络的宏观视角。",
+      "keywords": ["人工智能", "AI", "数据基础", "模型结构", "智能系统", "大语言模型"]
+    },
+    "chapter_2": {
+      "description": "梳理理解人工智能模型所需的数学基础，包括向量、矩阵、张量、概率与微积分，为后续模型推导和工程实现做好准备。",
+      "keywords": ["数学基础", "向量", "矩阵", "张量", "概率", "微积分", "机器学习数学"]
+    },
+    "chapter_3": {
+      "description": "从线性回归出发理解模型、特征、损失函数与参数估计，建立从经典统计模型走向神经网络和大语言模型的基础。",
+      "keywords": ["线性回归", "Linear Regression", "损失函数", "参数估计", "统计模型", "机器学习"]
+    },
+    "chapter_4": {
+      "description": "通过逻辑回归理解二元分类、非线性变换与线性模型的结合，并讨论模型实现、效果评估和多分类问题。",
+      "keywords": ["逻辑回归", "Logistic Regression", "二元分类", "分类模型", "非线性变换", "模型评估"]
+    },
+    "chapter_5": {
+      "description": "借鉴计量经济学讨论特征工程、定量与定性变量、多重共线性、模型稳定性与可解释性，完善实际建模方法。",
+      "keywords": ["计量经济学", "Econometrics", "特征工程", "多重共线性", "模型解释", "模型稳定性"]
+    },
+    "chapter_6": {
+      "description": "深入梯度下降、随机梯度下降及其变体，理解模型参数估计、训练优化和深度学习工程中的底层算法。",
+      "keywords": ["最优化算法", "梯度下降", "SGD", "参数估计", "模型训练", "Deep Learning"]
+    },
+    "chapter_7": {
+      "description": "从计算图、向前传播和链式法则出发实现反向传播，理解自动微分、GPU 计算与神经网络训练的工程基础。",
+      "keywords": ["反向传播", "Backpropagation", "自动微分", "计算图", "链式法则", "神经网络训练", "GPU"]
+    },
+    "chapter_8": {
+      "description": "从感知器和逻辑回归逐步构建多层感知器，理解隐藏层、激活函数、归一化与深度神经网络的训练机制。",
+      "keywords": ["多层感知器", "MLP", "神经网络", "激活函数", "归一化", "Deep Learning"]
+    },
+    "chapter_9": {
+      "description": "从卷积运算与特征提取出发构建 CNN，理解计算机视觉、GPU 训练、残差网络及 Deep Learning 的关键突破。",
+      "keywords": ["CNN", "卷积神经网络", "Deep Learning", "深度学习", "计算机视觉", "ResNet", "特征提取"]
+    },
+    "chapter_10": {
+      "description": "面向序列数据与自然语言，理解 RNN、LSTM、词向量和语言模型，并为 Attention 与大语言模型建立基础。",
+      "keywords": ["RNN", "LSTM", "循环神经网络", "语言模型", "自然语言处理", "NLP", "序列数据"]
+    },
+    "chapter_11": {
+      "description": "从 Attention 与 Transformer 出发解析 GPT-2 和 LLM，讨论预训练、微调、LoRA、奖励模型及 ChatGPT 的核心技术。",
+      "keywords": ["Attention", "Transformer", "GPT-2", "LLM", "大语言模型", "ChatGPT", "LoRA", "奖励模型"]
+    },
+    "chapter_12": {
+      "description": "从动态交互中的学习出发理解 RL、价值函数、策略优化与 PPO，并连接奖励模型、RLHF 和大语言模型对齐。",
+      "keywords": ["RL", "强化学习", "PPO", "RLHF", "策略优化", "价值函数", "大语言模型对齐"]
+    },
+    "chapter_13": {
+      "description": "扩展神经网络之外的建模视野，介绍决策树、随机森林、梯度提升、隐马尔可夫模型、聚类、降维与 SVD。",
+      "keywords": ["决策树", "随机森林", "GBDT", "隐马尔可夫模型", "HMM", "无监督学习", "聚类", "降维", "SVD"]
+    }
   },
   "parts": [
     {

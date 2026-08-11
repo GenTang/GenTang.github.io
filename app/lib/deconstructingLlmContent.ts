@@ -21,6 +21,11 @@ export type BookNavigation = {
   }>;
 };
 
+export type BookChapterSeo = {
+  description: string;
+  keywords: string[];
+};
+
 const markdownModules = Object.fromEntries(
   Object.entries(markdownContent).filter(([path]) =>
     /^\/content\/zh\/books\/deconstructing_LLM\/chapter_\d+\/[^/]+\.md$/.test(path)
@@ -99,6 +104,11 @@ const sections: BookSection[] = Object.entries(markdownModules)
 
 export function getDeconstructingLlmSections(chapterId?: string) {
   return chapterId ? sections.filter((section) => section.chapterId === chapterId) : sections;
+}
+
+export function getDeconstructingLlmChapterSeo(chapterId: string): BookChapterSeo | undefined {
+  const chapterSeo = bookConfig.chapterSeo as Record<string, BookChapterSeo>;
+  return chapterSeo[chapterId];
 }
 
 export function getDeconstructingLlmSection(chapterId: string, routeSection = "overview") {

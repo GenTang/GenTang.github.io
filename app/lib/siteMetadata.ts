@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { sitePath } from "./sitePath";
 
 export const siteName = "小胖笔记";
-export const siteDescription = "《解构大语言模型》在线书稿，以及关于人工智能、数学与智能系统的长期笔记。";
+export const homeTitle = "小胖笔记｜LLM技术笔记：模型架构、数据基础和工程实现";
+export const siteDescription = "《解构大语言模型》：从线性回归一路走向LLM；记录 AI、数学与智能系统的长期笔记。";
 
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://gentang.github.io/";
 export const siteUrl = new URL(configuredSiteUrl.endsWith("/") ? configuredSiteUrl : `${configuredSiteUrl}/`);
@@ -19,6 +20,7 @@ type PageMetadataOptions = {
   alternatePath?: string;
   kind?: "website" | "article";
   noIndex?: boolean;
+  keywords?: string[];
 };
 
 export function createPageMetadata({
@@ -29,6 +31,7 @@ export function createPageMetadata({
   alternatePath,
   kind = "article",
   noIndex = false,
+  keywords,
 }: PageMetadataOptions): Metadata {
   const canonical = absoluteSiteUrl(path);
   const image = absoluteSiteUrl("/og.png");
@@ -41,6 +44,7 @@ export function createPageMetadata({
   return {
     title,
     description,
+    keywords,
     alternates: {
       canonical,
       languages,

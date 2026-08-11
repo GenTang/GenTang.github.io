@@ -1,0 +1,112 @@
+{
+  "title": "Deconstructing Large Language Models",
+  "subtitle": "From Linear Regression to General Intelligence",
+  "author": "Gen Tang",
+  "overview": {
+    "kicker": "BOOK / 01",
+    "description": "Starting with linear regression, follow the evolution of data foundations and model architectures to gradually understand large language models",
+    "seoDescription": "Read Deconstructing Large Language Models online: connect linear regression, deep learning, and large language models through data foundations and model architectures, with code examples that illuminate their engineering implementation.",
+    "keywords": [
+      "large language models",
+      "LLM",
+      "Deep Learning",
+      "deep learning",
+      "model architecture",
+      "data foundations",
+      "engineering implementation"
+    ],
+    "coverImage": "/images/deconstructing-llm-cover.png",
+    "outlineImage": "/images/deconstructing-llm-outline.png",
+    "videoUrl": "https://space.bilibili.com/417265639/lists/3138772",
+    "githubUrl": "https://github.com/GenTang/regression2chatgpt"
+  },
+  "chapterTitles": {
+    "chapter_1": "Chapter 1: Introduction",
+    "chapter_2": "Chapter 2: Mathematical Foundations—Essential Knowledge",
+    "chapter_3": "Chapter 3: Linear Regression—The Mother of Models",
+    "chapter_4": "Chapter 4: Logistic Regression—The Hidden Factor",
+    "chapter_5": "Chapter 5: Insights from Econometrics—Learning from Other Fields",
+    "chapter_6": "Chapter 6: Optimization Algorithms—Parameter Estimation",
+    "chapter_7": "Chapter 7: Backpropagation—The Engineering Foundation of Neural Networks",
+    "chapter_8": "Chapter 8: Multilayer Perceptrons—The ‘Genesis’ of Neural Networks",
+    "chapter_9": "Chapter 9: Convolutional Neural Networks—The ‘Exodus’ of Deep Learning",
+    "chapter_10": "Chapter 10: Recurrent Neural Networks—Trying to Understand Human Language",
+    "chapter_11": "Chapter 11: Large Language Models—The Beginning of Artificial General Intelligence?",
+    "chapter_12": "Chapter 12: Reinforcement Learning—Evolving Through Dynamic Interaction",
+    "chapter_13": "Chapter 13: Other Classical Models—Broadening the Horizon"
+  },
+  "chapterSeo": {
+    "chapter_1": {
+      "description": "Define the data foundation and model architecture of artificial intelligence through the relationship among data, models, and intelligent agents, establishing a high-level perspective for understanding the book’s technical progression.",
+      "keywords": ["artificial intelligence", "AI", "data foundations", "model architecture", "intelligent systems", "large language models"]
+    },
+    "chapter_2": {
+      "description": "Review the mathematical foundations needed to understand AI models, including vectors, matrices, tensors, probability, and calculus, in preparation for the model derivations and engineering implementations that follow.",
+      "keywords": ["mathematical foundations", "vectors", "matrices", "tensors", "probability", "calculus", "mathematics for machine learning"]
+    },
+    "chapter_3": {
+      "description": "Use linear regression to understand models, features, loss functions, and parameter estimation, laying the groundwork for progressing from classical statistical models to neural networks and large language models.",
+      "keywords": ["linear regression", "Linear Regression", "loss functions", "parameter estimation", "statistical models", "machine learning"]
+    },
+    "chapter_4": {
+      "description": "Use logistic regression to understand binary classification and the combination of nonlinear transformations with linear models, while discussing model implementation, performance evaluation, and multiclass classification.",
+      "keywords": ["logistic regression", "Logistic Regression", "binary classification", "classification models", "nonlinear transformations", "model evaluation"]
+    },
+    "chapter_5": {
+      "description": "Draw on econometrics to discuss feature engineering, quantitative and qualitative variables, multicollinearity, model stability, and interpretability, refining practical modeling methods.",
+      "keywords": ["econometrics", "Econometrics", "feature engineering", "multicollinearity", "model interpretation", "model stability"]
+    },
+    "chapter_6": {
+      "description": "Explore gradient descent, stochastic gradient descent, and their variants to understand model parameter estimation, training optimization, and the underlying algorithms of deep learning engineering.",
+      "keywords": ["optimization algorithms", "gradient descent", "SGD", "parameter estimation", "model training", "Deep Learning"]
+    },
+    "chapter_7": {
+      "description": "Implement backpropagation through computational graphs, forward propagation, and the chain rule, and understand automatic differentiation, GPU computing, and the engineering foundations of neural network training.",
+      "keywords": ["backpropagation", "Backpropagation", "automatic differentiation", "computational graphs", "chain rule", "neural network training", "GPU"]
+    },
+    "chapter_8": {
+      "description": "Build a multilayer perceptron step by step from perceptrons and logistic regression, and understand hidden layers, activation functions, normalization, and the training mechanisms of deep neural networks.",
+      "keywords": ["multilayer perceptron", "MLP", "neural networks", "activation functions", "normalization", "Deep Learning"]
+    },
+    "chapter_9": {
+      "description": "Build a CNN from convolution operations and feature extraction, and understand computer vision, GPU training, residual networks, and the key breakthroughs of deep learning.",
+      "keywords": ["CNN", "convolutional neural networks", "Deep Learning", "deep learning", "computer vision", "ResNet", "feature extraction"]
+    },
+    "chapter_10": {
+      "description": "Understand RNNs, LSTMs, word embeddings, and language models for sequential data and natural language, establishing a foundation for attention and large language models.",
+      "keywords": ["RNN", "LSTM", "recurrent neural networks", "language models", "natural language processing", "NLP", "sequential data"]
+    },
+    "chapter_11": {
+      "description": "Analyze GPT-2 and LLMs through attention and Transformers, and discuss the core technologies behind pretraining, fine-tuning, LoRA, reward models, and ChatGPT.",
+      "keywords": ["Attention", "Transformer", "GPT-2", "LLM", "large language models", "ChatGPT", "LoRA", "reward models"]
+    },
+    "chapter_12": {
+      "description": "Understand reinforcement learning, value functions, policy optimization, and PPO through learning in dynamic interactions, connecting reward models, RLHF, and large language model alignment.",
+      "keywords": ["RL", "reinforcement learning", "PPO", "RLHF", "policy optimization", "value functions", "large language model alignment"]
+    },
+    "chapter_13": {
+      "description": "Broaden the modeling perspective beyond neural networks with decision trees, random forests, gradient boosting, hidden Markov models, clustering, dimensionality reduction, and SVD.",
+      "keywords": ["decision trees", "random forests", "GBDT", "hidden Markov models", "HMM", "unsupervised learning", "clustering", "dimensionality reduction", "SVD"]
+    }
+  },
+  "parts": [
+    {
+      "label": "Part I · Chapters 2–5",
+      "title": "Foundations of Neural Networks",
+      "description": "Discuss the cornerstones of neural networks—linear and logistic regression—and introduce general machine learning issues such as overfitting and penalty terms",
+      "chapters": [2, 3, 4, 5]
+    },
+    {
+      "label": "Part II · Chapters 6–12",
+      "title": "Building ChatGPT from Scratch",
+      "description": "Begin with optimization algorithms and backpropagation, introduce the core structures of classical neural networks one by one, then implement GPT-2 from scratch and evolve it into ChatGPT",
+      "chapters": [6, 7, 8, 9, 10, 11, 12]
+    },
+    {
+      "label": "Part III · Chapter 13",
+      "title": "Other Classical Models",
+      "description": "Briefly introduce other classical models related to neural networks, helping readers understand important modeling ideas beyond neural networks",
+      "chapters": [13]
+    }
+  ]
+}

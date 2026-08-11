@@ -57,6 +57,10 @@ function unlinkedBookReferences(source) {
 
 test("exports the homepage with local assets and the intended section order", async () => {
   const source = await html("/");
+  assert.match(source, /<title>小胖笔记｜LLM技术笔记：模型架构、数据基础和工程实现<\/title>/);
+  assert.ok(source.includes("《解构大语言模型》：从线性回归一路走向LLM；记录 AI、数学与智能系统的长期笔记。"));
+  assert.match(source, /type="application\/ld\+json"/);
+  assert.match(source, /"@type":"WebSite"/);
   assert.match(source, /小胖笔记/);
   assert.match(source, /万一我证明了<em>黎曼猜想<\/em>/);
   assert.match(source, /阅读最近博客/);
@@ -247,6 +251,31 @@ test("exports the concise book overview with its outline and resources", async (
     resolve("content/zh/books/deconstructing_LLM/book.json"),
     "utf8",
   ));
+  assert.ok(bookConfig.overview.keywords.includes("大语言模型"));
+  assert.ok(bookConfig.overview.keywords.includes("Deep Learning"));
+  assert.ok(bookConfig.overview.keywords.includes("模型结构"));
+  assert.ok(bookConfig.overview.keywords.includes("数据基础"));
+  assert.equal(Object.keys(bookConfig.chapterSeo).length, 13);
+  for (const chapterId of Object.keys(bookConfig.chapterTitles)) {
+    assert.ok(bookConfig.chapterSeo[chapterId]?.description, `${chapterId} should have an SEO description`);
+    assert.ok(bookConfig.chapterSeo[chapterId]?.keywords.length >= 5, `${chapterId} should have focused keywords`);
+  }
+  assert.deepEqual(
+    ["CNN", "Deep Learning"].every((keyword) => bookConfig.chapterSeo.chapter_9.keywords.includes(keyword)),
+    true,
+  );
+  assert.deepEqual(
+    ["RNN", "LSTM", "语言模型"].every((keyword) => bookConfig.chapterSeo.chapter_10.keywords.includes(keyword)),
+    true,
+  );
+  assert.deepEqual(
+    ["Attention", "Transformer", "GPT-2", "LLM"].every((keyword) => bookConfig.chapterSeo.chapter_11.keywords.includes(keyword)),
+    true,
+  );
+  assert.deepEqual(
+    ["RL", "PPO", "RLHF"].every((keyword) => bookConfig.chapterSeo.chapter_12.keywords.includes(keyword)),
+    true,
+  );
   assert.ok(overviewMarkdown.trim().length > 0);
   assert.match(source, /在理论基础方面/);
   assert.match(source, /READING MAP/);

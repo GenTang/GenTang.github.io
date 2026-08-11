@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   getDeconstructingLlmChapterId,
+  getDeconstructingLlmChapterSeo,
   getDeconstructingLlmRouteChapter,
   getDeconstructingLlmSection,
   getDeconstructingLlmSections,
@@ -28,12 +29,14 @@ export async function generateMetadata({ params }: SectionPageProps): Promise<Me
   const route = await params;
   const chapterId = getDeconstructingLlmChapterId(route.chapter);
   const section = chapterId ? getDeconstructingLlmSection(chapterId, route.section) : undefined;
+  const chapterSeo = chapterId ? getDeconstructingLlmChapterSeo(chapterId) : undefined;
 
   return section
     ? createPageMetadata({
         title: section.title,
         description: section.description,
         path: section.href,
+        keywords: chapterSeo?.keywords,
       })
     : createPageMetadata({
         title: "小节未找到",

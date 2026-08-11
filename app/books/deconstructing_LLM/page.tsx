@@ -14,9 +14,10 @@ const chapterCount = Object.keys(bookConfig.chapterTitles).length;
 
 export const metadata: Metadata = createPageMetadata({
   title: `${bookConfig.title}：${bookConfig.subtitle}`,
-  description: bookConfig.overview.description,
+  description: bookConfig.overview.seoDescription,
   path: "/books/deconstructing_LLM",
   kind: "website",
+  keywords: bookConfig.overview.keywords,
 });
 
 export default function DeconstructingLlmOverview() {
