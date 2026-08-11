@@ -463,6 +463,26 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
     /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch05_econometrics\/multicollinearity\.ipynb/,
   );
 
+  const englishChapterFive = await html("/en/books/deconstructing_LLM/chapter-5/5-2");
+  assert.match(englishChapterFive, /id="eq-5-1"/);
+  assert.match(englishChapterFive, /href="#eq-5-1">Equation \(5-1\)<\/a>/);
+  assert.match(
+    englishChapterFive,
+    new RegExp(`src="${basePath}/generated/book-images/en/chapter_5/5-2[.]png"`),
+  );
+  assert.match(
+    englishChapterFive,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/en\/ch05_econometrics\/categorical_variable\.ipynb/,
+  );
+
+  const englishChapterFiveCollinearity = await html("/en/books/deconstructing_LLM/chapter-5/5-4");
+  assert.match(englishChapterFiveCollinearity, /<p class="table-title">Table 5-1<\/p>/);
+  assert.match(
+    englishChapterFiveCollinearity,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/en\/ch05_econometrics\/multicollinearity\.ipynb/,
+  );
+  assert.doesNotMatch(englishChapterFiveCollinearity, /regression2chatgpt\/blob\/zh\//);
+
   for (const section of ["5_1", "5_2", "5_3", "5_4", "5_5"]) {
     const markdown = await readFile(
       resolve(`content/zh/books/deconstructing_LLM/chapter_5/${section}.md`),
