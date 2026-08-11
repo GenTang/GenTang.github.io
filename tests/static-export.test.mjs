@@ -355,6 +355,15 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.match(vectors, /href="#eq-2-1">公式（2-1）<\/a>/);
   assert.match(vectors, /id="section-2-1-3"/);
 
+  const englishVectors = await html("/en/books/deconstructing_LLM/chapter-2/2-1");
+  assert.match(englishVectors, /id="eq-2-9"/);
+  assert.match(englishVectors, /href="#eq-2-9">Equation \(2-9\)<\/a>/);
+  assert.match(englishVectors, /href="#eq-2-15">Equation \(2-15\)<\/a>/);
+
+  const englishCalculus = await html("/en/books/deconstructing_LLM/chapter-2/2-3");
+  assert.match(englishCalculus, /href="#eq-2-50">Equations \(2-50\)<\/a>/);
+  assert.match(englishCalculus, /href="#eq-2-51">\(2-51\)<\/a>/);
+
   const chapterOne = await html("/zh/books/deconstructing_LLM/chapter-1/1-1");
   assert.match(chapterOne, new RegExp(`src="${basePath}/generated/book-images/chapter_1/1-1\\.png"`));
   assert.match(chapterOne, /<figcaption>[^<]+<\/figcaption>/);

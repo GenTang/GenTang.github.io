@@ -81,7 +81,8 @@ function referenceAnchors() {
       node.children?.forEach(collectAnchors);
     };
 
-    const referencePattern = /公式[（(](\d+(?:[-.]\d+)+)[）)]/g;
+    const referencePattern = /公式[（(]\d+(?:[-.]\d+)+[）)]|\b(?:Equations?|Eqs?\.)\s*\(\d+(?:[-.]\d+)+\)(?:\s*(?:,\s*(?:(?:and|or)\s+)?|(?:and|or)\s+)\(\d+(?:[-.]\d+)+\))*/gi;
+    const referenceLabelPattern = /[（(](\d+(?:[-.]\d+)+)[）)]/g;
     const skippedParents = new Set([
       "code",
       "definition",
@@ -108,20 +109,45 @@ function referenceAnchors() {
 
         for (const match of child.value.matchAll(referencePattern)) {
           const start = match.index ?? 0;
-          const formulaId = match[1] ? referenceId(match[1]) : undefined;
-          const target = formulaId && equations.has(formulaId)
-            ? `#eq-${formulaId}`
-            : undefined;
+          const linkedNodes: MarkdownNode[] = [];
+          let matchCursor = 0;
+          let hasTarget = false;
+          let firstLabel = true;
 
-          if (!target) continue;
+          for (const labelMatch of match[0].matchAll(referenceLabelPattern)) {
+            const labelStart = labelMatch.index ?? 0;
+            const linkStart = firstLabel ? 0 : labelStart;
+            const linkEnd = labelStart + labelMatch[0].length;
+            const formulaId = labelMatch[1] ? referenceId(labelMatch[1]) : undefined;
+            const target = formulaId && equations.has(formulaId)
+              ? `#eq-${formulaId}`
+              : undefined;
+
+            if (linkStart > matchCursor) {
+              linkedNodes.push({ type: "text", value: match[0].slice(matchCursor, linkStart) });
+            }
+
+            const referenceText = match[0].slice(linkStart, linkEnd);
+            linkedNodes.push(target
+              ? {
+                  type: "link",
+                  url: target,
+                  children: [{ type: "text", value: referenceText }],
+                }
+              : { type: "text", value: referenceText });
+            hasTarget ||= Boolean(target);
+            matchCursor = linkEnd;
+            firstLabel = false;
+          }
+
+          if (!hasTarget) continue;
           if (start > cursor) {
             replacements.push({ type: "text", value: child.value.slice(cursor, start) });
           }
-          replacements.push({
-            type: "link",
-            url: target,
-            children: [{ type: "text", value: match[0] }],
-          });
+          if (matchCursor < match[0].length) {
+            linkedNodes.push({ type: "text", value: match[0].slice(matchCursor) });
+          }
+          replacements.push(...linkedNodes);
           cursor = start + match[0].length;
         }
 
