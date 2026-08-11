@@ -114,6 +114,7 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
   assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/")}</loc>`));
   assert.ok(!sitemap.includes(`<loc>${publicUrl("/")}</loc>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/books/deconstructing_LLM/chapter-13/13-6")}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/en/books/deconstructing_LLM")}</loc>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/books/deconstructing_LLM/chapter-1")}</loc>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/books/deconstructing_LLM/chapter-1/1-4")}</loc>`));
   assert.ok(!sitemap.includes("blog/ai-as-collaborator"));
@@ -136,6 +137,7 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
 test("exports every current reading route", async () => {
   const routes = [
     ["/zh/books/deconstructing_LLM", /READING MAP/],
+    ["/en/books/deconstructing_LLM", /Deconstructing Large Language Models/],
     ["/zh/books/deconstructing_LLM/chapter-1", /绪论/],
     ["/zh/books/deconstructing_LLM/chapter-1/1-1", /1.1 是数字鹦鹉，还是自我意识/],
     ["/zh/books/deconstructing_LLM/chapter-1/1-2", /1.2 数据基础/],
@@ -306,10 +308,49 @@ test("exports the concise book overview with its outline and resources", async (
   assert.match(source.replaceAll("<!-- -->", ""), /全书已完成 · 13 章/);
   assert.match(source, /https:\/\/space\.bilibili\.com\/417265639\/lists\/3138772/);
   assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt/);
-  assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-outline\\.png"`));
+  const outlineImageSrc = source.match(
+    new RegExp(`src="(${basePath}/_next/static/media/deconstructing-llm-outline\\.[^"]+\\.png)"`),
+  )?.[1];
+  assert.ok(outlineImageSrc, "the overview should use the outline image imported from its content directory");
   assert.doesNotMatch(source, /从基础模型，一直走到智能系统|三个部分构成一条连续的学习路径/);
   assert.doesNotMatch(source, /在线目录|完整图书介绍|已上线|准备中/);
-  await access(join(outputRoot, "images", "deconstructing-llm-outline.png"));
+  await access(resolve("content/zh/books/deconstructing_LLM/deconstructing-llm-outline.png"));
+  await access(join(outputRoot, outlineImageSrc.slice(basePath.length).replace(/^\//, "")));
+});
+
+test("exports the English book overview with its own content and outline", async () => {
+  const [source, englishHome] = await Promise.all([
+    html("/en/books/deconstructing_LLM"),
+    html("/en"),
+  ]);
+  const overviewMarkdown = await readFile(
+    resolve("content/en/books/deconstructing_LLM/overview.md"),
+    "utf8",
+  );
+  const bookConfig = JSON.parse(await readFile(
+    resolve("content/en/books/deconstructing_LLM/book.json"),
+    "utf8",
+  ));
+
+  assert.ok(overviewMarkdown.trim().length > 0);
+  assert.match(source, /theoretical foundations/);
+  assert.match(source, /engineering implementation/);
+  assert.match(source, /READING MAP/);
+  for (const part of bookConfig.parts) assert.ok(source.includes(part.title));
+  assert.match(source, /chapters available/);
+  assert.match(source, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/chapter-1/"`));
+  assert.match(source, /https:\/\/space\.bilibili\.com\/417265639\/lists\/3138772/);
+  assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt/);
+  assert.ok(source.includes(`rel="canonical" href="${publicUrl("/en/books/deconstructing_LLM")}"`));
+  assert.ok(source.includes(`hrefLang="zh-CN" href="${publicUrl("/zh/books/deconstructing_LLM")}"`));
+  assert.match(englishHome, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/"`));
+
+  const outlineImageSrc = source.match(
+    new RegExp(`src="(${basePath}/_next/static/media/deconstructing-llm-outline\\.[^"]+\\.png)"`),
+  )?.[1];
+  assert.ok(outlineImageSrc, "the English overview should use its own outline image");
+  await access(resolve("content/en/books/deconstructing_LLM/deconstructing-llm-outline.png"));
+  await access(join(outputRoot, outlineImageSrc.slice(basePath.length).replace(/^\//, "")));
 });
 
 test("derives the two-level book navigation from content files", async () => {
@@ -560,6 +601,30 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
     chapterSevenGpu,
     /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch07_autograd\/gpu\.ipynb/,
   );
+
+  const englishChapterSevenAutograd = await html("/en/books/deconstructing_LLM/chapter-7/7-2");
+  assert.match(englishChapterSevenAutograd, /id="eq-7-1"/);
+  assert.match(englishChapterSevenAutograd, /href="#eq-7-1">Equation \(7-1\)<\/a>/);
+  assert.match(englishChapterSevenAutograd, /Listing 7-3 Defining the Partial Derivatives/);
+  assert.match(englishChapterSevenAutograd, /Listing 7-5 Forward Pass and Backpropagation/);
+  assert.match(englishChapterSevenAutograd, /class="code-line" data-line-number="41"/);
+  assert.match(
+    englishChapterSevenAutograd,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/en\/ch07_autograd\/utils\.py/,
+  );
+  assert.match(
+    englishChapterSevenAutograd,
+    new RegExp(`src="${basePath}/generated/book-images/en/chapter_7/7-4[.]png"`),
+  );
+
+  const englishChapterSevenGpu = await html("/en/books/deconstructing_LLM/chapter-7/7-5");
+  assert.match(englishChapterSevenGpu, /Listing 7-9 GPU Computing/);
+  assert.match(englishChapterSevenGpu, /class="code-line" data-line-number="16"/);
+  assert.match(
+    englishChapterSevenGpu,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/en\/ch07_autograd\/gpu\.ipynb/,
+  );
+  assert.doesNotMatch(englishChapterSevenGpu, /regression2chatgpt\/blob\/zh\//);
 
   for (const section of ["7_1", "7_2", "7_3", "7_4", "7_5", "7_6"]) {
     const markdown = await readFile(

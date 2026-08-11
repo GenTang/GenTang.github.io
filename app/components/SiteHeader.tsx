@@ -13,9 +13,7 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
   const [menuOpen, setMenuOpen] = useState(false);
   const [dark, setDark] = useState(false);
   const prefix = `/${lang}`;
-  const bookHref = lang === "zh"
-    ? "/zh/books/deconstructing_LLM"
-    : "/en/books/deconstructing_LLM/chapter-1";
+  const bookHref = `${prefix}/books/deconstructing_LLM`;
   const labels = lang === "zh"
     ? { home: "首页", book: "书籍", blog: "博客", about: "关于", lang: "EN", theme: "切换深色模式", menu: "打开导航", closeMenu: "关闭导航" }
     : { home: "Home", book: "Book", blog: "AI Essays", about: "About", lang: "中文", theme: "Toggle dark mode", menu: "Open navigation", closeMenu: "Close navigation" };

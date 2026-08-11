@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- Local book artwork is exported as a static asset. */
 import type { Metadata } from "next";
 import bookConfig from "@/content/zh/books/deconstructing_LLM/book.json";
+import outlineImage from "@/content/zh/books/deconstructing_LLM/deconstructing-llm-outline.png";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
 import { SiteFooter } from "@/app/components/SiteFooter";
 import { SiteHeader } from "@/app/components/SiteHeader";
@@ -26,7 +27,7 @@ export default function DeconstructingLlmOverview() {
       <SiteHeader
         lang="zh"
         active="book"
-        languageHref="/en/books/deconstructing_LLM/chapter-1"
+        languageHref="/en/books/deconstructing_LLM"
       />
 
       <main className="book-overview-main">
@@ -69,7 +70,7 @@ export default function DeconstructingLlmOverview() {
               <MarkdownContent source={overviewSource} />
             </article>
             <figure className="book-outline-figure">
-              <img src={sitePath(bookConfig.overview.outlineImage)} alt="《解构大语言模型》全书知识脉络图" />
+              <img src={sitePath(outlineImage.src)} alt="《解构大语言模型》全书知识脉络图" />
             </figure>
           </div>
 

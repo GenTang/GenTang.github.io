@@ -9,7 +9,7 @@
     },
     "secondaryCta": {
       "label": "Deconstructing Large Language Models",
-      "href": "/en/books/deconstructing_LLM/chapter-1"
+      "href": "/en/books/deconstructing_LLM"
     },
     "previewLabel": "Research note preview",
     "updateState": "Updating"
@@ -29,7 +29,7 @@
     "publishedLabel": "Published",
     "publishedValue": "1 chapter",
     "overviewLabel": "Book overview",
-    "overviewHref": "/en/books/deconstructing_LLM/chapter-1",
+    "overviewHref": "/en/books/deconstructing_LLM",
     "chapterLabel": "Read Chapter 1: Begin with the question",
     "chapterHref": "/en/books/deconstructing_LLM/chapter-1"
   },

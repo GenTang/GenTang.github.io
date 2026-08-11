@@ -101,6 +101,7 @@ async function writeCrawlerFiles(entries) {
     "/zh/",
     "/en/",
     "/zh/books/deconstructing_LLM",
+    "/en/books/deconstructing_LLM",
     ...entries.map((entry) => entry.route),
   ];
   const uniqueRoutes = [...new Set(routes)];
