@@ -1,8 +1,10 @@
 # Chapter 3: Linear Regression—The Mother of Models
 
-> The Dao gives birth to One. One gives birth to Two. Two gives birth to Three. Three gives birth to all things.
+> 道生一，一生二，二生三，三生万物。
+> 
+>  (The Dao gives birth to One. One gives birth to Two. Two gives birth to Three. Three gives birth to all things.)
 >
-> — Laozi
+> — 老子
 
 The linear regression model is so intuitive and concise that its importance is often overlooked. In fact, linear regression is a cornerstone of artificial intelligence and provides strong support for the construction of many complex models. The following joke about a mathematician offers a vivid analogy for the importance of linear regression in artificial intelligence.
 
