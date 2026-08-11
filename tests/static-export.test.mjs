@@ -424,6 +424,23 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
     /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch04_logit\/logit_regression\.ipynb/,
   );
 
+  const englishChapterFour = await html("/en/books/deconstructing_LLM/chapter-4/4-1");
+  assert.match(englishChapterFour, /id="eq-4-1"/);
+  assert.match(englishChapterFour, /href="#eq-4-1">Equation \(4-1\)<\/a>/);
+  assert.match(
+    englishChapterFour,
+    new RegExp(`src="${basePath}/generated/book-images/en/chapter_4/4-1[.]png"`),
+  );
+
+  const englishChapterFourImplementation = await html("/en/books/deconstructing_LLM/chapter-4/4-2");
+  assert.match(englishChapterFourImplementation, /class="code-listing-title"/);
+  assert.match(englishChapterFourImplementation, /Listing 4-1 Logistic Regression/);
+  assert.match(
+    englishChapterFourImplementation,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/en\/ch04_logit\/logit_regression\.ipynb/,
+  );
+  assert.doesNotMatch(englishChapterFourImplementation, /regression2chatgpt\/blob\/zh\//);
+
   for (const section of ["4_1", "4_2", "4_3", "4_4", "4_5", "4_6"]) {
     const markdown = await readFile(
       resolve(`content/zh/books/deconstructing_LLM/chapter_4/${section}.md`),
