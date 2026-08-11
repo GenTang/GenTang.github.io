@@ -400,6 +400,18 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
     /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch03_linear\/linear_stat\.ipynb/,
   );
 
+  const englishImplementation = await html("/en/books/deconstructing_LLM/chapter-3/3-2");
+  assert.match(englishImplementation, /class="code-listing-title"/);
+  assert.match(englishImplementation, /Listing 3-1 Linear Regression/);
+  assert.match(
+    englishImplementation,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/en\/ch03_linear\/linear_ml\.ipynb/,
+  );
+  assert.match(
+    englishImplementation,
+    /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/en\/ch03_linear\/linear_stat\.ipynb/,
+  );
+
   const chapterFour = await html("/zh/books/deconstructing_LLM/chapter-4/4-1");
   assert.match(chapterFour, /id="eq-4-1"/);
   assert.match(chapterFour, new RegExp(`src="${basePath}/generated/book-images/chapter_4/4-1[.]png"`));

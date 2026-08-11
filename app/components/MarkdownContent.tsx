@@ -62,7 +62,7 @@ function referenceAnchors() {
       if (node.type === "heading") {
         const headingText = nodeText(node);
 
-        if (/^程序清单\s/.test(headingText)) {
+        if (/^(?:程序清单|Listing)\s/iu.test(headingText)) {
           node.data ??= {};
           node.data.hProperties = {
             ...node.data.hProperties,
