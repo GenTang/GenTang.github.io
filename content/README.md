@@ -30,7 +30,7 @@ NEXT_PUBLIC_GISCUS_CATEGORY=Announcements
 NEXT_PUBLIC_GISCUS_CATEGORY_ID=DIC_kwDOTyPYts4DDMt3
 ```
 
-如需在 GitHub Actions 中覆盖，也可以配置同名仓库变量。评论按页面路径映射，中英文及各章节会拥有独立 Discussion；博客占位页不会显示评论。读者点击“加载评论”后才会连接 `giscus.app`。
+如需在 GitHub Actions 中覆盖，也可以配置同名仓库变量。评论按页面路径映射，中英文及各章节会拥有独立 Discussion；博客占位页不会显示评论。评论区随页面自动载入，阅读已有评论不需要登录，发表和互动需要登录 GitHub。
 
 ## 正文
 
