@@ -6,6 +6,7 @@ import {
   type BookLanguage,
   type BookSection,
 } from "@/app/lib/deconstructingLlmContent";
+import { absoluteSiteUrl } from "@/app/lib/siteMetadata";
 import { ReadingPage } from "./ReadingPage";
 
 type DeconstructingLlmPageProps = {
@@ -24,19 +25,47 @@ export function DeconstructingLlmPage({
     section.id,
     alternateLanguage,
   );
+  const navigation = getDeconstructingLlmNavigation(language);
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: section.title,
+    description: section.description,
+    url: absoluteSiteUrl(section.href),
+    inLanguage: language === "zh" ? "zh-CN" : "en",
+    datePublished: section.dates.published,
+    dateModified: section.dates.updated,
+    author: {
+      "@type": "Person",
+      name: language === "zh" ? "唐亘" : "Gen Tang",
+    },
+    isPartOf: {
+      "@type": "Book",
+      name: navigation.title,
+    },
+  };
 
   return (
-    <ReadingPage
-      lang={language}
-      kind="book"
-      source={section.source}
-      images={getDeconstructingLlmImages(section.chapterId, language)}
-      bookNavigation={getDeconstructingLlmNavigation(language)}
-      currentHref={section.href}
-      languageHref={alternateSection?.href}
-      previousPage={neighbors.previousPage}
-      nextPage={neighbors.nextPage}
-      contentOnly
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+        }}
+      />
+      <ReadingPage
+        lang={language}
+        kind="book"
+        source={section.source}
+        images={getDeconstructingLlmImages(section.chapterId, language)}
+        bookNavigation={navigation}
+        currentHref={section.href}
+        languageHref={alternateSection?.href}
+        previousPage={neighbors.previousPage}
+        nextPage={neighbors.nextPage}
+        dates={section.dates}
+        contentOnly
+      />
+    </>
   );
 }

@@ -1,3 +1,8 @@
+---
+published: 2026-08-11
+updated: 2026-08-12
+---
+
 # Chapter 7: Backpropagation—The Engineering Foundation of Neural Networks
 
 > In theory, theory and practice are the same. In practice, they are not.

@@ -1,3 +1,8 @@
+---
+published: 2026-08-08
+updated: 2026-08-10
+---
+
 # 第二章：数学基础——不可或缺的知识
 
 > If people do not believe that mathematics is simple, it is only because they do not realize how complicated life is.

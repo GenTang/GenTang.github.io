@@ -41,6 +41,8 @@ export async function generateMetadata({ params }: SectionPageProps): Promise<Me
         path: section.href,
         keywords: chapterSeo?.keywords,
         alternatePath: alternateSection?.href,
+        publishedTime: section.dates.published,
+        modifiedTime: section.dates.updated,
       })
     : createPageMetadata({
         title: "小节未找到",

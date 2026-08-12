@@ -23,6 +23,8 @@ type PageMetadataOptions = {
   kind?: "website" | "article";
   noIndex?: boolean;
   keywords?: string[];
+  publishedTime?: string;
+  modifiedTime?: string;
 };
 
 export function createPageMetadata({
@@ -34,6 +36,8 @@ export function createPageMetadata({
   kind = "article",
   noIndex = false,
   keywords,
+  publishedTime,
+  modifiedTime,
 }: PageMetadataOptions): Metadata {
   const canonical = absoluteSiteUrl(path);
   const image = absoluteSiteUrl("/og.png");
@@ -42,6 +46,28 @@ export function createPageMetadata({
       ? { "zh-CN": canonical, en: absoluteSiteUrl(alternatePath), "x-default": canonical }
       : { en: canonical, "zh-CN": absoluteSiteUrl(alternatePath), "x-default": absoluteSiteUrl(alternatePath) }
     : undefined;
+
+  const openGraph = kind === "article"
+    ? {
+        title,
+        description,
+        url: canonical,
+        siteName,
+        type: "article" as const,
+        locale,
+        publishedTime,
+        modifiedTime,
+        images: [{ url: image, width: 1728, height: 910, alt: `${title} · ${siteName}` }],
+      }
+    : {
+        title,
+        description,
+        url: canonical,
+        siteName,
+        type: "website" as const,
+        locale,
+        images: [{ url: image, width: 1728, height: 910, alt: `${title} · ${siteName}` }],
+      };
 
   return {
     title,
@@ -52,15 +78,7 @@ export function createPageMetadata({
       languages,
     },
     robots: noIndex ? { index: false, follow: true } : { index: true, follow: true },
-    openGraph: {
-      title,
-      description,
-      url: canonical,
-      siteName,
-      type: kind,
-      locale,
-      images: [{ url: image, width: 1728, height: 910, alt: `${title} · ${siteName}` }],
-    },
+    openGraph,
     twitter: {
       card: "summary_large_image",
       title,

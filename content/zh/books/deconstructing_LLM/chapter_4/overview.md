@@ -1,3 +1,8 @@
+---
+published: 2026-08-09
+updated: 2026-08-10
+---
+
 # 第四章：逻辑回归——隐藏因子
 
 > To be, or not to be: that is the question.

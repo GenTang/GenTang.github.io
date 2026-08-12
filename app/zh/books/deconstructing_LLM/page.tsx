@@ -17,6 +17,7 @@ export const metadata: Metadata = createPageMetadata({
   title: `${bookConfig.title}：${bookConfig.subtitle}`,
   description: bookConfig.overview.seoDescription,
   path: "/zh/books/deconstructing_LLM",
+  alternatePath: "/en/books/deconstructing_LLM",
   kind: "website",
   keywords: bookConfig.overview.keywords,
 });
@@ -55,6 +56,13 @@ export default function DeconstructingLlmOverview() {
             </h1>
             <p>{bookConfig.overview.description}</p>
             <span className="book-overview-author">作者 · {bookConfig.author}</span>
+            <div className="book-overview-dates">
+              <span>在线发布 <time dateTime={bookConfig.dates.published}>{bookConfig.dates.published}</time></span>
+              <span>全书完成 <time dateTime={bookConfig.dates.completed}>{bookConfig.dates.completed}</time></span>
+              {bookConfig.dates.updated !== bookConfig.dates.completed && (
+                <span>最近修订 <time dateTime={bookConfig.dates.updated}>{bookConfig.dates.updated}</time></span>
+              )}
+            </div>
 
             <div className="book-overview-actions">
               <a className="primary-link" href={sitePath(firstChapterHref)}>从第一章开始 <span>→</span></a>

@@ -3,6 +3,7 @@ import enContent from "@/content/en/site.json";
 import zhContent from "@/content/zh/site.json";
 import { getDeconstructingLlmNavigation } from "@/app/lib/deconstructingLlmContent";
 import { sitePath } from "@/app/lib/sitePath";
+import { getMarkdownMetadata } from "@/app/lib/content";
 import { BlogStatus } from "./BlogStatus";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
@@ -17,7 +18,12 @@ function highlightedTitle(line: string) {
 
 export function HomeView({ lang }: { lang: "zh" | "en" }) {
   const content = lang === "en" ? enContent : zhContent;
-  const { hero, book, essay } = content;
+  const { hero, book } = content;
+  const blogDates = getMarkdownMetadata(`/content/${lang}/blog/ai-as-collaborator.md`);
+  const essay = {
+    ...content.essay,
+    date: blogDates.published ?? content.essay.date,
+  };
   const publishedChapters = getDeconstructingLlmNavigation(lang).chapters.filter(
     (chapter) => chapter.href,
   );

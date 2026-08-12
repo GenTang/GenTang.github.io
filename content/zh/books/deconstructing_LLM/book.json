@@ -2,6 +2,11 @@
   "title": "解构大语言模型",
   "subtitle": "从线性回归到通用智能",
   "author": "唐亘",
+  "dates": {
+    "published": "2026-08-08",
+    "completed": "2026-08-10",
+    "updated": "2026-08-12"
+  },
   "overview": {
     "kicker": "BOOK / 01",
     "description": "从线性回归出发，沿着数据基础与模型结构的发展脉络，逐步理解大语言模型",

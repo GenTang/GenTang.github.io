@@ -195,24 +195,53 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
   assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/")}</loc>`));
   assert.ok(!sitemap.includes(`<loc>${publicUrl("/")}</loc>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/books/deconstructing_LLM/chapter-13/13-6")}</loc>`));
+  assert.match(sitemap, new RegExp(`<loc>${publicUrl("/zh/books/deconstructing_LLM/chapter-13/13-6").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc>\\s*<lastmod>2026-08-10</lastmod>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/books/deconstructing_LLM")}</loc>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/books/deconstructing_LLM/chapter-1")}</loc>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/books/deconstructing_LLM/chapter-1/1-4")}</loc>`));
   assert.ok(!sitemap.includes("blog/ai-as-collaborator"));
   assert.ok(rss.includes(`<link>${publicUrl("/zh/books/deconstructing_LLM/chapter-13/13-6")}</link>`));
+  assert.match(rss, /<pubDate>Mon, 10 Aug 2026 00:00:00 GMT<\/pubDate>/);
   assert.ok(rss.includes(`<link>${publicUrl("/zh/")}</link>`));
   assert.match(rss, /13\.6 本章小结/);
   assert.ok(atom.includes(`<id>${publicUrl("/zh/books/deconstructing_LLM/chapter-13/13-6")}</id>`));
+  assert.match(atom, /<updated>2026-08-10T00:00:00\.000Z<\/updated>/);
+  assert.match(atom, /<published>2026-08-10T00:00:00\.000Z<\/published>/);
 
   assert.ok(home.includes(`rel="canonical" href="${publicUrl("/zh/")}"`));
   assert.ok(home.includes(`type="application/rss+xml"`));
   assert.ok(latest.includes(`rel="canonical" href="${publicUrl("/zh/books/deconstructing_LLM/chapter-13/13-6")}"`));
   assert.match(latest, /property="og:title" content="13\.6 本章小结"/);
+  assert.match(latest, /property="article:published_time" content="2026-08-10"/);
+  assert.match(latest, /"@type":"TechArticle"/);
+  assert.match(latest, /"datePublished":"2026-08-10"/);
+  assert.match(latest, /"dateModified":"2026-08-10"/);
+  assert.match(latest, /<time dateTime="2026-08-10">2026年8月10日<\/time>/);
   assert.match(draftBlog, /name="robots" content="noindex, follow"/);
   assert.match(english, /<html lang="en"/);
   assert.match(english, new RegExp(`hrefLang="zh-CN" href="${publicUrl("/zh/")}"`));
   assert.match(home, /© 2026 唐亘 · 小胖笔记/);
   assert.match(home, new RegExp(`href="${basePath}/rss\\.xml"`));
+});
+
+test("uses explicit content dates and bidirectional language alternates", async () => {
+  const [chineseOverview, englishOverview, chineseChapter, englishChapter, generated] = await Promise.all([
+    html("/zh/books/deconstructing_LLM"),
+    html("/en/books/deconstructing_LLM"),
+    html("/zh/books/deconstructing_LLM/chapter-1/1-1"),
+    html("/en/books/deconstructing_LLM/chapter-1/1-1"),
+    readFile(resolve(".generated/content.ts"), "utf8"),
+  ]);
+
+  assert.match(generated, /export const markdownMetadata/);
+  assert.doesNotMatch(chineseChapter, /^---$/m);
+  assert.match(chineseOverview, new RegExp(`hrefLang="en" href="${publicUrl("/en/books/deconstructing_LLM").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
+  assert.match(englishOverview, new RegExp(`hrefLang="zh-CN" href="${publicUrl("/zh/books/deconstructing_LLM").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
+  assert.match(chineseOverview, /在线发布 <time dateTime="2026-08-08">2026-08-08<\/time>/);
+  assert.match(englishOverview, /Published online <time dateTime="2026-08-11">2026-08-11<\/time>/);
+  assert.match(chineseChapter, /<time dateTime="2026-08-08">2026年8月8日<\/time>/);
+  assert.match(chineseChapter, /<time dateTime="2026-08-11">2026年8月11日<\/time>/);
+  assert.match(englishChapter, /<time dateTime="2026-08-11">Aug 11, 2026<\/time>/);
 });
 
 test("exports every current reading route", async () => {

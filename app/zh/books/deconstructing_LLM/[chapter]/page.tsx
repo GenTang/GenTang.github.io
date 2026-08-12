@@ -38,6 +38,8 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
         path: overview.href,
         keywords: chapterSeo?.keywords,
         alternatePath: alternateSection?.href,
+        publishedTime: overview.dates.published,
+        modifiedTime: overview.dates.updated,
       })
     : createPageMetadata({
         title: "章节未找到",

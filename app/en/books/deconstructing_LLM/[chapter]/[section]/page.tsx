@@ -48,6 +48,8 @@ export async function generateMetadata({ params }: SectionPageProps): Promise<Me
         keywords: chapterSeo?.keywords,
         locale: "en_US",
         alternatePath: alternateSection?.href,
+        publishedTime: section.dates.published,
+        modifiedTime: section.dates.updated,
       })
     : createPageMetadata({
         title: "Section not found",

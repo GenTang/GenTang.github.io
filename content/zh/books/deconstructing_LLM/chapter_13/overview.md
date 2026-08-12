@@ -1,3 +1,8 @@
+---
+published: 2026-08-10
+updated: 2026-08-10
+---
+
 # 第十三章：其他经典模型——扩展视野
 
 > The more I learn, the more I realize how much I don't know.

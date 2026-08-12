@@ -1,6 +1,6 @@
 import enBookConfig from "@/content/en/books/deconstructing_LLM/book.json";
 import zhBookConfig from "@/content/zh/books/deconstructing_LLM/book.json";
-import { bookChapterIdsByLanguage, markdownContent } from "./content";
+import { bookChapterIdsByLanguage, markdownContent, markdownMetadata } from "./content";
 
 export type BookLanguage = "zh" | "en";
 
@@ -11,6 +11,12 @@ export type BookSection = {
   description: string;
   href: string;
   source: string;
+  dates: ContentDates;
+};
+
+export type ContentDates = {
+  published?: string;
+  updated?: string;
 };
 
 export type BookNavigation = {
@@ -102,6 +108,11 @@ function buildSections(language: BookLanguage) {
       const fallbackDescription = language === "zh"
         ? `《${bookConfig.title}》${fallbackTitle}`
         : `${bookConfig.title}: ${fallbackTitle}`;
+      const chapterOverviewPath = `/content/${language}/books/deconstructing_LLM/${chapterId}/overview.md`;
+      const chapterDates = markdownMetadata[chapterOverviewPath] ?? {};
+      const sectionDates = markdownMetadata[path] ?? {};
+      const published = sectionDates.published || chapterDates.published;
+      const updated = sectionDates.updated || chapterDates.updated || published;
 
       return [{
         id: sectionId,
@@ -110,6 +121,7 @@ function buildSections(language: BookLanguage) {
         description: markdownDescription(source, fallbackDescription),
         href: `${chapterHref}${routeSegment}`,
         source,
+        dates: { published, updated },
       }];
     })
     .sort((left, right) => {

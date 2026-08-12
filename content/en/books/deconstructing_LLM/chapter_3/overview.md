@@ -1,3 +1,8 @@
+---
+published: 2026-08-11
+updated: 2026-08-12
+---
+
 # Chapter 3: Linear Regression—The Mother of Models
 
 > 道生一，一生二，二生三，三生万物。

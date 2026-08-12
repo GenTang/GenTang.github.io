@@ -1,3 +1,8 @@
+---
+published: 2026-08-09
+updated: 2026-08-10
+---
+
 # 第六章：最优化算法——参数估计
 
 > Ideas are cheap; execution is everything.

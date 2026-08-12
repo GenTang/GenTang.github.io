@@ -1,3 +1,8 @@
+---
+published: 2026-08-12
+updated: 2026-08-12
+---
+
 # Chapter 10: Recurrent Neural Networks—Trying to Understand Human Language
 
 > Language is the house of being. In its home man dwells.

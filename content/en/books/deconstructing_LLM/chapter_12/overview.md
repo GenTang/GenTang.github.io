@@ -1,3 +1,8 @@
+---
+published: 2026-08-12
+updated: 2026-08-12
+---
+
 # Chapter 12: Reinforcement Learning—Evolving Through Dynamic Interaction
 
 > Life is what happens to us while we are making other plans.

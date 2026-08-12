@@ -1,3 +1,8 @@
+---
+published: 2026-08-10
+updated: 2026-08-10
+---
+
 # 第八章：多层感知器——神经网络的“创世记”
 
 > You can avoid reality, but you cannot avoid the consequences of avoiding reality.

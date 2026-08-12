@@ -1,3 +1,8 @@
+---
+published: 2026-08-11
+updated: 2026-08-12
+---
+
 # Chapter 5: Insights from Econometrics—Learning from Other Fields
 
 > 他山之石，可以攻玉。

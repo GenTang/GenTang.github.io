@@ -1,3 +1,8 @@
+---
+published: 2026-08-11
+updated: 2026-08-12
+---
+
 # Chapter 4: Logistic Regression—The Hidden Factor
 
 > To be, or not to be: that is the question.

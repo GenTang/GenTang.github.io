@@ -1,6 +1,7 @@
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { effectiveContentDates, parseContentDocument } from "./lib/content-metadata.mjs";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputRoot = join(projectRoot, "out");
@@ -64,7 +65,14 @@ async function bookEntries(language = "zh") {
       .sort((left, right) => sectionSortKey(left).localeCompare(sectionSortKey(right), "zh-CN", { numeric: true }));
 
     for (const file of files) {
-      const source = await readFile(join(bookRoot, chapterDirectory, file), "utf8");
+      const path = join(bookRoot, chapterDirectory, file);
+      const document = parseContentDocument(await readFile(path, "utf8"), path);
+      const chapterOverviewPath = join(bookRoot, chapterDirectory, "overview.md");
+      const chapterDocument = file === "overview.md"
+        ? document
+        : parseContentDocument(await readFile(chapterOverviewPath, "utf8"), chapterOverviewPath);
+      const dates = effectiveContentDates(document.metadata, chapterDocument.metadata);
+      const source = document.content;
       const sectionId = file.replace(/\.md$/i, "");
       const route = sectionId === "overview"
         ? `${languagePrefix}/books/deconstructing_LLM/chapter-${chapterNumber}`
@@ -80,6 +88,8 @@ async function bookEntries(language = "zh") {
         summary: language === "zh"
           ? `《解构大语言模型：从线性回归到通用智能》${title}`
           : `Deconstructing Large Language Models: ${title}`,
+        published: dates.published,
+        updated: dates.updated,
       });
     }
   }
@@ -87,30 +97,54 @@ async function bookEntries(language = "zh") {
   return entries;
 }
 
+async function overviewEntries() {
+  return Promise.all(Object.entries(bookRoots).map(async ([language, bookRoot]) => {
+    const config = JSON.parse(await readFile(join(bookRoot, "book.json"), "utf8"));
+    return {
+      route: `/${language}/books/deconstructing_LLM`,
+      title: `${config.title}: ${config.subtitle}`,
+      summary: config.overview.seoDescription,
+      published: config.dates.published,
+      updated: config.dates.updated,
+    };
+  }));
+}
+
 async function blogEntries() {
   const siteConfig = JSON.parse(await readFile(join(projectRoot, "content", "zh", "site.json"), "utf8"));
   const essay = siteConfig.essay;
 
+  if (!essay?.available) return [];
+
+  const relativePath = essay.href.replace(/^\/zh\/blog\//, "");
+  const path = join(projectRoot, "content", "zh", "blog", `${relativePath}.md`);
+  const document = parseContentDocument(await readFile(path, "utf8"), path);
+  const dates = effectiveContentDates(document.metadata);
+
   return essay?.available
-    ? [{ route: essay.href, title: essay.title, summary: essay.sectionDescription || essay.title }]
+    ? [{ route: essay.href, title: essay.title, summary: essay.sectionDescription || essay.title, ...dates }]
     : [];
 }
 
-async function writeCrawlerFiles(entries) {
+async function writeCrawlerFiles(entries, overviews) {
   const routes = [
-    "/zh/",
-    "/en/",
-    "/zh/about",
-    "/en/about",
-    "/zh/books/deconstructing_LLM",
-    "/en/books/deconstructing_LLM",
-    ...entries.map((entry) => entry.route),
+    { route: "/zh/", updated: overviews.find((entry) => entry.route.startsWith("/zh/"))?.updated },
+    { route: "/en/", updated: overviews.find((entry) => entry.route.startsWith("/en/"))?.updated },
+    { route: "/zh/about" },
+    { route: "/en/about" },
+    ...overviews,
+    ...entries,
   ];
-  const uniqueRoutes = [...new Set(routes)];
+  const uniqueRoutes = [...new Map(routes.map((entry) => [entry.route, entry])).values()];
   const sitemap = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ...uniqueRoutes.map((route) => `  <url><loc>${xmlEscape(absoluteUrl(route))}</loc></url>`),
+    ...uniqueRoutes.map(({ route, updated }) => [
+      "  <url>",
+      `    <loc>${xmlEscape(absoluteUrl(route))}</loc>`,
+      ...(updated ? [`    <lastmod>${xmlEscape(updated)}</lastmod>`] : []),
+      "  </url>",
+    ].join("\n")),
     "</urlset>",
     "",
   ].join("\n");
@@ -154,6 +188,7 @@ async function writeFeeds(entries) {
     `      <link>${xmlEscape(absoluteUrl(entry.route))}</link>`,
     `      <guid isPermaLink="true">${xmlEscape(absoluteUrl(entry.route))}</guid>`,
     `      <description>${xmlEscape(entry.summary)}</description>`,
+    ...(entry.published ? [`      <pubDate>${new Date(`${entry.published}T00:00:00Z`).toUTCString()}</pubDate>`] : []),
     "    </item>",
   ].join("\n"));
   const rss = [
@@ -176,7 +211,8 @@ async function writeFeeds(entries) {
     `    <title>${xmlEscape(entry.title)}</title>`,
     `    <id>${xmlEscape(absoluteUrl(entry.route))}</id>`,
     `    <link href="${xmlEscape(absoluteUrl(entry.route))}" />`,
-    `    <updated>${now.toISOString()}</updated>`,
+    `    <updated>${entry.updated ? `${entry.updated}T00:00:00.000Z` : now.toISOString()}</updated>`,
+    ...(entry.published ? [`    <published>${entry.published}T00:00:00.000Z</published>`] : []),
     `    <summary>${xmlEscape(entry.summary)}</summary>`,
     "  </entry>",
   ].join("\n"));
@@ -228,17 +264,19 @@ async function markEnglishPages() {
 }
 
 export async function prepareExport() {
+  const overviews = await overviewEntries();
   const feedEntries = [
+    overviews.find((entry) => entry.route.startsWith("/zh/")),
     ...await bookEntries("zh"),
     ...await blogEntries(),
-  ];
+  ].filter(Boolean);
   const crawlerEntries = [
     ...feedEntries,
     ...await bookEntries("en"),
   ];
   await Promise.all([
     writeFile(join(outputRoot, ".nojekyll"), "", "utf8"),
-    writeCrawlerFiles(crawlerEntries),
+    writeCrawlerFiles(crawlerEntries, overviews),
     writeFeeds(feedEntries),
     markEnglishPages(),
   ]);

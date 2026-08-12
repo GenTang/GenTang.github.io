@@ -1,3 +1,8 @@
+---
+published: 2026-08-12
+updated: 2026-08-12
+---
+
 # Chapter 13: Other Classic Models—Broadening Our Perspective
 
 > The more I learn, the more I realize how much I don't know.

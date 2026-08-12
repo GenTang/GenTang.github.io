@@ -57,6 +57,13 @@ export default function EnglishDeconstructingLlmOverview() {
             </h1>
             <p>{bookConfig.overview.description}</p>
             <span className="book-overview-author">Author · {bookConfig.author}</span>
+            <div className="book-overview-dates">
+              <span>Published online <time dateTime={bookConfig.dates.published}>{bookConfig.dates.published}</time></span>
+              <span>Completed <time dateTime={bookConfig.dates.completed}>{bookConfig.dates.completed}</time></span>
+              {bookConfig.dates.updated !== bookConfig.dates.completed && (
+                <span>Last revised <time dateTime={bookConfig.dates.updated}>{bookConfig.dates.updated}</time></span>
+              )}
+            </div>
 
             <div className="book-overview-actions">
               <a className="primary-link" href={sitePath(firstChapterHref)}>

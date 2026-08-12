@@ -54,6 +54,17 @@ git push
 
 每篇博客使用一个 Markdown 文件。
 
+已发布的博客在文件顶部维护日期，统一使用 `YYYY-MM-DD`：
+
+```markdown
+---
+published: 2026-08-12
+updated: 2026-08-12
+---
+```
+
+首次发布后保留 `published` 不变；正文有实质修改时再更新 `updated`。草稿可以暂不填写日期。
+
 ### 《解构大语言模型》
 
 - 中文书稿：`content/zh/books/deconstructing_LLM/`
@@ -63,6 +74,10 @@ git push
 - 章节总览：`chapter_N/overview.md`
 - 章节小节：`chapter_N/N_M.md`
 - 章节图片：`chapter_N/images/`
+
+全书的发布日期、完成日期和最近修订日期维护在 `book.json` 的 `dates` 中。每章的 `published`、`updated` 维护在该章 `overview.md` 顶部，小节默认继承本章日期；只有某个小节单独修订时，才在该小节 Markdown 顶部用相同格式覆盖日期。
+
+发布日期会自动用于页面显示、SEO、`sitemap.xml`、RSS 和 Atom；不要直接修改生成的 `.generated/` 或 `out/` 文件。
 
 新增章节或小节后，网站会根据目录和 Markdown 文件自动更新书籍导航。
 

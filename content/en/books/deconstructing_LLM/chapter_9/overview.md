@@ -1,3 +1,8 @@
+---
+published: 2026-08-12
+updated: 2026-08-12
+---
+
 # Chapter 9: Convolutional Neural Networks—The ‘Exodus’ of Deep Learning
 
 > Veni, vidi, vici.

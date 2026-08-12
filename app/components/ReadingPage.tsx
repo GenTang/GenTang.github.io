@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { sitePath } from "@/app/lib/sitePath";
+import type { ContentDates } from "@/app/lib/deconstructingLlmContent";
 import { ActiveTocScroller } from "./ActiveTocScroller";
 import { BookTocControls } from "./BookTocControls";
 import { GiscusComments } from "./GiscusComments";
@@ -19,6 +20,7 @@ type ReadingPageProps = {
   previousPage?: PaginationPage;
   nextPage?: PaginationPage;
   contentOnly?: boolean;
+  dates?: ContentDates;
 };
 
 type PaginationPage = {
@@ -66,6 +68,7 @@ export function ReadingPage({
   previousPage,
   nextPage,
   contentOnly = false,
+  dates,
 }: ReadingPageProps) {
   const en = lang === "en";
   const isBook = kind === "book";
@@ -172,6 +175,8 @@ export function ReadingPage({
             </>
           )}
 
+          {contentOnly && dates?.published && <PublicationDates lang={lang} dates={dates} />}
+
           <MarkdownContent lang={lang} source={source} images={images} />
 
           {isBook ? (
@@ -193,6 +198,32 @@ export function ReadingPage({
         </article>
       </main>
       <SiteFooter lang={lang} />
+    </div>
+  );
+}
+
+function formatContentDate(value: string, lang: "zh" | "en") {
+  const [year, month, day] = value.split("-").map(Number);
+  if (lang === "zh") return `${year}年${month}月${day}日`;
+  return new Intl.DateTimeFormat("en", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(year, month - 1, day)));
+}
+
+function PublicationDates({ lang, dates }: { lang: "zh" | "en"; dates: ContentDates }) {
+  const updatedIsDifferent = dates.updated && dates.updated !== dates.published;
+
+  return (
+    <div className="content-dates" aria-label={lang === "zh" ? "内容日期" : "Content dates"}>
+      {dates.published && (
+        <span>{lang === "zh" ? "发布于" : "Published"} <time dateTime={dates.published}>{formatContentDate(dates.published, lang)}</time></span>
+      )}
+      {updatedIsDifferent && dates.updated && (
+        <span>{lang === "zh" ? "更新于" : "Updated"} <time dateTime={dates.updated}>{formatContentDate(dates.updated, lang)}</time></span>
+      )}
     </div>
   );
 }

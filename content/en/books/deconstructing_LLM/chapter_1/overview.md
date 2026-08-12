@@ -1,3 +1,8 @@
+---
+published: 2026-08-11
+updated: 2026-08-11
+---
+
 # Chapter 1: Introduction
 
 > Un auteur ne nuit jamais tant à ses lecteurs que quand il dissimule une difficulté.

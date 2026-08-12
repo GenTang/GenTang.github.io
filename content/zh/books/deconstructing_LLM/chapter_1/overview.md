@@ -1,3 +1,8 @@
+---
+published: 2026-08-08
+updated: 2026-08-11
+---
+
 # 第一章：绪论
 
 > Un auteur ne nuit jamais tant à ses lecteurs que quand il dissimule une difficulté.

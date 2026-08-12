@@ -1,3 +1,8 @@
+---
+published: 2026-08-12
+updated: 2026-08-12
+---
+
 # Chapter 8: Multilayer Perceptrons—The ‘Genesis’ of Neural Networks
 
 > You can avoid reality, but you cannot avoid the consequences of avoiding reality.

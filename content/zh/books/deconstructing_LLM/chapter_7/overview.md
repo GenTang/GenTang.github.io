@@ -1,3 +1,8 @@
+---
+published: 2026-08-10
+updated: 2026-08-10
+---
+
 # 第七章：反向传播——神经网络的工程基础
 
 > In theory, theory and practice are the same. In practice, they are not.

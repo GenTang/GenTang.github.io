@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { getMarkdownContent } from "@/app/lib/content";
+import { getMarkdownContent, getMarkdownMetadata } from "@/app/lib/content";
 import { ReadingPage } from "@/app/components/ReadingPage";
 import { createPageMetadata } from "@/app/lib/siteMetadata";
 
 const source = getMarkdownContent("/content/zh/blog/ai-as-collaborator.md");
+const dates = getMarkdownMetadata("/content/zh/blog/ai-as-collaborator.md");
 
 export const metadata: Metadata = createPageMetadata({
   title: "敬请期待",
@@ -11,6 +12,8 @@ export const metadata: Metadata = createPageMetadata({
   path: "/zh/blog/ai-as-collaborator",
   alternatePath: "/en/blog/ai-as-collaborator",
   noIndex: true,
+  publishedTime: dates.published,
+  modifiedTime: dates.updated,
 });
 
 export default function FirstBlogPost() {
@@ -24,7 +27,7 @@ export default function FirstBlogPost() {
         title: "第一篇文章正在写作中，敬请期待",
         summary: "关于人工智能前沿的个人观察与长期思考，正在整理中。",
         readingTime: "正在写作",
-        date: "TODO",
+        date: dates.published ?? "TODO",
         outline: [{ href: "#敬请期待", label: "敬请期待" }],
         showDraftNotice: false,
       }}

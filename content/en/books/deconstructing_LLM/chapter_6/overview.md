@@ -1,3 +1,8 @@
+---
+published: 2026-08-11
+updated: 2026-08-12
+---
+
 # Chapter 6: Optimization Algorithms—Parameter Estimation
 
 > Ideas are cheap; execution is everything.

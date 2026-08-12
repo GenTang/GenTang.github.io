@@ -2,6 +2,11 @@
   "title": "Deconstructing Large Language Models",
   "subtitle": "From Linear Regression to General Intelligence",
   "author": "Gen Tang",
+  "dates": {
+    "published": "2026-08-11",
+    "completed": "2026-08-12",
+    "updated": "2026-08-12"
+  },
   "overview": {
     "kicker": "BOOK / 01",
     "description": "Starting with linear regression, follow the evolution of data foundations and model architectures to gradually understand large language models",

@@ -1,3 +1,8 @@
+---
+published: 2026-08-10
+updated: 2026-08-10
+---
+
 # 第十二章：强化学习——在动态交互中进化
 
 > Life is what happens to us while we are making other plans.

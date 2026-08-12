@@ -1,3 +1,8 @@
+---
+published: 2026-08-11
+updated: 2026-08-11
+---
+
 # Chapter 2: Mathematical Foundations—Essential Knowledge
 
 > If people do not believe that mathematics is simple, it is only because they do not realize how complicated life is.

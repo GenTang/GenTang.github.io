@@ -1,3 +1,8 @@
+---
+published: 2026-08-10
+updated: 2026-08-10
+---
+
 # 第十一章：大语言模型——是通用人工智能的开始吗
 
 > The real problem is not whether machines think but whether men do.

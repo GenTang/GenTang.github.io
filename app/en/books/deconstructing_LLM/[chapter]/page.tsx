@@ -45,6 +45,8 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
         keywords: chapterSeo?.keywords,
         locale: "en_US",
         alternatePath: alternateSection?.href,
+        publishedTime: overview.dates.published,
+        modifiedTime: overview.dates.updated,
       })
     : createPageMetadata({
         title: "Chapter not found",

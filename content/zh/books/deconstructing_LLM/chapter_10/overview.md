@@ -1,3 +1,8 @@
+---
+published: 2026-08-10
+updated: 2026-08-10
+---
+
 # 第十章：循环神经网络——尝试理解人类语言
 
 > Language is the house of being. In its home man dwells.

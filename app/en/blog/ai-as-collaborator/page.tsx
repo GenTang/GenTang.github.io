@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { getMarkdownContent } from "@/app/lib/content";
+import { getMarkdownContent, getMarkdownMetadata } from "@/app/lib/content";
 import { ReadingPage } from "../../../components/ReadingPage";
 import { createPageMetadata } from "@/app/lib/siteMetadata";
 
 const source = getMarkdownContent("/content/en/blog/ai-as-collaborator.md");
+const dates = getMarkdownMetadata("/content/en/blog/ai-as-collaborator.md");
 
 export const metadata: Metadata = createPageMetadata({
   title: "Coming soon",
@@ -12,6 +13,8 @@ export const metadata: Metadata = createPageMetadata({
   alternatePath: "/zh/blog/ai-as-collaborator",
   locale: "en_US",
   noIndex: true,
+  publishedTime: dates.published,
+  modifiedTime: dates.updated,
 });
 
 export default function EnglishFirstBlogPost() {
@@ -25,7 +28,7 @@ export default function EnglishFirstBlogPost() {
         title: "The first essay is in progress — coming soon",
         summary: "Long-form observations on the frontiers of artificial intelligence are being prepared.",
         readingTime: "In progress",
-        date: "TODO",
+        date: dates.published ?? "TODO",
         outline: [{ href: "#coming-soon", label: "Coming soon" }],
         showDraftNotice: false,
       }}

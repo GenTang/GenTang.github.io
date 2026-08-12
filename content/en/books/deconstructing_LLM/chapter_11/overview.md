@@ -1,3 +1,8 @@
+---
+published: 2026-08-12
+updated: 2026-08-12
+---
+
 # Chapter 11: Large Language Models—The Beginning of Artificial General Intelligence?
 
 > The real problem is not whether machines think but whether men do.
