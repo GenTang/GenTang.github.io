@@ -16,7 +16,7 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
   const bookHref = `${prefix}/books/deconstructing_LLM`;
   const labels = lang === "zh"
     ? { home: "首页", book: "书籍", blog: "博客", about: "关于", lang: "EN", theme: "切换深色模式", menu: "打开导航", closeMenu: "关闭导航" }
-    : { home: "Home", book: "Book", blog: "AI Essays", about: "About", lang: "中文", theme: "Toggle dark mode", menu: "Open navigation", closeMenu: "Close navigation" };
+    : { home: "Home", book: "Book", blog: "Blog", about: "About", lang: "中文", theme: "Toggle dark mode", menu: "Open navigation", closeMenu: "Close navigation" };
 
   useEffect(() => {
     const saved = window.localStorage.getItem("xp-theme");

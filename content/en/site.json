@@ -1,18 +1,18 @@
 {
   "hero": {
     "eyebrow": "",
-    "title": ["Should I prove the 【Riemann hypothesis】,", "this page is at least wider than 【the margin】"],
-    "intro": "So that interesting ideas never disappear into memory's blank pages, I leave the thoughts worth revisiting here",
+    "title": ["If I ever prove the 【Riemann Hypothesis】,", "this page should have more room than the 【margin】."],
+    "intro": "So that interesting ideas never disappear into the blank pages of memory, I keep the thoughts worth exploring here",
     "primaryCta": {
-      "label": "Read the latest chapter",
-      "href": "/en/books/deconstructing_LLM/chapter-1"
+      "label": "Read the latest blog",
+      "href": "/en/blog/ai-as-collaborator"
     },
     "secondaryCta": {
       "label": "Deconstructing Large Language Models",
       "href": "/en/books/deconstructing_LLM"
     },
     "previewLabel": "Research note preview",
-    "updateState": "Updating"
+    "updateState": "Updated continuously"
   },
   "book": {
     "sectionLabel": "BOOK",
@@ -21,16 +21,16 @@
     "coverLabel": "BOOK / 01",
     "coverTitle": ["Notes on", "AI Systems"],
     "coverCaption": "A BOOK IN PROGRESS",
-    "coverImage": "/images/deconstructing-llm-cover.png",
-    "status": "UPDATED CONTINUOUSLY",
-    "title": "Notes on AI Systems (working title)",
+    "coverImage": "/images/deconstructing-llm-cover-en.png",
+    "status": "BOOK COMPLETE · 13 CHAPTERS",
+    "title": "Deconstructing Large Language Models",
     "subtitle": "From Linear Regression to General Intelligence",
-    "description": "Starting with linear regression, follow the evolution of models and data to understand large language models step by step",
-    "publishedLabel": "Published",
-    "publishedValue": "1 chapter",
-    "overviewLabel": "Book overview",
+    "description": "Starting with linear regression, follow the evolution of data foundations and model architectures to gradually understand large language models",
+    "publishedLabel": "Complete book",
+    "publishedValue": "13 chapters",
+    "overviewLabel": "View book overview",
     "overviewHref": "/en/books/deconstructing_LLM",
-    "chapterLabel": "Read Chapter 1: Begin with the question",
+    "chapterLabel": "Start with Chapter 1",
     "chapterHref": "/en/books/deconstructing_LLM/chapter-1"
   },
   "essay": {

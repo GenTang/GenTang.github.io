@@ -17,18 +17,9 @@ function highlightedTitle(line: string) {
 export function HomeView({ lang }: { lang: "zh" | "en" }) {
   const content = lang === "en" ? enContent : zhContent;
   const { hero, book, essay } = content;
-  const publishedChapters = lang === "zh"
-    ? getDeconstructingLlmNavigation().chapters.filter((chapter) => chapter.href)
-    : [];
-  const primaryCta = lang === "zh" || essay.available
-    ? hero.primaryCta
-    : {
-        label: "Read the latest chapter",
-        href: book.chapterHref,
-      };
-  const publishedValue = lang === "zh"
-    ? `${publishedChapters.length} 章`
-    : book.publishedValue;
+  const publishedChapters = getDeconstructingLlmNavigation(lang).chapters.filter(
+    (chapter) => chapter.href,
+  );
 
   return (
     <div
@@ -46,8 +37,8 @@ export function HomeView({ lang }: { lang: "zh" | "en" }) {
             </h1>
             <p className="hero-intro">{hero.intro}</p>
             <div className="hero-actions">
-              <a className="primary-link" href={sitePath(primaryCta.href)}>
-                {primaryCta.label}<span>→</span>
+              <a className="primary-link" href={sitePath(hero.primaryCta.href)}>
+                {hero.primaryCta.label}<span>→</span>
               </a>
               <a className="secondary-link" href={sitePath(hero.secondaryCta.href)}>
                 {hero.secondaryCta.label}
@@ -98,27 +89,20 @@ export function HomeView({ lang }: { lang: "zh" | "en" }) {
               <h3><a href={sitePath(book.overviewHref)}>{book.title}</a></h3>
               <p className="book-subtitle">{book.subtitle}</p>
               <p className="book-description">{book.description}</p>
-              {lang === "en" && (
-                <div className="chapter-line"><span>{book.publishedLabel}</span><strong>{publishedValue}</strong></div>
-              )}
               <div className="book-link-group">
                 <a className="text-link is-overview" href={sitePath(book.overviewHref)}>{book.overviewLabel}<span>→</span></a>
-                {lang === "zh" ? (
-                  <nav className="home-book-chapters" aria-label="按章节阅读">
-                    {publishedChapters.map((chapter) => {
-                      if (!chapter.href) return null;
-                      const chapterNumber = chapter.id.match(/\d+$/)?.[0] ?? chapter.id;
+                <nav className="home-book-chapters" aria-label={lang === "zh" ? "按章节阅读" : "Read by chapter"}>
+                  {publishedChapters.map((chapter) => {
+                    if (!chapter.href) return null;
+                    const chapterNumber = chapter.id.match(/\d+$/)?.[0] ?? chapter.id;
 
-                      return (
-                        <a href={sitePath(chapter.href)} key={chapter.id} title={chapter.title}>
-                          第 {chapterNumber} 章
-                        </a>
-                      );
-                    })}
-                  </nav>
-                ) : (
-                  <a className="text-link" href={sitePath(book.chapterHref)}>{book.chapterLabel}<span>↗</span></a>
-                )}
+                    return (
+                      <a href={sitePath(chapter.href)} key={chapter.id} title={chapter.title}>
+                        {lang === "zh" ? `第 ${chapterNumber} 章` : `Chapter ${chapterNumber}`}
+                      </a>
+                    );
+                  })}
+                </nav>
               </div>
             </div>
           </article>

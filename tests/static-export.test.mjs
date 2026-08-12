@@ -84,6 +84,29 @@ test("exports the homepage with local assets and the intended section order", as
   assert.doesNotMatch(source, /MVP|AI · BOOKS · NOTES|第一本书，从这里开始/);
 });
 
+test("keeps the English homepage structurally aligned with the Chinese homepage", async () => {
+  const source = await html("/en/");
+  assert.match(source, /<title>Xiaopang Notes \| LLM Technical Notes: Model Architectures, Data Foundations, and Engineering Implementation<\/title>/);
+  assert.match(source, /If I ever prove the <em>Riemann Hypothesis<\/em>/);
+  assert.match(source, /this page should have more room than the <em>margin<\/em>\./);
+  assert.match(source, /Read the latest blog/);
+  assert.match(source, /Deconstructing Large Language Models/);
+  assert.match(source, /BOOK COMPLETE · 13 CHAPTERS/);
+  assert.match(source, /The first essay is in progress — coming soon/);
+  assert.doesNotMatch(source, /class="chapter-line"|Notes on AI Systems \(working title\)|UPDATED CONTINUOUSLY/);
+  assert.ok(source.indexOf(">BLOG<") < source.indexOf(">BOOK<"));
+  assert.match(source, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/"`));
+  assert.match(source, new RegExp(`href="${basePath}/en/blog/ai-as-collaborator/"`));
+  assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover-en\\.png"`));
+  const chapterLinksStart = source.indexOf('class="home-book-chapters"');
+  const chapterLinks = source.slice(chapterLinksStart, source.indexOf("</nav>", chapterLinksStart));
+  assert.ok(chapterLinksStart >= 0);
+  assert.ok(chapterLinks.includes(`href="${basePath}/en/books/deconstructing_LLM/chapter-1/"`));
+  assert.ok(chapterLinks.includes(`href="${basePath}/en/books/deconstructing_LLM/chapter-13/"`));
+  assert.match(source, /type="application\/ld\+json"/);
+  assert.match(source, /"@type":"WebSite"/);
+});
+
 test("keeps the root URL as a static entry to the Chinese site", async () => {
   const source = await html("/");
 
@@ -306,8 +329,8 @@ test("exports the concise book overview with its outline and resources", async (
     }
   }
   assert.match(source.replaceAll("<!-- -->", ""), /全书已完成 · 13 章/);
-  assert.match(source, /https:\/\/space\.bilibili\.com\/417265639\/lists\/3138772/);
-  assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt/);
+  assert.doesNotMatch(source, /Video Series|space\.bilibili\.com/);
+  assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt\/tree\/en/);
   const outlineImageSrc = source.match(
     new RegExp(`src="(${basePath}/_next/static/media/deconstructing-llm-outline\\.[^"]+\\.png)"`),
   )?.[1];
@@ -337,8 +360,10 @@ test("exports the English book overview with its own content and outline", async
   assert.match(source, /engineering implementation/);
   assert.match(source, /READING MAP/);
   for (const part of bookConfig.parts) assert.ok(source.includes(part.title));
-  assert.match(source, /chapters available/);
+  assert.match(source, /Book complete · 13 chapters/);
+  assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover-en\\.png"`));
   assert.match(source, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/chapter-1/"`));
+  assert.match(source, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/chapter-13/"`));
   assert.match(source, /https:\/\/space\.bilibili\.com\/417265639\/lists\/3138772/);
   assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt/);
   assert.ok(source.includes(`rel="canonical" href="${publicUrl("/en/books/deconstructing_LLM")}"`));

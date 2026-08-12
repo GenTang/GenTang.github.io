@@ -15,9 +15,9 @@
       "data foundations",
       "engineering implementation"
     ],
-    "coverImage": "/images/deconstructing-llm-cover.png",
+    "coverImage": "/images/deconstructing-llm-cover-en.png",
     "videoUrl": "https://space.bilibili.com/417265639/lists/3138772",
-    "githubUrl": "https://github.com/GenTang/regression2chatgpt"
+    "githubUrl": "https://github.com/GenTang/regression2chatgpt/tree/en"
   },
   "chapterTitles": {
     "chapter_1": "Chapter 1: Introduction",

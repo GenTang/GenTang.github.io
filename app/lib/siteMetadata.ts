@@ -4,6 +4,8 @@ import { sitePath } from "./sitePath";
 export const siteName = "小胖笔记";
 export const homeTitle = "小胖笔记｜LLM技术笔记：模型架构、数据基础和工程实现";
 export const siteDescription = "《解构大语言模型》：从线性回归一路走向LLM；记录 AI、数学与智能系统的长期笔记。";
+export const englishHomeTitle = "Xiaopang Notes | LLM Technical Notes: Model Architectures, Data Foundations, and Engineering Implementation";
+export const englishSiteDescription = "Deconstructing Large Language Models: from linear regression to LLMs, with long-form notes on AI, mathematics, and intelligent systems.";
 
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://gentang.github.io/";
 export const siteUrl = new URL(configuredSiteUrl.endsWith("/") ? configuredSiteUrl : `${configuredSiteUrl}/`);

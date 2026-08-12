@@ -6,18 +6,12 @@ import { MarkdownContent } from "@/app/components/MarkdownContent";
 import { SiteFooter } from "@/app/components/SiteFooter";
 import { SiteHeader } from "@/app/components/SiteHeader";
 import { getMarkdownContent } from "@/app/lib/content";
-import { getDeconstructingLlmNavigation } from "@/app/lib/deconstructingLlmContent";
 import { sitePath } from "@/app/lib/sitePath";
 import { createPageMetadata } from "@/app/lib/siteMetadata";
 
 const overviewSource = getMarkdownContent("/content/en/books/deconstructing_LLM/overview.md");
 const firstChapterHref = "/en/books/deconstructing_LLM/chapter-1";
-const publishedChapters = getDeconstructingLlmNavigation("en").chapters.filter(
-  (chapter) => chapter.href,
-);
-const publishedChapterNumbers = new Set(
-  publishedChapters.map((chapter) => Number(chapter.id.match(/\d+$/)?.[0])),
-);
+const chapterCount = Object.keys(bookConfig.chapterTitles).length;
 
 export const metadata: Metadata = createPageMetadata({
   title: `${bookConfig.title}: ${bookConfig.subtitle}`,
@@ -55,9 +49,7 @@ export default function EnglishDeconstructingLlmOverview() {
           <div className="book-overview-intro">
             <div className="book-overview-meta">
               <span className="book-overview-kicker">{bookConfig.overview.kicker}</span>
-              <span className="book-overview-complete">
-                {publishedChapters.length} chapters available
-              </span>
+              <span className="book-overview-complete">Book complete · {chapterCount} chapters</span>
             </div>
             <h1>
               {bookConfig.title}
@@ -69,14 +61,6 @@ export default function EnglishDeconstructingLlmOverview() {
             <div className="book-overview-actions">
               <a className="primary-link" href={sitePath(firstChapterHref)}>
                 Start with Chapter 1 <span>→</span>
-              </a>
-              <a
-                className="secondary-link"
-                href={bookConfig.overview.videoUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Video Series <span>↗</span>
               </a>
               <a
                 className="secondary-link"
@@ -106,39 +90,28 @@ export default function EnglishDeconstructingLlmOverview() {
           <div className="book-roadmap" aria-label="Reading map">
             <span className="book-roadmap-label">READING MAP</span>
             <div className="book-roadmap-grid">
-              {bookConfig.parts.map((part, index) => {
-                const availableChapters = part.chapters.filter((chapter) =>
-                  publishedChapterNumbers.has(chapter),
-                );
-                const firstAvailableChapter = availableChapters[0];
-
-                return (
-                  <article key={part.label}>
-                    <span>0{index + 1}</span>
-                    <small>{part.label}</small>
-                    <h3>
-                      {firstAvailableChapter ? (
-                        <a href={sitePath(`/en/books/deconstructing_LLM/chapter-${firstAvailableChapter}`)}>
-                          {part.title}
-                        </a>
-                      ) : part.title}
-                    </h3>
-                    <p>{part.description}</p>
-                    {availableChapters.length > 0 && (
-                      <nav aria-label={`${part.title} chapters`}>
-                        {availableChapters.map((chapter) => (
-                          <a
-                            href={sitePath(`/en/books/deconstructing_LLM/chapter-${chapter}`)}
-                            key={chapter}
-                          >
-                            Chapter {chapter}
-                          </a>
-                        ))}
-                      </nav>
-                    )}
-                  </article>
-                );
-              })}
+              {bookConfig.parts.map((part, index) => (
+                <article key={part.label}>
+                  <span>0{index + 1}</span>
+                  <small>{part.label}</small>
+                  <h3>
+                    <a href={sitePath(`/en/books/deconstructing_LLM/chapter-${part.chapters[0]}`)}>
+                      {part.title}
+                    </a>
+                  </h3>
+                  <p>{part.description}</p>
+                  <nav aria-label={`${part.title} chapters`}>
+                    {part.chapters.map((chapter) => (
+                      <a
+                        href={sitePath(`/en/books/deconstructing_LLM/chapter-${chapter}`)}
+                        key={chapter}
+                      >
+                        Chapter {chapter}
+                      </a>
+                    ))}
+                  </nav>
+                </article>
+              ))}
             </div>
           </div>
         </section>
