@@ -809,6 +809,7 @@ a {
   letter-spacing: 0.1em;
 }
 
+.section-heading h1,
 .section-heading h2 {
   margin: 0;
   font-family: Georgia, "Songti SC", "Noto Serif SC", serif;
@@ -987,6 +988,16 @@ a {
 
 .essay-section {
   background: var(--surface);
+}
+
+.blog-index-main {
+  background: var(--surface);
+}
+
+.blog-index-main .essay-section {
+  min-height: 540px;
+  padding-top: clamp(92px, 12vw, 150px);
+  padding-bottom: clamp(110px, 14vw, 180px);
 }
 
 .essay-row {

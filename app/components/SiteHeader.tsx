@@ -13,6 +13,7 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
   const [menuOpen, setMenuOpen] = useState(false);
   const [dark, setDark] = useState(false);
   const prefix = `/${lang}`;
+  const blogHref = `${prefix}/blog`;
   const bookHref = `${prefix}/books/deconstructing_LLM`;
   const labels = lang === "zh"
     ? { home: "首页", book: "书籍", blog: "博客", about: "关于", contact: "联系作者", search: "搜索", lang: "EN", theme: "切换深色模式", menu: "打开导航", closeMenu: "关闭导航" }
@@ -50,7 +51,7 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
 
         <nav className="desktop-nav" aria-label={lang === "zh" ? "主导航" : "Main navigation"}>
           <a className={active === "home" ? "is-active" : ""} href={sitePath(`${prefix}/`)}>{labels.home}</a>
-          <a className={active === "blog" ? "is-active" : ""} href={sitePath(`${prefix}/blog/ai-as-collaborator`)}>{labels.blog}</a>
+          <a className={active === "blog" ? "is-active" : ""} href={sitePath(blogHref)}>{labels.blog}</a>
           <a className={active === "book" ? "is-active" : ""} href={sitePath(bookHref)}>{labels.book}</a>
           <a className={active === "about" ? "is-active" : ""} href={sitePath(`${prefix}/about`)}>{labels.about}</a>
         </nav>
@@ -75,7 +76,7 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
       {menuOpen && (
         <nav className="mobile-nav" aria-label={lang === "zh" ? "移动导航" : "Mobile navigation"}>
           <a href={sitePath(`${prefix}/`)} onClick={() => setMenuOpen(false)}>{labels.home}</a>
-          <a href={sitePath(`${prefix}/blog/ai-as-collaborator`)} onClick={() => setMenuOpen(false)}>{labels.blog}</a>
+          <a href={sitePath(blogHref)} onClick={() => setMenuOpen(false)}>{labels.blog}</a>
           <a href={sitePath(bookHref)} onClick={() => setMenuOpen(false)}>{labels.book}</a>
           <a href={sitePath(`${prefix}/about`)} onClick={() => setMenuOpen(false)}>{labels.about}</a>
           <a href={sitePath(`${prefix}/about#contact`)} onClick={() => setMenuOpen(false)}>{labels.contact}</a>

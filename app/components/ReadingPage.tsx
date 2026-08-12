@@ -99,8 +99,8 @@ export function ReadingPage({
   const renderSidebarContent = () => (
     <>
       {!isBook && (
-        <a className="back-link" href={sitePath(`${prefix}/`)}>
-          ← {en ? "Back to home" : "返回首页"}
+        <a className="back-link" href={sitePath(`${prefix}/blog`)}>
+          ← {en ? "Back to blog" : "返回博客"}
         </a>
       )}
       {isBook ? (
@@ -122,7 +122,7 @@ export function ReadingPage({
         </>
       ) : (
         <>
-          <span className="sidebar-label">AI ESSAY / 001</span>
+          <span className="sidebar-label">{article?.kicker ?? "AI ESSAY / 001"}</span>
           <strong>{en ? "Frontier notes" : "前沿笔记"}</strong>
           <nav aria-label={en ? "Article outline" : "文章目录"}>
             {blogOutline.map(({ href, label }) => <a href={href} key={href}>{label}</a>)}

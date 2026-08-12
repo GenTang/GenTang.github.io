@@ -9,6 +9,7 @@ export const metadata: Metadata = createPageMetadata({
   title: "敬请期待",
   description: "第一篇博客正在写作中，敬请期待。",
   path: "/zh/blog/ai-as-collaborator",
+  alternatePath: "/en/blog/ai-as-collaborator",
   noIndex: true,
 });
 

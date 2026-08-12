@@ -6,8 +6,8 @@ import { createPageMetadata } from "@/app/lib/siteMetadata";
 const source = getMarkdownContent("/content/en/blog/ai-as-collaborator.md");
 
 export const metadata: Metadata = createPageMetadata({
-  title: "From tool to collaborator",
-  description: "The important change in AI is not only faster answers, but a moving boundary between tool use and collaboration.",
+  title: "Coming soon",
+  description: "The first blog post is in progress. Please check back soon.",
   path: "/en/blog/ai-as-collaborator",
   alternatePath: "/zh/blog/ai-as-collaborator",
   locale: "en_US",
@@ -21,11 +21,13 @@ export default function EnglishFirstBlogPost() {
       kind="blog"
       source={source}
       article={{
-        kicker: "AI ESSAY · 001",
-        title: "From tool to collaborator: how I think about AI today",
-        summary: "The most important change in AI is not that answers became faster. It is that the boundary between using a tool and working with a system has begun to move.",
-        readingTime: "8 min read",
-        date: "2026.08.07",
+        kicker: "BLOG · TODO",
+        title: "The first essay is in progress — coming soon",
+        summary: "Long-form observations on the frontiers of artificial intelligence are being prepared.",
+        readingTime: "In progress",
+        date: "TODO",
+        outline: [{ href: "#coming-soon", label: "Coming soon" }],
+        showDraftNotice: false,
       }}
     />
   );

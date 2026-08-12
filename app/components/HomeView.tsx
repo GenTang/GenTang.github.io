@@ -3,6 +3,7 @@ import enContent from "@/content/en/site.json";
 import zhContent from "@/content/zh/site.json";
 import { getDeconstructingLlmNavigation } from "@/app/lib/deconstructingLlmContent";
 import { sitePath } from "@/app/lib/sitePath";
+import { BlogStatus } from "./BlogStatus";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
@@ -55,23 +56,7 @@ export function HomeView({ lang }: { lang: "zh" | "en" }) {
           </aside>
         </section>
 
-        <section className="content-section essay-section">
-          <div className="section-heading">
-            <div><span>{essay.sectionLabel}</span>{essay.sectionTitle && <h2>{essay.sectionTitle}</h2>}</div>
-            <p>{essay.sectionDescription}</p>
-          </div>
-          {essay.available ? <a className="essay-row" href={sitePath(essay.href)}>
-            <span className="essay-date">{essay.date}</span>
-            <span className="essay-title">{essay.title}</span>
-            <span className="essay-topic">{essay.topic}</span>
-            <span className="essay-arrow">↗</span>
-          </a> : <div className="essay-row is-disabled" aria-label={essay.title}>
-            <span className="essay-date">{essay.date}</span>
-            <span className="essay-title">{essay.title}</span>
-            <span className="essay-topic">{essay.topic}</span>
-            <span className="essay-arrow">…</span>
-          </div>}
-        </section>
+        <BlogStatus essay={essay} />
 
         <section className="content-section books-section">
           <div className="section-heading">

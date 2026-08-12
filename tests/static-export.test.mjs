@@ -71,7 +71,7 @@ test("exports the homepage with local assets and the intended section order", as
   assert.match(source, /持续更新/);
   assert.doesNotMatch(source, /NOTE \/ 001/);
   assert.match(source, new RegExp(`href="${basePath}/zh/books/deconstructing_LLM/"`));
-  assert.match(source, new RegExp(`href="${basePath}/zh/blog/ai-as-collaborator/"`));
+  assert.match(source, new RegExp(`href="${basePath}/zh/blog/"`));
   const chapterLinksStart = source.indexOf('class="home-book-chapters"');
   const chapterLinks = source.slice(chapterLinksStart, source.indexOf("</nav>", chapterLinksStart));
   assert.ok(chapterLinksStart >= 0);
@@ -96,7 +96,7 @@ test("keeps the English homepage structurally aligned with the Chinese homepage"
   assert.doesNotMatch(source, /class="chapter-line"|Notes on AI Systems \(working title\)|UPDATED CONTINUOUSLY/);
   assert.ok(source.indexOf(">BLOG<") < source.indexOf(">BOOK<"));
   assert.match(source, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/"`));
-  assert.match(source, new RegExp(`href="${basePath}/en/blog/ai-as-collaborator/"`));
+  assert.match(source, new RegExp(`href="${basePath}/en/blog/"`));
   assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover-en\\.png"`));
   const chapterLinksStart = source.indexOf('class="home-book-chapters"');
   const chapterLinks = source.slice(chapterLinksStart, source.indexOf("</nav>", chapterLinksStart));
@@ -117,6 +117,28 @@ test("keeps the root URL as a static entry to the Chinese site", async () => {
   assert.match(source, new RegExp(`href="${basePath}/zh/"`));
   await assert.rejects(access(join(outputRoot, "books")));
   await assert.rejects(access(join(outputRoot, "blog")));
+});
+
+test("exports aligned bilingual blog landing pages that match the homepage state", async () => {
+  const [chinese, english] = await Promise.all([
+    html("/zh/blog"),
+    html("/en/blog"),
+  ]);
+
+  assert.match(chinese, /<h1>博客<\/h1>/);
+  assert.match(chinese, /第一篇文章正在写作中，敬请期待/);
+  assert.match(chinese, /class="essay-row is-disabled"/);
+  assert.match(chinese, /name="robots" content="noindex, follow"/);
+  assert.match(chinese, new RegExp(`href="${basePath}/en/blog/"`));
+  assert.doesNotMatch(chinese, new RegExp(`href="${basePath}/zh/blog/ai-as-collaborator/"`));
+
+  assert.match(english, /<h1>Blog<\/h1>/);
+  assert.match(english, /The first essay is in progress — coming soon/);
+  assert.match(english, /class="essay-row is-disabled"/);
+  assert.match(english, /name="robots" content="noindex, follow"/);
+  assert.match(english, new RegExp(`href="${basePath}/zh/blog/"`));
+  assert.doesNotMatch(english, /From tool to collaborator/);
+  assert.doesNotMatch(english, new RegExp(`href="${basePath}/en/blog/ai-as-collaborator/"`));
 });
 
 test("exports bilingual About pages and the static search index", async () => {
@@ -286,7 +308,7 @@ test("exports every current reading route", async () => {
     ["/en/books/deconstructing_LLM/chapter-1/1-3", /1.3 Model Architecture/],
     ["/en/books/deconstructing_LLM/chapter-1/1-4", /1.4 About This Book/],
     ["/zh/blog/ai-as-collaborator", /第一篇文章正在写作中，敬请期待/],
-    ["/en/blog/ai-as-collaborator", /From tool to collaborator/],
+    ["/en/blog/ai-as-collaborator", /The first essay is in progress — coming soon/],
   ];
 
   for (const [route, expected] of routes) {
