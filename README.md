@@ -1,106 +1,74 @@
 # 小胖笔记
 
-“小胖笔记”的源代码和 Markdown 内容。网站使用 Next.js 静态导出，由 GitHub Actions 发布到 GitHub Pages。
+“小胖笔记”的网站代码与 Markdown 内容。网站使用 Next.js 静态导出，并通过 GitHub Actions 发布到 GitHub Pages。
 
-## 日常更新
+## 本地调试
 
-书稿和博客都在 `content/`：
-
-- `content/zh/site.json`：中文首页文案和链接
-- `content/en/site.json`：英文首页文案和链接
-- `content/zh/about.md`、`content/en/about.md`：中英文作者介绍
-- `content/zh/books/deconstructing_LLM/`：中文书稿
-- `content/zh/blog/`、`content/en/blog/`：博客
-
-每一章使用一个 `chapter_N/` 文件夹，小节使用独立 Markdown 文件，图片放在该章的 `images/` 中。新增章节和小节后，全书目录会在开发和构建时自动更新。
-
-首页的“已发布”章数和“阅读最新章节”链接也从这些 Markdown 自动计算：只要章节目录中存在 Markdown，它就会计入；空章节目录不会提前显示。博客的 `available` 为 `false` 时，首页主按钮会自动指向最新书稿；以后正式发布博客并改为 `true`，它会改用 `site.json` 中配置的博客链接。
-
-## 本地浏览
-
-直接运行：
+首次使用需要安装 Node.js 22 或更高版本，然后在项目根目录运行：
 
 ```bash
-git clone https://github.com/GenTang/GenTang.github.io.git
-cd GenTang.github.io
 ./scripts/dev.sh
 ```
 
-然后打开中文站点 [http://localhost:3000/zh/](http://localhost:3000/zh/) 或英文站点 [http://localhost:3000/en/](http://localhost:3000/en/)。根路径 [http://localhost:3000/](http://localhost:3000/) 会自动进入中文站点。修改 Markdown、首页 JSON 或章节图片后，开发服务器会重新生成内容索引并刷新页面。按 `Control + C` 停止服务。
+脚本会自动选择 `pnpm`、`corepack` 或 `npm`，并在首次运行时安装依赖。
 
-脚本会自动使用系统中的 `pnpm`、`corepack` 或 `npm`，首次运行时会安装依赖。项目不依赖任何特定电脑、用户目录或开发工具的私有运行环境。
+启动后访问：
 
-如果电脑已经安装 Node.js 22 和 pnpm，也可以直接运行：
+- 中文站点：<http://localhost:3000/zh/>
+- 英文站点：<http://localhost:3000/en/>
 
-```bash
-pnpm install
-pnpm run dev
-```
+修改 Markdown、配置文件或图片后，开发服务器会自动更新页面。按 `Control + C` 停止服务。
 
-## 本地发布检查
-
-内容确认后运行：
+发布前可以生成并检查最终静态网站：
 
 ```bash
 ./scripts/publish.sh
-```
-
-这个命令会检查代码、生成所有章节的静态 HTML 并运行页面测试。成功后，静态网站位于 `out/`。它不会 commit，也不会 push。
-
-构建过程还会自动生成以下公开文件，不要手工维护 `out/` 中的副本：
-
-- `sitemap.xml`：包含当前可公开检索的首页、书籍总览、章节、小节和已发布博客
-- `robots.txt`：允许普通搜索与回答型爬虫，拒绝已明确列出的模型训练爬虫
-- `rss.xml`、`atom.xml`：按最新章节在前的顺序提供订阅
-- `generated/search-index.json`：从中英文 Markdown 自动生成的静态全文搜索索引
-
-博客占位页带有 `noindex`，不会进入站点地图；正式发布时再解除。
-
-如需检查最终静态文件：
-
-```bash
 ./scripts/preview.sh
 ```
 
-然后打开 [http://localhost:3001](http://localhost:3001)。
+预览地址为 <http://localhost:3001>。生成的静态网站位于 `out/`，无需手工修改其中的文件。
 
-## 提交和上线
+## 推送与线上发布
 
-发布检查成功后，由你自己提交和推送：
+确认本地预览无误后运行：
 
 ```bash
 git status
 git add .
-git commit -m "更新书稿"
+git commit -m "更新网站内容"
 git push
 ```
 
-推送到 `main` 后，`.github/workflows/pages.yml` 会运行同样的静态构建并部署 `out/`。首次使用时，需要在 GitHub 仓库的 `Settings → Pages → Build and deployment` 中把 `Source` 设为 `GitHub Actions`。
+推送到 `main` 分支后，GitHub Actions 会自动构建并发布网站。可在仓库的 `Actions` 页面查看部署状态。
 
-当前远程仓库属于 `GenTang`，仓库名也是 `GenTang.github.io`。根地址会进入中文站点，中英文站点地址分别是：
+线上地址：<https://gentang.github.io/>
 
-```text
-https://gentang.github.io/
-https://gentang.github.io/zh/
-https://gentang.github.io/en/
-```
+## 更新博客和书籍
 
-上线后可分别向 Google Search Console 和 Bing Webmaster Tools 提交：
+日常内容都在 `content/` 目录中。
 
-```text
-https://gentang.github.io/sitemap.xml
-```
+### 博客
 
-站点页脚提供 RSS、Atom 和版权说明入口。页面分享摘要、canonical 地址和中英文首页的语言对应关系会在构建时生成。
+- 中文博客：`content/zh/blog/`
+- 英文博客：`content/en/blog/`
 
-站内搜索不依赖外部服务，修改 `content/` 后会随开发模式和静态构建自动更新。书稿与正式博客正文底部接入 Giscus 评论，由 GitHub Discussions 保存数据。仓库已安装 Giscus App，并默认使用 `Announcements` 分类；只有更换评论分类时，才需要通过 `NEXT_PUBLIC_GISCUS_CATEGORY` 与 `NEXT_PUBLIC_GISCUS_CATEGORY_ID` 覆盖默认配置。评论区随页面自动载入，阅读已有评论不需要登录，发表和互动需要登录 GitHub。
+每篇博客使用一个 Markdown 文件。
 
-工作流也支持普通项目仓库；如果以后更改仓库名，它会自动处理对应的子路径。
+### 《解构大语言模型》
 
-## 授权
+- 中文书稿：`content/zh/books/deconstructing_LLM/`
+- 英文书稿：`content/en/books/deconstructing_LLM/`
+- 全书总览：书籍目录下的 `overview.md`
+- 书名、简介、章节信息和外部链接：书籍目录下的 `book.json`
+- 章节总览：`chapter_N/overview.md`
+- 章节小节：`chapter_N/N_M.md`
+- 章节图片：`chapter_N/images/`
 
-网站代码采用 MIT License。书稿、博客内容、封面和原创图片不包含在 MIT 授权中，保留全部权利；详见 `LICENSE`。
+新增章节或小节后，网站会根据目录和 Markdown 文件自动更新书籍导航。
 
-## 关于 `next-env.d.ts`
+### 其他常用内容
 
-`next-env.d.ts` 由 Next.js 自动生成，不应手工编辑。`next dev` 会引用 `.next/dev/types/routes.d.ts`，`next build` 会引用 `.next/types/routes.d.ts`；二者分别对应开发和生产类型目录，切换命令时自动变化是正常现象。本项目的 `tsconfig.json` 已同时包含这两个生成目录。
+- 中文首页：`content/zh/site.json`
+- 英文首页：`content/en/site.json`
+- 中文作者介绍：`content/zh/about.md`
+- 英文作者介绍：`content/en/about.md`

@@ -8,22 +8,19 @@ export const metadata: Metadata = createPageMetadata({
   path: "/zh/",
   alternatePath: "/en/",
   kind: "website",
-  noIndex: true,
 });
 
 export default function LanguageEntry() {
   const target = sitePath("/zh/");
 
   return (
-    <main className="root-language-entry">
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.location.replace(${JSON.stringify(target)});`,
-        }}
-      />
-      <p>
-        正在进入中文站点…… <a href={target}>继续访问</a>
-      </p>
-    </main>
+    <>
+      <meta httpEquiv="refresh" content={`0; url=${target}`} />
+      <main className="root-language-entry">
+        <p>
+          正在进入中文站点…… <a href={target}>继续访问</a>
+        </p>
+      </main>
+    </>
   );
 }

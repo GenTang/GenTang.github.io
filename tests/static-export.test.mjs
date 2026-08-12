@@ -110,7 +110,10 @@ test("keeps the English homepage structurally aligned with the Chinese homepage"
 test("keeps the root URL as a static entry to the Chinese site", async () => {
   const source = await html("/");
 
-  assert.match(source, new RegExp(`window\\.location\\.replace\\("${basePath}/zh/"\\)`));
+  assert.match(source, new RegExp(`<meta http-equiv="refresh" content="0; url=${basePath}/zh/"`));
+  assert.match(source, new RegExp(`rel="canonical" href="${publicUrl("/zh/").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
+  assert.doesNotMatch(source, /name="robots" content="noindex, follow"/);
+  assert.doesNotMatch(source, /window\.location\.replace/);
   assert.match(source, new RegExp(`href="${basePath}/zh/"`));
   await assert.rejects(access(join(outputRoot, "books")));
   await assert.rejects(access(join(outputRoot, "blog")));
