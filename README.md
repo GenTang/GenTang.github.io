@@ -8,6 +8,7 @@
 
 - `content/zh/site.json`：中文首页文案和链接
 - `content/en/site.json`：英文首页文案和链接
+- `content/zh/about.md`、`content/en/about.md`：中英文作者介绍
 - `content/zh/books/deconstructing_LLM/`：中文书稿
 - `content/zh/blog/`、`content/en/blog/`：博客
 
@@ -51,6 +52,7 @@ pnpm run dev
 - `sitemap.xml`：包含当前可公开检索的首页、书籍总览、章节、小节和已发布博客
 - `robots.txt`：允许普通搜索与回答型爬虫，拒绝已明确列出的模型训练爬虫
 - `rss.xml`、`atom.xml`：按最新章节在前的顺序提供订阅
+- `generated/search-index.json`：从中英文 Markdown 自动生成的静态全文搜索索引
 
 博客占位页带有 `noindex`，不会进入站点地图；正式发布时再解除。
 
@@ -90,6 +92,8 @@ https://gentang.github.io/sitemap.xml
 ```
 
 站点页脚提供 RSS、Atom 和版权说明入口。页面分享摘要、canonical 地址和中英文首页的语言对应关系会在构建时生成。
+
+站内搜索不依赖外部服务，修改 `content/` 后会随开发模式和静态构建自动更新。书稿与正式博客正文底部接入 Giscus 评论，由 GitHub Discussions 保存数据；启用前需要为仓库安装 Giscus App，并配置 `NEXT_PUBLIC_GISCUS_CATEGORY` 与 `NEXT_PUBLIC_GISCUS_CATEGORY_ID`。未完成配置时页面会显示明确的安装提示，不会加载第三方脚本。
 
 工作流也支持普通项目仓库；如果以后更改仓库名，它会自动处理对应的子路径。
 

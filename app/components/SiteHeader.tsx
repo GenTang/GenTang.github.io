@@ -5,7 +5,7 @@ import { sitePath } from "@/app/lib/sitePath";
 
 type SiteHeaderProps = {
   lang: "zh" | "en";
-  active?: "home" | "book" | "blog";
+  active?: "home" | "book" | "blog" | "about" | "search";
   languageHref: string;
 };
 
@@ -15,8 +15,8 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
   const prefix = `/${lang}`;
   const bookHref = `${prefix}/books/deconstructing_LLM`;
   const labels = lang === "zh"
-    ? { home: "首页", book: "书籍", blog: "博客", about: "关于", lang: "EN", theme: "切换深色模式", menu: "打开导航", closeMenu: "关闭导航" }
-    : { home: "Home", book: "Book", blog: "Blog", about: "About", lang: "中文", theme: "Toggle dark mode", menu: "Open navigation", closeMenu: "Close navigation" };
+    ? { home: "首页", book: "书籍", blog: "博客", about: "关于", contact: "联系", search: "搜索", lang: "EN", theme: "切换深色模式", menu: "打开导航", closeMenu: "关闭导航" }
+    : { home: "Home", book: "Book", blog: "Blog", about: "About", contact: "Contact", search: "Search", lang: "中文", theme: "Toggle dark mode", menu: "Open navigation", closeMenu: "Close navigation" };
 
   useEffect(() => {
     const saved = window.localStorage.getItem("xp-theme");
@@ -52,10 +52,12 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
           <a className={active === "home" ? "is-active" : ""} href={sitePath(`${prefix}/`)}>{labels.home}</a>
           <a className={active === "blog" ? "is-active" : ""} href={sitePath(`${prefix}/blog/ai-as-collaborator`)}>{labels.blog}</a>
           <a className={active === "book" ? "is-active" : ""} href={sitePath(bookHref)}>{labels.book}</a>
-          <a href={sitePath(`${prefix}/#about`)}>{labels.about}</a>
+          <a className={active === "about" ? "is-active" : ""} href={sitePath(`${prefix}/about`)}>{labels.about}</a>
         </nav>
 
         <div className="header-actions">
+          <a className={`round-action search-action ${active === "search" ? "is-active" : ""}`} href={sitePath(`${prefix}/search`)} aria-label={labels.search} title={labels.search}>⌕</a>
+          <a className="round-action contact-action" href={sitePath(`${prefix}/about#contact`)} aria-label={labels.contact} title={labels.contact}><span>@</span><b>{labels.contact}</b></a>
           <a className="round-action language-action" href={sitePath(languageHref)} aria-label={lang === "zh" ? "Switch to English" : "切换到中文"}>{labels.lang}</a>
           <button className="round-action" type="button" onClick={toggleTheme} aria-label={labels.theme}>{dark ? "☀" : "☾"}</button>
           <button
@@ -75,7 +77,9 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
           <a href={sitePath(`${prefix}/`)} onClick={() => setMenuOpen(false)}>{labels.home}</a>
           <a href={sitePath(`${prefix}/blog/ai-as-collaborator`)} onClick={() => setMenuOpen(false)}>{labels.blog}</a>
           <a href={sitePath(bookHref)} onClick={() => setMenuOpen(false)}>{labels.book}</a>
-          <a href={sitePath(`${prefix}/#about`)} onClick={() => setMenuOpen(false)}>{labels.about}</a>
+          <a href={sitePath(`${prefix}/about`)} onClick={() => setMenuOpen(false)}>{labels.about}</a>
+          <a href={sitePath(`${prefix}/about#contact`)} onClick={() => setMenuOpen(false)}>{labels.contact}</a>
+          <a href={sitePath(`${prefix}/search`)} onClick={() => setMenuOpen(false)}>{labels.search}</a>
           <a className="mobile-nav-language" href={sitePath(languageHref)}>{lang === "zh" ? "English" : "中文"}</a>
         </nav>
       )}

@@ -53,6 +53,9 @@ jobs:
           echo "NEXT_PUBLIC_SITE_URL=https://${owner_lower}.github.io${base_path}/" >> "$GITHUB_ENV"
 
       - name: Check and build
+        env:
+          NEXT_PUBLIC_GISCUS_CATEGORY: ${{ vars.NEXT_PUBLIC_GISCUS_CATEGORY }}
+          NEXT_PUBLIC_GISCUS_CATEGORY_ID: ${{ vars.NEXT_PUBLIC_GISCUS_CATEGORY_ID }}
         run: pnpm run publish:local
 
       - name: Upload Pages artifact

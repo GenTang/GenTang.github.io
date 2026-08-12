@@ -100,6 +100,8 @@ async function writeCrawlerFiles(entries) {
   const routes = [
     "/zh/",
     "/en/",
+    "/zh/about",
+    "/en/about",
     "/zh/books/deconstructing_LLM",
     "/en/books/deconstructing_LLM",
     ...entries.map((entry) => entry.route),

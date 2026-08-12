@@ -12,6 +12,7 @@ const bookRoots = {
 const generatedRoot = join(projectRoot, ".generated");
 const generatedModule = join(generatedRoot, "content.ts");
 const generatedAssets = join(projectRoot, "public", "generated", "book-images");
+const generatedSearchIndex = join(projectRoot, "public", "generated", "search-index.json");
 const imageExtensions = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif", ".svg"]);
 
 function posixPath(path) {
@@ -58,6 +59,88 @@ async function collectMarkdown() {
   }));
 
   return Object.fromEntries(entries);
+}
+
+function markdownTitle(source, fallback) {
+  const heading = source.match(/^#{1,6}\s+(.+?)\s*$/m)?.[1];
+
+  return heading
+    ?.replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+    .replace(/[*_`]/g, "")
+    .trim() || fallback;
+}
+
+function markdownPlainText(source) {
+  return source
+    .replace(/<!--[^]*?-->/g, " ")
+    .replace(/```[^\n]*\n([^]*?)```/g, "$1")
+    .replace(/!\[([^\]]*)]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^>\s?/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/^\s*\d+[.)]\s+/gm, "")
+    .replace(/[*_~`]/g, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function searchEntryForMarkdown(key, source) {
+  const match = key.match(/^\/content\/(zh|en)\/(.+)\.md$/);
+  if (!match) return;
+
+  const [, language, relativePath] = match;
+  const bookMatch = relativePath.match(/^books\/deconstructing_LLM\/(?:chapter_(\d+)\/)?(overview|\d+_\d+)$/);
+  const blogMatch = relativePath.match(/^blog\/(.+)$/);
+  let url;
+  let kind;
+  let fallback;
+
+  if (relativePath === "about") {
+    url = `/${language}/about`;
+    kind = language === "zh" ? "关于" : "About";
+    fallback = kind;
+  } else if (bookMatch) {
+    const [, chapterNumber, fileName] = bookMatch;
+    if (!chapterNumber) {
+      url = `/${language}/books/deconstructing_LLM`;
+    } else if (fileName === "overview") {
+      url = `/${language}/books/deconstructing_LLM/chapter-${chapterNumber}`;
+    } else {
+      url = `/${language}/books/deconstructing_LLM/chapter-${chapterNumber}/${fileName.replaceAll("_", "-")}`;
+    }
+    kind = language === "zh" ? "书籍" : "Book";
+    fallback = language === "zh" ? "解构大语言模型" : "Deconstructing Large Language Models";
+  } else if (blogMatch) {
+    url = `/${language}/blog/${blogMatch[1]}`;
+    kind = language === "zh" ? "博客" : "Blog";
+    fallback = blogMatch[1].replaceAll("-", " ");
+  } else {
+    return;
+  }
+
+  return {
+    lang: language,
+    url,
+    kind,
+    title: markdownTitle(source, fallback),
+    text: markdownPlainText(source),
+  };
+}
+
+async function writeSearchIndex(markdown) {
+  const siteConfigs = Object.fromEntries(await Promise.all(["zh", "en"].map(async (language) => [
+    language,
+    JSON.parse(await readFile(join(contentRoot, language, "site.json"), "utf8")),
+  ])));
+  const entries = Object.entries(markdown)
+    .map(([key, source]) => searchEntryForMarkdown(key, source))
+    .filter((entry) => entry && (entry.kind !== "博客" && entry.kind !== "Blog" || siteConfigs[entry.lang]?.essay?.available));
+
+  await mkdir(dirname(generatedSearchIndex), { recursive: true });
+  await writeFile(generatedSearchIndex, `${JSON.stringify(entries)}\n`, "utf8");
+  return entries.length;
 }
 
 async function collectBookImages(bookRoot, ids, language) {
@@ -113,11 +196,12 @@ export async function generateContent() {
   ].join("\n\n");
 
   await mkdir(generatedRoot, { recursive: true });
+  const searchEntryCount = await writeSearchIndex(markdown);
   const temporaryModule = `${generatedModule}.tmp`;
   await writeFile(temporaryModule, source, "utf8");
   await rename(temporaryModule, generatedModule);
   console.log(
-    `内容索引已更新：${Object.keys(markdown).length} 篇 Markdown，中文 ${idsByLanguage.zh.length} 章，英文 ${idsByLanguage.en.length} 章。`,
+    `内容索引已更新：${Object.keys(markdown).length} 篇 Markdown，中文 ${idsByLanguage.zh.length} 章，英文 ${idsByLanguage.en.length} 章，搜索收录 ${searchEntryCount} 页。`,
   );
 }
 

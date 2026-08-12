@@ -116,6 +116,39 @@ test("keeps the root URL as a static entry to the Chinese site", async () => {
   await assert.rejects(access(join(outputRoot, "blog")));
 });
 
+test("exports bilingual About pages and the static search index", async () => {
+  const [chineseAbout, englishAbout, chineseSearch, englishSearch, searchIndex, sitemap] = await Promise.all([
+    html("/zh/about"),
+    html("/en/about"),
+    html("/zh/search"),
+    html("/en/search"),
+    readFile(join(outputRoot, "generated", "search-index.json"), "utf8"),
+    readFile(join(outputRoot, "sitemap.xml"), "utf8"),
+  ]);
+  const entries = JSON.parse(searchIndex);
+
+  assert.match(chineseAbout, /唐亘，数据科学家，专注于人工智能与大数据/);
+  assert.match(chineseAbout, /复旦大学/);
+  assert.match(chineseAbout, /巴黎综合理工学院/);
+  assert.match(chineseAbout, /联系与反馈/);
+  assert.match(chineseAbout, /GenTang\/GenTang\.github\.io\/issues\/new/);
+  assert.match(chineseAbout, /GenTang\/GenTang\.github\.io\/discussions/);
+  assert.match(chineseAbout, /gen\.tang86@gmail\.com/);
+  assert.match(chineseAbout, new RegExp(`src="${basePath}/images/gen-tang\\.png"`));
+  assert.match(englishAbout, /Gen Tang is a data scientist/);
+  assert.match(englishAbout, /École Polytechnique/);
+  assert.match(chineseSearch, /搜索小胖笔记/);
+  assert.match(englishSearch, /Search Xiaopang Notes/);
+  assert.match(chineseSearch, /name="robots" content="noindex, follow"/);
+  assert.ok(entries.some((entry) => entry.lang === "zh" && entry.url === "/zh/about"));
+  assert.ok(entries.some((entry) => entry.lang === "en" && entry.url === "/en/about"));
+  assert.ok(entries.some((entry) => entry.lang === "zh" && entry.url === "/zh/books/deconstructing_LLM/chapter-11/11-1"));
+  assert.ok(!entries.some((entry) => entry.url.includes("ai-as-collaborator")));
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/about")}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/en/about")}</loc>`));
+  assert.ok(!sitemap.includes(`<loc>${publicUrl("/zh/search")}</loc>`));
+});
+
 test("exports crawl controls, sitemap, feeds, canonical metadata, and correct page languages", async () => {
   const [robots, sitemap, rss, atom, home, latest, draftBlog, english] = await Promise.all([
     readFile(join(outputRoot, "robots.txt"), "utf8"),
@@ -329,8 +362,8 @@ test("exports the concise book overview with its outline and resources", async (
     }
   }
   assert.match(source.replaceAll("<!-- -->", ""), /全书已完成 · 13 章/);
-  assert.doesNotMatch(source, /Video Series|space\.bilibili\.com/);
-  assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt\/tree\/en/);
+  assert.match(source, /space\.bilibili\.com\/417265639\/lists\/3138772/);
+  assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt/);
   const outlineImageSrc = source.match(
     new RegExp(`src="(${basePath}/_next/static/media/deconstructing-llm-outline\\.[^"]+\\.png)"`),
   )?.[1];
@@ -360,12 +393,12 @@ test("exports the English book overview with its own content and outline", async
   assert.match(source, /engineering implementation/);
   assert.match(source, /READING MAP/);
   for (const part of bookConfig.parts) assert.ok(source.includes(part.title));
-  assert.match(source, /Book complete · 13 chapters/);
+  assert.match(source.replaceAll("<!-- -->", ""), /Book complete · 13 chapters/);
   assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover-en\\.png"`));
   assert.match(source, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/chapter-1/"`));
   assert.match(source, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/chapter-13/"`));
-  assert.match(source, /https:\/\/space\.bilibili\.com\/417265639\/lists\/3138772/);
-  assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt/);
+  assert.doesNotMatch(source, /Video Series|space\.bilibili\.com/);
+  assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt\/tree\/en/);
   assert.ok(source.includes(`rel="canonical" href="${publicUrl("/en/books/deconstructing_LLM")}"`));
   assert.ok(source.includes(`hrefLang="zh-CN" href="${publicUrl("/zh/books/deconstructing_LLM")}"`));
   assert.match(englishHome, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/"`));
@@ -415,6 +448,12 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   const overview = await html("/zh/books/deconstructing_LLM/chapter-1");
   assert.match(overview, /id="user-content-fnref-1"[^>]*data-footnote-ref="true"/);
   assert.match(overview, /href="#user-content-fnref-1"[^>]*data-footnote-backref/);
+  assert.match(overview, /评论与讨论/);
+  assert.match(overview, /安装 Giscus App/);
+  assert.match(overview, /https:\/\/github\.com\/apps\/giscus/);
+
+  const draftBlog = await html("/zh/blog/ai-as-collaborator");
+  assert.doesNotMatch(draftBlog, /评论与讨论|安装 Giscus App/);
 
   const vectors = await html("/zh/books/deconstructing_LLM/chapter-2/2-1");
   assert.match(vectors, /id="eq-2-1"/);

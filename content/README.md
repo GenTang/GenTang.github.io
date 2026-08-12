@@ -11,6 +11,29 @@
 - `hero.primaryCta` 控制首页主按钮的文字和链接。
 - `hero.secondaryCta` 控制首页次按钮的文字和链接。
 
+## 关于与联系
+
+- 中文作者介绍：`content/zh/about.md`
+- 英文作者介绍：`content/en/about.md`
+- 联系与反馈入口位于 `app/components/AboutPage.tsx`，包括电子邮件、网站 Issue 和 GitHub Discussion。
+
+站内搜索会在内容索引更新时自动读取这些 Markdown，并生成 `public/generated/search-index.json`。修改或新增书稿、博客、About 内容后，不需要手工维护搜索关键词。
+
+## 评论
+
+书稿和正式博客正文底部使用 Giscus，与 GitHub Discussions 对应。首次配置时：
+
+1. 在 `GenTang.github.io` 仓库安装 [Giscus App](https://github.com/apps/giscus)。
+2. 打开 [Giscus 配置页](https://giscus.app/zh-CN)，选择仓库和 Discussion 分类。
+3. 把生成的分类名称和分类 ID 写入本地 `.env.local`：
+
+```text
+NEXT_PUBLIC_GISCUS_CATEGORY=Announcements
+NEXT_PUBLIC_GISCUS_CATEGORY_ID=分类 ID
+```
+
+GitHub Actions 中需要把同名值配置为仓库变量；评论按页面路径映射，中英文及各章节会拥有独立 Discussion。博客占位页不会显示评论。
+
 ## 正文
 
 - 中文书稿目录：`content/zh/books/deconstructing_LLM/`

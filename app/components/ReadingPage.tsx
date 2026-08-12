@@ -2,6 +2,7 @@ import Link from "next/link";
 import { sitePath } from "@/app/lib/sitePath";
 import { ActiveTocScroller } from "./ActiveTocScroller";
 import { BookTocControls } from "./BookTocControls";
+import { GiscusComments } from "./GiscusComments";
 import { MarkdownContent } from "./MarkdownContent";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
@@ -187,6 +188,8 @@ export function ReadingPage({
               )}
             </nav>
           ) : <div className="article-endmark">胖 · 001</div>}
+
+          {!article?.showDraftNotice && !isBook ? null : <GiscusComments lang={lang} />}
         </article>
       </main>
       <SiteFooter lang={lang} />
