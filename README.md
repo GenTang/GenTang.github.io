@@ -93,7 +93,7 @@ https://gentang.github.io/sitemap.xml
 
 站点页脚提供 RSS、Atom 和版权说明入口。页面分享摘要、canonical 地址和中英文首页的语言对应关系会在构建时生成。
 
-站内搜索不依赖外部服务，修改 `content/` 后会随开发模式和静态构建自动更新。书稿与正式博客正文底部接入 Giscus 评论，由 GitHub Discussions 保存数据；启用前需要为仓库安装 Giscus App，并配置 `NEXT_PUBLIC_GISCUS_CATEGORY` 与 `NEXT_PUBLIC_GISCUS_CATEGORY_ID`。未完成配置时页面会显示明确的安装提示，不会加载第三方脚本。
+站内搜索不依赖外部服务，修改 `content/` 后会随开发模式和静态构建自动更新。书稿与正式博客正文底部接入 Giscus 评论，由 GitHub Discussions 保存数据。仓库已安装 Giscus App，并默认使用 `Announcements` 分类；只有更换评论分类时，才需要通过 `NEXT_PUBLIC_GISCUS_CATEGORY` 与 `NEXT_PUBLIC_GISCUS_CATEGORY_ID` 覆盖默认配置。评论脚本会在读者主动点击“加载评论”后载入。
 
 工作流也支持普通项目仓库；如果以后更改仓库名，它会自动处理对应的子路径。
 

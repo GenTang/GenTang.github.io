@@ -21,18 +21,16 @@
 
 ## 评论
 
-书稿和正式博客正文底部使用 Giscus，与 GitHub Discussions 对应。首次配置时：
+书稿和正式博客正文底部使用 Giscus，与 GitHub Discussions 对应。仓库已经安装 Giscus App，网站默认使用 `Announcements` 分类，无需再配置即可启用。
 
-1. 在 `GenTang.github.io` 仓库安装 [Giscus App](https://github.com/apps/giscus)。
-2. 打开 [Giscus 配置页](https://giscus.app/zh-CN)，选择仓库和 Discussion 分类。
-3. 把生成的分类名称和分类 ID 写入本地 `.env.local`：
+只有以后更换 Discussion 分类时，才需要在本地 `.env.local` 覆盖默认值：
 
 ```text
 NEXT_PUBLIC_GISCUS_CATEGORY=Announcements
-NEXT_PUBLIC_GISCUS_CATEGORY_ID=分类 ID
+NEXT_PUBLIC_GISCUS_CATEGORY_ID=DIC_kwDOTyPYts4DDMt3
 ```
 
-GitHub Actions 中需要把同名值配置为仓库变量；评论按页面路径映射，中英文及各章节会拥有独立 Discussion。博客占位页不会显示评论。
+如需在 GitHub Actions 中覆盖，也可以配置同名仓库变量。评论按页面路径映射，中英文及各章节会拥有独立 Discussion；博客占位页不会显示评论。读者点击“加载评论”后才会连接 `giscus.app`。
 
 ## 正文
 

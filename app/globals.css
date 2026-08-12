@@ -227,15 +227,8 @@ a {
 }
 
 .contact-action {
-  gap: 6px;
   padding: 0 14px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-}
-
-.contact-action > span {
-  color: var(--accent);
-  font-size: 19px;
-  line-height: 1;
 }
 
 .contact-action > b {
@@ -258,21 +251,21 @@ a {
 
 .about-main,
 .search-main {
-  width: min(1180px, calc(100% - 48px));
+  width: min(1080px, calc(100% - 48px));
   margin: 0 auto;
 }
 
 .about-profile {
   display: grid;
-  grid-template-columns: minmax(230px, 0.68fr) minmax(0, 1.32fr);
-  gap: clamp(54px, 8vw, 118px);
+  grid-template-columns: 245px minmax(0, 1fr);
+  gap: clamp(42px, 6vw, 76px);
   align-items: center;
-  min-height: 540px;
-  padding: 76px 0;
+  padding: 24px 0 16px;
 }
 
 .about-portrait {
   position: relative;
+  width: 100%;
   margin: 0;
   background: var(--surface-soft);
   border: 1px solid color-mix(in srgb, var(--accent-bright) 62%, transparent);
@@ -289,23 +282,10 @@ a {
   object-fit: cover;
 }
 
-.about-portrait figcaption {
-  padding: 13px 17px 14px;
-  color: var(--muted);
-  background: var(--surface);
-  border-top: 1px solid var(--line);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-align: center;
-}
-
 .about-copy {
   max-width: 720px;
 }
 
-.about-kicker,
-.contact-section > header > span,
 .search-heading > span {
   display: inline-block;
   margin-bottom: 17px;
@@ -316,114 +296,48 @@ a {
 }
 
 .about-copy .markdown-content h1 {
-  margin: 0 0 25px;
-  font-size: clamp(38px, 5vw, 60px);
+  margin: 0 0 17px;
+  font-size: clamp(34px, 4vw, 46px);
 }
 
 .about-copy .markdown-content p {
+  margin: 0 0 13px;
   color: color-mix(in srgb, var(--ink) 88%, var(--muted));
-  font-size: 17px;
-  line-height: 2;
+  font-size: 15px;
+  line-height: 1.78;
+}
+
+.about-copy .markdown-content p:last-child {
+  margin-bottom: 0;
 }
 
 .contact-section {
-  padding: 70px 0 100px;
+  scroll-margin-top: 130px;
+  padding: 16px 0 22px;
   border-top: 1px solid var(--line);
 }
 
 .contact-section > header {
-  display: grid;
-  grid-template-columns: minmax(250px, 0.8fr) minmax(0, 1.2fr);
-  column-gap: 70px;
-  margin-bottom: 38px;
-}
-
-.contact-section > header > span {
-  grid-column: 1 / -1;
+  margin-bottom: 17px;
 }
 
 .contact-section h2 {
   margin: 0;
   font-family: Georgia, "Songti SC", "Noto Serif SC", serif;
-  font-size: clamp(30px, 4vw, 43px);
+  font-size: clamp(27px, 3.2vw, 36px);
   font-weight: 500;
-}
-
-.contact-section > header p {
-  max-width: 650px;
-  margin: 0;
-  color: var(--muted);
-  font-size: 15px;
-  line-height: 1.9;
 }
 
 .contact-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.contact-email {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  max-width: 540px;
-  margin: 0 0 18px;
-  padding: 18px 22px;
-  color: var(--ink);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 12px 3px 12px 3px;
-  text-decoration: none;
-}
-
-.contact-email:hover {
-  border-color: var(--accent);
-}
-
-.contact-email > span {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  color: var(--surface);
-  background: var(--accent);
-  border-radius: 9px 2px 9px 2px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 20px;
-}
-
-.contact-email > div {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-
-.contact-email small {
-  color: var(--muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 9px;
-  letter-spacing: 0.12em;
-}
-
-.contact-email strong {
-  overflow-wrap: anywhere;
-  font-size: 15px;
-  font-weight: 550;
-}
-
-.contact-email > b {
-  margin-left: auto;
-  color: var(--accent);
-  font-size: 18px;
-  font-weight: 400;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .contact-grid > a {
   position: relative;
-  min-height: 210px;
-  padding: 26px 66px 26px 28px;
+  min-height: 144px;
+  padding: 19px 47px 18px 20px;
   background: var(--surface-soft);
   border: 1px solid var(--line);
   border-radius: 14px 3px 14px 3px;
@@ -445,23 +359,24 @@ a {
 }
 
 .contact-grid h3 {
-  margin: 17px 0 11px;
+  margin: 12px 0 7px;
   font-family: Georgia, "Songti SC", "Noto Serif SC", serif;
-  font-size: 23px;
+  font-size: 19px;
   font-weight: 500;
 }
 
 .contact-grid p {
   margin: 0;
   color: var(--muted);
-  font-size: 14px;
-  line-height: 1.75;
+  overflow-wrap: anywhere;
+  font-size: 12.5px;
+  line-height: 1.58;
 }
 
 .contact-grid b {
   position: absolute;
-  top: 25px;
-  right: 28px;
+  top: 18px;
+  right: 20px;
   color: var(--accent);
   font-size: 19px;
   font-weight: 400;
@@ -2695,12 +2610,12 @@ a {
 
   .about-profile {
     grid-template-columns: 1fr;
-    gap: 38px;
-    padding: 52px 0 62px;
+    gap: 25px;
+    padding: 34px 0 38px;
   }
 
   .about-portrait {
-    width: min(76vw, 290px);
+    width: min(58vw, 220px);
     justify-self: center;
   }
 
@@ -2714,7 +2629,7 @@ a {
   }
 
   .contact-section {
-    padding: 52px 0 70px;
+    padding: 34px 0 52px;
   }
 
   .contact-section > header {
@@ -2722,7 +2637,7 @@ a {
   }
 
   .contact-section > header p {
-    margin-top: 17px;
+    margin-top: 12px;
   }
 
   .contact-grid {
@@ -2731,10 +2646,6 @@ a {
 
   .contact-grid > a {
     min-height: 0;
-  }
-
-  .contact-email {
-    max-width: none;
   }
 
   .comments-section {

@@ -449,11 +449,11 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.match(overview, /id="user-content-fnref-1"[^>]*data-footnote-ref="true"/);
   assert.match(overview, /href="#user-content-fnref-1"[^>]*data-footnote-backref/);
   assert.match(overview, /评论与讨论/);
-  assert.match(overview, /安装 Giscus App/);
-  assert.match(overview, /https:\/\/github\.com\/apps\/giscus/);
+  assert.match(overview, /加载评论/);
+  assert.doesNotMatch(overview, /安装 Giscus App/);
 
   const draftBlog = await html("/zh/blog/ai-as-collaborator");
-  assert.doesNotMatch(draftBlog, /评论与讨论|安装 Giscus App/);
+  assert.doesNotMatch(draftBlog, /评论与讨论|加载评论/);
 
   const vectors = await html("/zh/books/deconstructing_LLM/chapter-2/2-1");
   assert.match(vectors, /id="eq-2-1"/);

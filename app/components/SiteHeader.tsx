@@ -15,7 +15,7 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
   const prefix = `/${lang}`;
   const bookHref = `${prefix}/books/deconstructing_LLM`;
   const labels = lang === "zh"
-    ? { home: "首页", book: "书籍", blog: "博客", about: "关于", contact: "联系", search: "搜索", lang: "EN", theme: "切换深色模式", menu: "打开导航", closeMenu: "关闭导航" }
+    ? { home: "首页", book: "书籍", blog: "博客", about: "关于", contact: "联系作者", search: "搜索", lang: "EN", theme: "切换深色模式", menu: "打开导航", closeMenu: "关闭导航" }
     : { home: "Home", book: "Book", blog: "Blog", about: "About", contact: "Contact", search: "Search", lang: "中文", theme: "Toggle dark mode", menu: "Open navigation", closeMenu: "Close navigation" };
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
 
         <div className="header-actions">
           <a className={`round-action search-action ${active === "search" ? "is-active" : ""}`} href={sitePath(`${prefix}/search`)} aria-label={labels.search} title={labels.search}>⌕</a>
-          <a className="round-action contact-action" href={sitePath(`${prefix}/about#contact`)} aria-label={labels.contact} title={labels.contact}><span>@</span><b>{labels.contact}</b></a>
+          <a className="round-action contact-action" href={sitePath(`${prefix}/about#contact`)} aria-label={labels.contact} title={labels.contact}><b>{labels.contact}</b></a>
           <a className="round-action language-action" href={sitePath(languageHref)} aria-label={lang === "zh" ? "Switch to English" : "切换到中文"}>{labels.lang}</a>
           <button className="round-action" type="button" onClick={toggleTheme} aria-label={labels.theme}>{dark ? "☀" : "☾"}</button>
           <button
