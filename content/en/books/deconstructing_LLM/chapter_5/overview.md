@@ -1,6 +1,8 @@
 # Chapter 5: Insights from Econometrics—Learning from Other Fields
 
-> Stones from other hills may serve to polish jade.
+> 他山之石，可以攻玉。
+> 
+> (Stones from other hills may serve to polish jade.)
 >
 > — *The Book of Songs*, “Minor Odes of the Kingdom: The Cry of the Cranes”
 
