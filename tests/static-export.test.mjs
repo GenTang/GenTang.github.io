@@ -237,6 +237,8 @@ test("uses explicit content dates and bidirectional language alternates", async 
   assert.doesNotMatch(chineseChapter, /^---$/m);
   assert.match(chineseOverview, new RegExp(`hrefLang="en" href="${publicUrl("/en/books/deconstructing_LLM").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
   assert.match(englishOverview, new RegExp(`hrefLang="zh-CN" href="${publicUrl("/zh/books/deconstructing_LLM").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
+  assert.match(chineseOverview, /全书完成 <time dateTime="2024-03-04">2024-03-04<\/time>/);
+  assert.match(englishOverview, /Completed <time dateTime="2024-03-04">2024-03-04<\/time>/);
   assert.match(chineseOverview, /在线发布 <time dateTime="2026-08-08">2026-08-08<\/time>/);
   assert.match(englishOverview, /Published online <time dateTime="2026-08-11">2026-08-11<\/time>/);
   assert.match(chineseChapter, /<time dateTime="2026-08-08">2026年8月8日<\/time>/);
