@@ -80,7 +80,7 @@ test("exports the homepage with local assets and the intended section order", as
   assert.doesNotMatch(source, /BOOK · COMPLETE/);
   assert.ok(source.indexOf(">BLOG<") < source.indexOf(">BOOK<"));
   assert.doesNotMatch(source, /01 \/ BLOG|02 \/ BOOK|全书按章节持续更新，目前已发布绪论与数学基础两章/);
-  assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover\\.png"`));
+  assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover\\.webp"`));
   assert.doesNotMatch(source, /MVP|AI · BOOKS · NOTES|第一本书，从这里开始/);
 });
 
@@ -97,7 +97,7 @@ test("keeps the English homepage structurally aligned with the Chinese homepage"
   assert.ok(source.indexOf(">BLOG<") < source.indexOf(">BOOK<"));
   assert.match(source, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/"`));
   assert.match(source, new RegExp(`href="${basePath}/en/blog/"`));
-  assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover-en\\.png"`));
+  assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover-en\\.webp"`));
   const chapterLinksStart = source.indexOf('class="home-book-chapters"');
   const chapterLinks = source.slice(chapterLinksStart, source.indexOf("</nav>", chapterLinksStart));
   assert.ok(chapterLinksStart >= 0);
@@ -419,12 +419,12 @@ test("exports the concise book overview with its outline and resources", async (
   assert.match(source, /space\.bilibili\.com\/417265639\/lists\/3138772/);
   assert.match(source, /https:\/\/github\.com\/GenTang\/regression2chatgpt/);
   const outlineImageSrc = source.match(
-    new RegExp(`src="(${basePath}/_next/static/media/deconstructing-llm-outline\\.[^"]+\\.png)"`),
+    new RegExp(`src="(${basePath}/_next/static/media/deconstructing-llm-outline\\.[^"]+\\.webp)"`),
   )?.[1];
   assert.ok(outlineImageSrc, "the overview should use the outline image imported from its content directory");
   assert.doesNotMatch(source, /从基础模型，一直走到智能系统|三个部分构成一条连续的学习路径/);
   assert.doesNotMatch(source, /在线目录|完整图书介绍|已上线|准备中/);
-  await access(resolve("content/zh/books/deconstructing_LLM/deconstructing-llm-outline.png"));
+  await access(resolve("content/zh/books/deconstructing_LLM/deconstructing-llm-outline.webp"));
   await access(join(outputRoot, outlineImageSrc.slice(basePath.length).replace(/^\//, "")));
 });
 
@@ -448,7 +448,7 @@ test("exports the English book overview with its own content and outline", async
   assert.match(source, /READING MAP/);
   for (const part of bookConfig.parts) assert.ok(source.includes(part.title));
   assert.match(source.replaceAll("<!-- -->", ""), /Book complete · 13 chapters/);
-  assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover-en\\.png"`));
+  assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover-en\\.webp"`));
   assert.match(source, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/chapter-1/"`));
   assert.match(source, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/chapter-13/"`));
   assert.doesNotMatch(source, /Video Series|space\.bilibili\.com/);
@@ -458,10 +458,10 @@ test("exports the English book overview with its own content and outline", async
   assert.match(englishHome, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/"`));
 
   const outlineImageSrc = source.match(
-    new RegExp(`src="(${basePath}/_next/static/media/deconstructing-llm-outline\\.[^"]+\\.png)"`),
+    new RegExp(`src="(${basePath}/_next/static/media/deconstructing-llm-outline\\.[^"]+\\.webp)"`),
   )?.[1];
   assert.ok(outlineImageSrc, "the English overview should use its own outline image");
-  await access(resolve("content/en/books/deconstructing_LLM/deconstructing-llm-outline.png"));
+  await access(resolve("content/en/books/deconstructing_LLM/deconstructing-llm-outline.webp"));
   await access(join(outputRoot, outlineImageSrc.slice(basePath.length).replace(/^\//, "")));
 });
 
@@ -524,21 +524,21 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.match(englishCalculus, /href="#eq-2-51">\(2-51\)<\/a>/);
 
   const chapterOne = await html("/zh/books/deconstructing_LLM/chapter-1/1-1");
-  assert.match(chapterOne, new RegExp(`src="${basePath}/generated/book-images/chapter_1/1-1\\.png"`));
+  assert.match(chapterOne, new RegExp(`src="${basePath}/generated/book-images/chapter_1/1-1\\.webp"`));
   assert.match(chapterOne, /<figcaption>[^<]+<\/figcaption>/);
-  await access(join(outputRoot, "generated", "book-images", "chapter_1", "1-1.png"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_1", "1-1.webp"));
   const englishChapterOne = await html("/en/books/deconstructing_LLM/chapter-1/1-1");
   assert.match(
     englishChapterOne,
-    new RegExp(`src="${basePath}/generated/book-images/en/chapter_1/1-1\\.png"`),
+    new RegExp(`src="${basePath}/generated/book-images/en/chapter_1/1-1\\.webp"`),
   );
   assert.match(englishChapterOne, /<figcaption>Figure 1-1<\/figcaption>/);
   assert.match(englishChapterOne, /Footnotes/);
-  await access(join(outputRoot, "generated", "book-images", "en", "chapter_1", "1-1.png"));
-  await access(join(outputRoot, "generated", "book-images", "chapter_2", "2-15.png"));
+  await access(join(outputRoot, "generated", "book-images", "en", "chapter_1", "1-1.webp"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_2", "2-15.webp"));
   const chapterThree = await html("/zh/books/deconstructing_LLM/chapter-3/3-1");
   assert.match(chapterThree, /id="eq-3-1"/);
-  assert.match(chapterThree, new RegExp(`src="${basePath}/generated/book-images/chapter_3/3-1[.]png"`));
+  assert.match(chapterThree, new RegExp(`src="${basePath}/generated/book-images/chapter_3/3-1[.]webp"`));
   assert.match(
     chapterThree,
     new RegExp(`href="${basePath}/zh/books/deconstructing_LLM/chapter-3/3-2/#section-3-2-2"`),
@@ -573,7 +573,7 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
 
   const chapterFour = await html("/zh/books/deconstructing_LLM/chapter-4/4-1");
   assert.match(chapterFour, /id="eq-4-1"/);
-  assert.match(chapterFour, new RegExp(`src="${basePath}/generated/book-images/chapter_4/4-1[.]png"`));
+  assert.match(chapterFour, new RegExp(`src="${basePath}/generated/book-images/chapter_4/4-1[.]webp"`));
 
   const chapterFourImplementation = await html("/zh/books/deconstructing_LLM/chapter-4/4-2");
   assert.match(chapterFourImplementation, /程序清单 4-1/);
@@ -588,7 +588,7 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.match(englishChapterFour, /href="#eq-4-1">Equation \(4-1\)<\/a>/);
   assert.match(
     englishChapterFour,
-    new RegExp(`src="${basePath}/generated/book-images/en/chapter_4/4-1[.]png"`),
+    new RegExp(`src="${basePath}/generated/book-images/en/chapter_4/4-1[.]webp"`),
   );
 
   const englishChapterFourImplementation = await html("/en/books/deconstructing_LLM/chapter-4/4-2");
@@ -609,7 +609,7 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   }
   const chapterFive = await html("/zh/books/deconstructing_LLM/chapter-5/5-2");
   assert.match(chapterFive, /id="eq-5-1"/);
-  assert.match(chapterFive, new RegExp(`src="${basePath}/generated/book-images/chapter_5/5-2[.]png"`));
+  assert.match(chapterFive, new RegExp(`src="${basePath}/generated/book-images/chapter_5/5-2[.]webp"`));
   assert.match(
     chapterFive,
     /https:\/\/github\.com\/GenTang\/regression2chatgpt\/blob\/zh\/ch05_econometrics\/categorical_variable\.ipynb/,
@@ -627,7 +627,7 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.match(englishChapterFive, /href="#eq-5-1">Equation \(5-1\)<\/a>/);
   assert.match(
     englishChapterFive,
-    new RegExp(`src="${basePath}/generated/book-images/en/chapter_5/5-2[.]png"`),
+    new RegExp(`src="${basePath}/generated/book-images/en/chapter_5/5-2[.]webp"`),
   );
   assert.match(
     englishChapterFive,
@@ -671,7 +671,7 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.match(englishChapterSix, /href="#eq-6-1">Equation \(6-1\)<\/a>/);
   assert.match(
     englishChapterSix,
-    new RegExp(`src="${basePath}/generated/book-images/en/chapter_6/6-1[.]png"`),
+    new RegExp(`src="${basePath}/generated/book-images/en/chapter_6/6-1[.]webp"`),
   );
 
   const englishChapterSixImplementation = await html("/en/books/deconstructing_LLM/chapter-6/6-3");
@@ -732,7 +732,7 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   );
   assert.match(
     englishChapterSevenAutograd,
-    new RegExp(`src="${basePath}/generated/book-images/en/chapter_7/7-4[.]png"`),
+    new RegExp(`src="${basePath}/generated/book-images/en/chapter_7/7-4[.]webp"`),
   );
 
   const englishChapterSevenGpu = await html("/en/books/deconstructing_LLM/chapter-7/7-5");
@@ -758,7 +758,7 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.match(chapterEightPerceptron, /href="#eq-8-8">公式（8-8）<\/a>/);
   assert.match(
     chapterEightPerceptron,
-    new RegExp(`src="${basePath}/generated/book-images/chapter_8/8-1[.]png"`),
+    new RegExp(`src="${basePath}/generated/book-images/chapter_8/8-1[.]webp"`),
   );
 
   const chapterEightLogit = await html("/zh/books/deconstructing_LLM/chapter-8/8-2");
@@ -787,12 +787,12 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
     );
     assert.doesNotMatch(markdown, /\$\$\s*[，；。]/, section);
   }
-  await access(join(outputRoot, "generated", "book-images", "chapter_3", "3-23.png"));
-  await access(join(outputRoot, "generated", "book-images", "chapter_4", "4-24.png"));
-  await access(join(outputRoot, "generated", "book-images", "chapter_5", "5-13.png"));
-  await access(join(outputRoot, "generated", "book-images", "chapter_6", "6-9.png"));
-  await access(join(outputRoot, "generated", "book-images", "chapter_7", "7-28.png"));
-  await access(join(outputRoot, "generated", "book-images", "chapter_8", "8-33.png"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_3", "3-23.webp"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_4", "4-24.webp"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_5", "5-13.webp"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_6", "6-9.webp"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_7", "7-28.webp"));
+  await access(join(outputRoot, "generated", "book-images", "chapter_8", "8-33.webp"));
   const chapterNine = await html("/zh/books/deconstructing_LLM/chapter-9/9-1");
   assert.match(chapterNine, /程序清单 9-1/);
   assert.match(chapterNine, /class="code-line" data-line-number="27"/);
@@ -841,14 +841,14 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   const chapterElevenOverview = await html("/zh/books/deconstructing_LLM/chapter-11");
   assert.match(
     chapterElevenOverview,
-    new RegExp(`src="${basePath}/generated/book-images/chapter_11/11-1[.]png"`),
+    new RegExp(`src="${basePath}/generated/book-images/chapter_11/11-1[.]webp"`),
   );
   const chapterElevenAttention = await html("/zh/books/deconstructing_LLM/chapter-11/11-1");
   assert.match(chapterElevenAttention, /id="eq-11-1"/);
   assert.match(chapterElevenAttention, /href="#eq-11-1">公式（11-1）<\/a>/);
   assert.match(
     chapterElevenAttention,
-    new RegExp(`src="${basePath}/generated/book-images/chapter_11/11-2[.]png"`),
+    new RegExp(`src="${basePath}/generated/book-images/chapter_11/11-2[.]webp"`),
   );
   const chapterElevenGpt = await html("/zh/books/deconstructing_LLM/chapter-11/11-2");
   assert.match(chapterElevenGpt, /程序清单 11-1/);
@@ -940,7 +940,7 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.match(chapterThirteenSvd, /id="eq-13-28"/);
   assert.match(
     chapterThirteenSvd,
-    new RegExp(`src="${basePath}/generated/book-images/chapter_13/13-28[.]png"`),
+    new RegExp(`src="${basePath}/generated/book-images/chapter_13/13-28[.]webp"`),
   );
   for (const section of ["13_1", "13_2", "13_3", "13_4", "13_5", "13_6"]) {
     const markdown = await readFile(

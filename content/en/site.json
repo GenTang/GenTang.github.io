@@ -21,7 +21,7 @@
     "coverLabel": "BOOK / 01",
     "coverTitle": ["Notes on", "AI Systems"],
     "coverCaption": "A BOOK IN PROGRESS",
-    "coverImage": "/images/deconstructing-llm-cover-en.png",
+    "coverImage": "/images/deconstructing-llm-cover-en.webp",
     "status": "BOOK COMPLETE · 13 CHAPTERS",
     "title": "Deconstructing Large Language Models",
     "subtitle": "From Linear Regression to General Intelligence",

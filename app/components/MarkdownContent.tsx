@@ -336,6 +336,8 @@ export function MarkdownContent({ lang = "zh", source, images }: MarkdownContent
                 src={resolvedSrc}
                 alt={caption}
                 title={title}
+                loading="lazy"
+                decoding="async"
                 style={width ? { width, maxWidth: "100%" } : undefined}
               />
             );

@@ -11,7 +11,7 @@ updated: 2026-08-12
 
 The preceding chapters have given us a foundation in artificial intelligence and practical engineering experience, equipping us to explore the field's most striking frontier: large language models (LLMs). ChatGPT is the best-known product built on a large language model. Figure 11-1 shows several classic ChatGPT applications[^11-overview-1].
 
-![Figure 11-1 | 80%](./images/11-1.png)
+![Figure 11-1 | 80%](./images/11-1.webp)
 
 First, ChatGPT can converse with humans naturally and fluently; speaking with it scarcely feels like speaking with a machine. Second, it possesses powerful reasoning capabilities and, with suitable guidance, can solve mathematical problems ranging from simple to complex. ChatGPT can also assist with many tasks, such as generating summaries, weekly reports, and presentation slides. Its outstanding performance is almost comparable to that of an office professional. Its applications extend far beyond these examples, of course, but they are sufficient to demonstrate its astonishing potential.
 

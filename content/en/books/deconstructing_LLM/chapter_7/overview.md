@@ -17,6 +17,6 @@ This chapter therefore begins in the manner of a philosopher by defining the ter
 - **Forward pass** means calculating a model's predictions from its current parameter estimates and input data. The model is usually a neural network.
 - **Backward pass**, as defined in this book, comprises two key steps: calculating the gradient of the loss function, then using an optimization algorithm to update the model parameters.
 
-![Figure 7-1 | 88%](./images/7-1.png)
+![Figure 7-1 | 88%](./images/7-1.webp)
 
 This book adheres strictly to these definitions as it examines the backpropagation algorithm and, in later chapters, neural network architectures and training processes.
