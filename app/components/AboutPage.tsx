@@ -45,7 +45,7 @@ export function AboutPage({ lang, source }: { lang: "zh" | "en"; source: string 
   const isZh = lang === "zh";
 
   return (
-    <div className="site-shell about-shell">
+    <div className={`site-shell about-shell about-${lang}`}>
       <SiteHeader lang={lang} active="about" languageHref={isZh ? "/en/about" : "/zh/about"} />
       <main className="about-main">
         <section className="about-profile">

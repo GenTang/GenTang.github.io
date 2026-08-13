@@ -15,6 +15,7 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
   const prefix = `/${lang}`;
   const blogHref = `${prefix}/blog`;
   const bookHref = `${prefix}/books/deconstructing_LLM`;
+  const aboutHref = `${prefix}/about`;
   const labels = lang === "zh"
     ? { home: "首页", book: "书籍", blog: "博客", about: "关于", contact: "联系作者", search: "搜索", lang: "EN", theme: "切换深色模式", menu: "打开导航", closeMenu: "关闭导航" }
     : { home: "Home", book: "Book", blog: "Blog", about: "About", contact: "Contact", search: "Search", lang: "中文", theme: "Toggle dark mode", menu: "Open navigation", closeMenu: "Close navigation" };
@@ -37,9 +38,11 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
 
   return (
     <>
-      <div className="site-note-bar">
-        <span>{lang === "zh" ? "长期写作 · 持续更新" : "Long-form notes · Updated continuously"}</span>
-      </div>
+      <a className="site-note-bar" href={sitePath(aboutHref)}>
+        <span className="availability-state"><i aria-hidden="true" />OPEN TO WORK</span>
+        <span className="availability-message">{lang === "zh" ? "寻找 LLM / AI Systems Engineer 机会" : "Open to LLM / AI Systems Engineer opportunities"}</span>
+        <span className="availability-action">{lang === "zh" ? "了解更多" : "Learn more"} <b aria-hidden="true">→</b></span>
+      </a>
       <header className="site-header">
         <a className="site-brand" href={sitePath(`${prefix}/`)} aria-label={lang === "zh" ? "小胖笔记首页" : "Xiaopang Notes home"}>
           <span className="brand-mark">胖</span>
