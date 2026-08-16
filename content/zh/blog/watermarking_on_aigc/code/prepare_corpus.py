@@ -11,6 +11,7 @@ BOOK_DIR = HOME_PATH.parent.parent.parent / "books" / "deconstructing_LLM"
 DATA_DIR = HOME_PATH.parent / "data"
 CORPUS_OUTPUT = DATA_DIR / "kgw_corpus.jsonl"
 SHOWCASE_OUTPUT = DATA_DIR / "kgw_showcase.jsonl"
+MIN_CHARS = 300
 
 
 def markdown_clean(markdown: str) -> str:
@@ -35,18 +36,33 @@ def get_paragraphs(path: Path) -> list[str]:
     return [text.strip() for text in parts if len(re.sub(r"\s", "", text)) >= 20]
 
 
+def merge_paragraphs(paragraphs: list[str]) -> list[str]:
+    """Merge adjacent paragraphs in source order into chunks of at least MIN_CHARS."""
+
+    chunks, current, length = [], [], 0
+    for paragraph in paragraphs:
+        current.append(paragraph)
+        length += len(re.sub(r"\s", "", paragraph))
+        if length >= MIN_CHARS:
+            chunks.append("\n\n".join(current))
+            current, length = [], 0
+    if current and chunks:
+        chunks[-1] += "\n\n" + "\n\n".join(current)
+    return chunks
+
+
 def main() -> None:
     # Root overview is stored separately; every other Markdown file enters the corpus.
     overview_path = BOOK_DIR / "chapter_1" / "overview.md"
     files = sorted(path for path in BOOK_DIR.rglob("*.md") if path != overview_path)
     DATA_DIR.mkdir(parents=True, exist_ok=True)
+    paragraphs = [text for path in files for text in get_paragraphs(path)]
     content_id = 0
     with CORPUS_OUTPUT.open("w", encoding="utf-8") as output:
-        for path in files:
-            for text in get_paragraphs(path):
-                content = {"id": content_id, "text": text}
-                output.write(json.dumps(content, ensure_ascii=False) + "\n")
-                content_id += 1
+        for text in merge_paragraphs(paragraphs):
+            content = {"id": content_id, "text": text}
+            output.write(json.dumps(content, ensure_ascii=False) + "\n")
+            content_id += 1
     showcase = {"id": 0, "text": markdown_clean(overview_path.read_text(encoding="utf-8"))}
     SHOWCASE_OUTPUT.write_text(json.dumps(showcase, ensure_ascii=False) + "\n", encoding="utf-8")
 
