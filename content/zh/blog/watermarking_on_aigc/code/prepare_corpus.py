@@ -51,10 +51,19 @@ def merge_paragraphs(paragraphs: list[str]) -> list[str]:
     return chunks
 
 
+def natural_key(path: Path) -> list[str | int]:
+    """Sort numeric names naturally: chapter_2 comes before chapter_10."""
+
+    return [int(part) if part.isdigit() else part for part in re.split(r"(\d+)", str(path))]
+
+
 def main() -> None:
     # Root overview is stored separately; every other Markdown file enters the corpus.
-    overview_path = BOOK_DIR / "chapter_1" / "overview.md"
-    files = sorted(path for path in BOOK_DIR.rglob("*.md") if path != overview_path)
+    overview_path = BOOK_DIR / "overview.md"
+    files = sorted(
+        (path for path in BOOK_DIR.rglob("*.md") if path != overview_path),
+        key=natural_key,
+    )
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     paragraphs = [text for path in files for text in get_paragraphs(path)]
     content_id = 0
