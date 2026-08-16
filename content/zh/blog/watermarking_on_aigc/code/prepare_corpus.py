@@ -37,7 +37,7 @@ def get_paragraphs(path: Path) -> list[str]:
 
 def main() -> None:
     # Root overview is stored separately; every other Markdown file enters the corpus.
-    overview_path = BOOK_DIR / "overview.md"
+    overview_path = BOOK_DIR / "chapter_1" / "overview.md"
     files = sorted(path for path in BOOK_DIR.rglob("*.md") if path != overview_path)
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     content_id = 0
