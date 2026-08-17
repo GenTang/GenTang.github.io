@@ -26,7 +26,7 @@ export function BlogStatus({ essay, headingLevel = "h2" }: BlogStatusProps) {
           <span>{essay.sectionLabel}</span>
           {essay.sectionTitle && <Heading>{essay.sectionTitle}</Heading>}
         </div>
-        <p>{essay.sectionDescription}</p>
+        {essay.sectionDescription && <p>{essay.sectionDescription}</p>}
       </div>
       {essay.available ? (
         <a className="essay-row" href={sitePath(essay.href)}>

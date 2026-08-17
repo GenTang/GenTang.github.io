@@ -36,7 +36,7 @@
   "essay": {
     "sectionLabel": "BLOG",
     "sectionTitle": "博客",
-    "sectionDescription": "从论文原理、代码实现到对照实验，记录大语言模型与AI系统的技术探索",
+    "sectionDescription": "",
     "date": "2026-08-17",
     "title": "Anthropic要在文本中加水印，这是如何做到的呢？",
     "topic": "LLM WATERMARKING",

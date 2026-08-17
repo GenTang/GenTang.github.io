@@ -166,7 +166,10 @@ export function ReadingPage({
                 {article.kicker && <span className="article-kicker">{article.kicker}</span>}
                 <h1>{article.title}</h1>
                 {article.summary && <p>{article.summary}</p>}
-                <div className="article-meta"><span>{article.readingTime}</span><span>{article.date}</span></div>
+                <div className="article-meta">
+                  <span>{article.readingTime}</span>
+                  <time dateTime={article.date}>{article.date}</time>
+                </div>
               </header>
 
               {article.showDraftNotice !== false && (

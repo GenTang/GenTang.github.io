@@ -1196,6 +1196,11 @@ a {
   font-size: 9px;
 }
 
+.essay-date {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
 .essay-title {
   font-family: Georgia, "Songti SC", "Noto Serif SC", serif;
   font-size: clamp(18px, 2vw, 24px);
@@ -1994,6 +1999,12 @@ a {
   letter-spacing: -0.045em;
 }
 
+.blog-article .article-header h1 {
+  max-width: 820px;
+  font-size: clamp(36px, 4.5vw, 54px);
+  line-height: 1.16;
+}
+
 .article-kicker + h1 {
   margin-top: 18px;
 }
@@ -2018,8 +2029,22 @@ a {
 }
 
 .blog-article .article-meta {
-  margin-top: 14px;
-  font-size: 11px;
+  align-items: center;
+  gap: 0;
+  margin-top: 18px;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.015em;
+}
+
+.blog-article .article-meta > * + *::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  margin: 0 12px 2px;
+  border-radius: 50%;
+  background: var(--line-strong);
 }
 
 .content-dates {
@@ -3091,6 +3116,10 @@ a {
 
   .article-header h1 {
     font-size: clamp(33px, 10vw, 42px);
+  }
+
+  .blog-article .article-header h1 {
+    font-size: clamp(31px, 8vw, 38px);
   }
 
   .article-header > p {

@@ -23,7 +23,7 @@ updated: 2026-08-17
 1. **KGW算法**（基于绿名单划分的经典算法）
 2. **Google DeepMind SynthID-Text**
 
-本文将首先为您深入拆解KGW算法的技术细节；在下一篇博客中，我们将继续探讨SynthID-Text的实现奥秘。
+本文将首先为您深入拆解KGW算法的技术细节（[完整代码](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc/code/kgw_from_scratch.ipynb)）；在下一篇博客中，我们将继续探讨SynthID-Text的实现奥秘。
 
 ## KGW算法细节
 
@@ -62,7 +62,7 @@ updated: 2026-08-17
 * 第 `8 - 10` 行：根据伪随机种子生成绿名单。
 * 第 `24 - 27` 行：为绿名单中词元的scores（logits）增加偏置值。
 
-#### 程序清单1（[完整代码](https://github.com/GenTang/regression2chatgpt/blob/zh/ch04_logit/logit_regression.ipynb)）
+#### 程序清单1（[完整代码](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc/code/kgw_from_scratch.ipynb)）
 
 ```python
 class KGWLogitsProcessor(LogitsProcessor):
@@ -108,7 +108,7 @@ class KGWLogitsProcessor(LogitsProcessor):
 
 有了这样的数学基础，我们就可以直接利用正态分布的假设检验技术，设定阈值来反向推断一段文本是否包含水印。具体的检测代码实现如下：
 
-#### 程序清单2（[完整代码](https://github.com/GenTang/regression2chatgpt/blob/zh/ch04_logit/logit_regression.ipynb)）
+#### 程序清单2（[完整代码](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc/code/kgw_from_scratch.ipynb)）
 
 ```python
 class KGWDetector:
@@ -165,7 +165,7 @@ class KGWDetector:
 
 ### 检测算法的量化评估
 
-除了上述基于分布图的直观感受，我们还可以将整个检测程序视为一个标准的**二分类器（Binary Classifier）**，从而引入机器学习中经典的分类指标对其进行严谨的量化评估。具体而言，我们重点考察了不同文本长度下模型的 **AUC**（ROC曲线下面积）、**Precision**（查准率）以及 **Recall**（查全率）。具体的数据表现如下所示：
+除了上述基于分布图的直观感受，我们还可以将整个检测程序视为一个标准的**二分类器（Binary Classifier）**，从而引入机器学习中经典的[分类指标](/books/deconstructing_LLM/chapter-4/4-3)对其进行严谨的量化评估。具体而言，我们重点考察了不同文本长度下模型的 **AUC**（ROC曲线下面积）、**Precision**（查准率）以及 **Recall**（查全率）。具体的数据表现如下所示：
 
 ![图6 | 80%](./pic/p-6.webp)
 

@@ -525,7 +525,7 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   const markdownTitle = markdown.match(/^#\s+(.+?)\s*$/m)?.[1];
   assert.match(publishedBlog, /id="comments-title">评论与讨论<\/h2>/);
   assert.match(publishedBlog, new RegExp(`src="${basePath}/generated/blog-images/zh/watermarking_on_aigc/pic/p-1\\.webp"`));
-  assert.ok(publishedBlog.includes(`<header class="article-header"><h1>${markdownTitle}</h1><div class="article-meta"><span>约 15 分钟</span><span>2026-08-17</span></div></header>`));
+  assert.ok(publishedBlog.includes(`<header class="article-header"><h1>${markdownTitle}</h1><div class="article-meta"><span>约 15 分钟</span><time dateTime="2026-08-17">2026-08-17</time></div></header>`));
   assert.doesNotMatch(publishedBlog, /article-kicker|draft-notice|article-endmark|BLOG · 001|前沿笔记/);
   assert.match(publishedBlog, /class="code-listing-title"/);
 
