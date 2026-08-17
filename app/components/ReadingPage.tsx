@@ -29,16 +29,19 @@ type PaginationPage = {
 };
 
 export type ReadingArticleMeta = {
-  kicker: string;
+  kicker?: string;
   title: string;
-  summary: string;
+  summary?: string;
   readingTime: string;
   date: string;
   outline?: Array<{
     href: string;
     label: string;
+    level?: 2 | 3;
   }>;
   showDraftNotice?: boolean;
+  showComments?: boolean;
+  showEndmark?: boolean;
 };
 
 type BookNavigation = {
@@ -75,7 +78,7 @@ export function ReadingPage({
   const prefix = `/${lang}`;
   const languageHref = providedLanguageHref ?? (isBook
     ? (en ? "/zh/books/deconstructing_LLM/chapter-1" : "/en/books/deconstructing_LLM/chapter-1")
-    : (en ? "/zh/blog/ai-as-collaborator" : "/en/blog/ai-as-collaborator"));
+    : (en ? "/zh/blog" : "/en/blog"));
 
   const defaultBlogOutline = en
     ? [
@@ -88,7 +91,7 @@ export function ReadingPage({
         { href: "#协作者需要共享状态", label: "02 · 协作关系" },
         { href: "#人的判断反而更重要", label: "03 · 人的判断" },
       ];
-  const blogOutline = article?.outline ?? defaultBlogOutline;
+  const blogOutline: NonNullable<ReadingArticleMeta["outline"]> = article?.outline ?? defaultBlogOutline;
   const currentBookTitle = bookNavigation?.chapters
     .map((chapter) => {
       if (chapter.href === currentHref) return chapter.title;
@@ -124,13 +127,13 @@ export function ReadingPage({
           {en && <small>Upcoming chapters are placeholders for your manuscript.</small>}
         </>
       ) : (
-        <>
-          <span className="sidebar-label">{article?.kicker ?? "AI ESSAY / 001"}</span>
-          <strong>{en ? "Frontier notes" : "前沿笔记"}</strong>
-          <nav aria-label={en ? "Article outline" : "文章目录"}>
-            {blogOutline.map(({ href, label }) => <a href={href} key={href}>{label}</a>)}
-          </nav>
-        </>
+        <nav aria-label={en ? "Article outline" : "文章目录"}>
+          {blogOutline.map(({ href, label, level }) => (
+            <a className={level === 3 ? "outline-subsection" : undefined} href={href} key={href}>
+              {label}
+            </a>
+          ))}
+        </nav>
       )}
     </>
   );
@@ -160,9 +163,9 @@ export function ReadingPage({
           {!contentOnly && article && (
             <>
               <header className="article-header">
-                <span className="article-kicker">{article.kicker}</span>
+                {article.kicker && <span className="article-kicker">{article.kicker}</span>}
                 <h1>{article.title}</h1>
-                <p>{article.summary}</p>
+                {article.summary && <p>{article.summary}</p>}
                 <div className="article-meta"><span>{article.readingTime}</span><span>{article.date}</span></div>
               </header>
 
@@ -192,9 +195,9 @@ export function ReadingPage({
                 <span>{en ? "End of chapter" : "本章结束"}</span>
               )}
             </nav>
-          ) : <div className="article-endmark">胖 · 001</div>}
+          ) : article?.showEndmark !== false && <div className="article-endmark">胖 · 001</div>}
 
-          {!article?.showDraftNotice && !isBook ? null : <GiscusComments lang={lang} />}
+          {(isBook || article?.showComments) && <GiscusComments lang={lang} />}
         </article>
       </main>
       <SiteFooter lang={lang} />

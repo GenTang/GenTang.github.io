@@ -117,8 +117,24 @@ async function blogEntries() {
   if (!essay?.available) return [];
 
   const relativePath = essay.href.replace(/^\/zh\/blog\//, "");
-  const path = join(projectRoot, "content", "zh", "blog", `${relativePath}.md`);
-  const document = parseContentDocument(await readFile(path, "utf8"), path);
+  const candidates = [
+    join(projectRoot, "content", "zh", "blog", `${relativePath}.md`),
+    join(projectRoot, "content", "zh", "blog", relativePath, `${relativePath}.md`),
+  ];
+  let path;
+  let source;
+  for (const candidate of candidates) {
+    try {
+      source = await readFile(candidate, "utf8");
+      path = candidate;
+      break;
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
+  }
+  if (!path || !source) throw new Error(`找不到博客正文：${relativePath}`);
+
+  const document = parseContentDocument(source, path);
   const dates = effectiveContentDates(document.metadata);
 
   return essay?.available

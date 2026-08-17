@@ -36,11 +36,11 @@
   "essay": {
     "sectionLabel": "BLOG",
     "sectionTitle": "博客",
-    "sectionDescription": "关于人工智能前沿的个人观察与长期思考，正在整理中",
-    "date": "TODO",
-    "title": "第一篇文章正在写作中，敬请期待",
-    "topic": "COMING SOON",
-    "href": "/zh/blog/ai-as-collaborator",
-    "available": false
+    "sectionDescription": "从论文原理、代码实现到对照实验，记录大语言模型与AI系统的技术探索",
+    "date": "2026-08-17",
+    "title": "Anthropic要在文本中加水印，这是如何做到的呢？",
+    "topic": "LLM WATERMARKING",
+    "href": "/zh/blog/watermarking_on_aigc",
+    "available": true
   }
 }

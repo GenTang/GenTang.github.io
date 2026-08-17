@@ -1,13 +1,13 @@
 import enContent from "@/content/en/site.json";
 import zhContent from "@/content/zh/site.json";
 import { BlogStatus } from "./BlogStatus";
-import { getMarkdownMetadata } from "@/app/lib/content";
+import { getBlogMarkdownMetadata } from "@/app/lib/content";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
 export function BlogIndexPage({ lang }: { lang: "zh" | "en" }) {
   const content = lang === "en" ? enContent : zhContent;
-  const dates = getMarkdownMetadata(`/content/${lang}/blog/ai-as-collaborator.md`);
+  const dates = getBlogMarkdownMetadata(lang, content.essay.href);
   const essay = { ...content.essay, date: dates.published ?? content.essay.date };
 
   return (

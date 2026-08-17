@@ -29,6 +29,7 @@ pnpm-debug.log*
 .vscode/
 *.swp
 *.swo
+.ipynb_checkpoints/
 
 # Previous hosting/build artifacts
 /dist/

@@ -39,7 +39,7 @@ NEXT_PUBLIC_GISCUS_CATEGORY_ID=DIC_kwDOTyPYts4DDMt3
 - 第一章概览：`content/zh/books/deconstructing_LLM/chapter_1/overview.md`
 - 第一章小节：`content/zh/books/deconstructing_LLM/chapter_1/1_1.md` 等
 - 英文书稿目录：`content/en/books/deconstructing_LLM/`，目录结构与中文版本一致；英文全书总览为该目录下的 `overview.md`
-- 中文博客：`content/zh/blog/ai-as-collaborator.md`
+- 中文博客：`content/zh/blog/<slug>/<slug>.md`，文章图片放在同目录的 `pic/` 中
 - 英文博客：`content/en/blog/ai-as-collaborator.md`
 
 Markdown 支持标题、列表、引用、表格、代码高亮和数学公式。行内公式写作 `$E=mc^2$`，独立公式使用一对 `$$` 包裹。
