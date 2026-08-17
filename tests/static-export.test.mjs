@@ -95,7 +95,8 @@ test("keeps the English homepage structurally aligned with the Chinese homepage"
   assert.match(source, /Read the latest blog/);
   assert.match(source, /Deconstructing Large Language Models/);
   assert.match(source, /BOOK COMPLETE · 13 CHAPTERS/);
-  assert.match(source, /The first essay is in progress — coming soon/);
+  assert.match(source, /Anthropic Is Adding Watermarks to Text\. How Does It Work\?/);
+  assert.match(source, new RegExp(`href="${basePath}/en/blog/watermarking_on_aigc/"`));
   assert.match(source, /OPEN TO WORK/);
   assert.match(source, /Open to LLM \/ AI Systems Engineer opportunities/);
   assert.doesNotMatch(source, /class="chapter-line"|Notes on AI Systems \(working title\)|UPDATED CONTINUOUSLY/);
@@ -138,12 +139,11 @@ test("exports aligned bilingual blog landing pages that match the homepage state
   assert.match(chinese, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc/"`));
 
   assert.match(english, /<h1>Blog<\/h1>/);
-  assert.match(english, /The first essay is in progress — coming soon/);
-  assert.match(english, /class="essay-row is-disabled"/);
-  assert.match(english, /name="robots" content="noindex, follow"/);
+  assert.match(english, /Anthropic Is Adding Watermarks to Text\. How Does It Work\?/);
+  assert.match(english, /class="essay-row"/);
+  assert.doesNotMatch(english, /class="essay-row is-disabled"|name="robots" content="noindex, follow"/);
   assert.match(english, new RegExp(`href="${basePath}/zh/blog/"`));
-  assert.doesNotMatch(english, /From tool to collaborator/);
-  assert.doesNotMatch(english, new RegExp(`href="${basePath}/en/blog/ai-as-collaborator/"`));
+  assert.match(english, new RegExp(`href="${basePath}/en/blog/watermarking_on_aigc/"`));
 });
 
 test("exports bilingual About pages and the static search index", async () => {
@@ -176,6 +176,7 @@ test("exports bilingual About pages and the static search index", async () => {
   assert.ok(entries.some((entry) => entry.lang === "en" && entry.url === "/en/about"));
   assert.ok(entries.some((entry) => entry.lang === "zh" && entry.url === "/zh/books/deconstructing_LLM/chapter-11/11-1"));
   assert.ok(entries.some((entry) => entry.lang === "zh" && entry.url === "/zh/blog/watermarking_on_aigc"));
+  assert.ok(entries.some((entry) => entry.lang === "en" && entry.url === "/en/blog/watermarking_on_aigc"));
   assert.ok(!entries.some((entry) => entry.url.includes("ai-as-collaborator")));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/about")}</loc>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/about")}</loc>`));
@@ -183,7 +184,7 @@ test("exports bilingual About pages and the static search index", async () => {
 });
 
 test("exports crawl controls, sitemap, feeds, canonical metadata, and correct page languages", async () => {
-  const [robots, sitemap, rss, atom, home, latest, publishedBlog, english] = await Promise.all([
+  const [robots, sitemap, rss, atom, home, latest, publishedBlog, english, englishBlog] = await Promise.all([
     readFile(join(outputRoot, "robots.txt"), "utf8"),
     readFile(join(outputRoot, "sitemap.xml"), "utf8"),
     readFile(join(outputRoot, "rss.xml"), "utf8"),
@@ -192,6 +193,7 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
     html("/zh/books/deconstructing_LLM/chapter-13/13-6"),
     html("/zh/blog/watermarking_on_aigc"),
     html("/en/"),
+    html("/en/blog/watermarking_on_aigc"),
   ]);
 
   assert.match(robots, /User-agent: \*\nAllow: \//);
@@ -209,6 +211,7 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/books/deconstructing_LLM/chapter-1/1-4")}</loc>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/blog/watermarking_on_aigc")}</loc>`));
   assert.match(sitemap, new RegExp(`<loc>${publicUrl("/zh/blog/watermarking_on_aigc").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc>\\s*<lastmod>2026-08-17</lastmod>`));
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/en/blog/watermarking_on_aigc")}</loc>`));
   assert.ok(rss.includes(`<link>${publicUrl("/zh/books/deconstructing_LLM/chapter-13/13-6")}</link>`));
   assert.ok(rss.includes(`<link>${publicUrl("/zh/blog/watermarking_on_aigc")}</link>`));
   assert.match(rss, /<pubDate>Mon, 10 Aug 2026 00:00:00 GMT<\/pubDate>/);
@@ -229,7 +232,11 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
   assert.match(latest, /<time dateTime="2026-08-10">2026年8月10日<\/time>/);
   assert.doesNotMatch(publishedBlog, /name="robots" content="noindex, follow"/);
   assert.ok(publishedBlog.includes(`rel="canonical" href="${publicUrl("/zh/blog/watermarking_on_aigc")}"`));
+  assert.match(publishedBlog, new RegExp(`hrefLang="en" href="${publicUrl("/en/blog/watermarking_on_aigc").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
   assert.match(publishedBlog, /property="article:published_time" content="2026-08-17"/);
+  assert.doesNotMatch(englishBlog, /name="robots" content="noindex, follow"/);
+  assert.ok(englishBlog.includes(`rel="canonical" href="${publicUrl("/en/blog/watermarking_on_aigc")}"`));
+  assert.match(englishBlog, new RegExp(`hrefLang="zh-CN" href="${publicUrl("/zh/blog/watermarking_on_aigc").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
   assert.match(english, /<html lang="en"/);
   assert.match(english, new RegExp(`hrefLang="zh-CN" href="${publicUrl("/zh/")}"`));
   assert.match(home, /© 2026 唐亘 · 小胖笔记/);
@@ -351,7 +358,7 @@ test("exports every current reading route", async () => {
     ["/en/books/deconstructing_LLM/chapter-1/1-3", /1.3 Model Architecture/],
     ["/en/books/deconstructing_LLM/chapter-1/1-4", /1.4 About This Book/],
     ["/zh/blog/watermarking_on_aigc", /Anthropic要在文本中加水印，这是如何做到的呢？/],
-    ["/en/blog/ai-as-collaborator", /The first essay is in progress — coming soon/],
+    ["/en/blog/watermarking_on_aigc", /Anthropic Is Adding Watermarks to Text\. How Does It Work\?/],
   ];
 
   for (const [route, expected] of routes) {
@@ -521,6 +528,7 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.doesNotMatch(overview, /安装 Giscus App/);
 
   const publishedBlog = await html("/zh/blog/watermarking_on_aigc");
+  const englishBlog = await html("/en/blog/watermarking_on_aigc");
   const markdown = await readFile(resolve("content/zh/blog/watermarking_on_aigc/watermarking_on_aigc.md"), "utf8");
   const markdownTitle = markdown.match(/^#\s+(.+?)\s*$/m)?.[1];
   assert.match(publishedBlog, /id="comments-title">评论与讨论<\/h2>/);
@@ -528,6 +536,9 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.ok(publishedBlog.includes(`<header class="article-header"><h1>${markdownTitle}</h1><div class="article-meta"><span>约 15 分钟</span><time dateTime="2026-08-17">2026-08-17</time></div></header>`));
   assert.doesNotMatch(publishedBlog, /article-kicker|draft-notice|article-endmark|BLOG · 001|前沿笔记/);
   assert.match(publishedBlog, /class="code-listing-title"/);
+  assert.match(englishBlog, new RegExp(`src="${basePath}/generated/blog-images/en/watermarking_on_aigc/pic/p-1\\.webp"`));
+  assert.match(englishBlog, /<span>About 15 minutes<\/span><time dateTime="2026-08-17">2026-08-17<\/time>/);
+  assert.match(englishBlog, /class="code-listing-title"/);
 
   const outlineStart = publishedBlog.indexOf('<nav aria-label="文章目录">');
   const outline = publishedBlog.slice(outlineStart, publishedBlog.indexOf("</nav>", outlineStart));

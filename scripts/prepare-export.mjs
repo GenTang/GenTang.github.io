@@ -111,35 +111,35 @@ async function overviewEntries() {
 }
 
 async function blogEntries() {
-  const siteConfig = JSON.parse(await readFile(join(projectRoot, "content", "zh", "site.json"), "utf8"));
-  const essay = siteConfig.essay;
+  const entries = await Promise.all(["zh", "en"].map(async (language) => {
+    const siteConfig = JSON.parse(await readFile(join(projectRoot, "content", language, "site.json"), "utf8"));
+    const essay = siteConfig.essay;
+    if (!essay?.available) return;
 
-  if (!essay?.available) return [];
-
-  const relativePath = essay.href.replace(/^\/zh\/blog\//, "");
-  const candidates = [
-    join(projectRoot, "content", "zh", "blog", `${relativePath}.md`),
-    join(projectRoot, "content", "zh", "blog", relativePath, `${relativePath}.md`),
-  ];
-  let path;
-  let source;
-  for (const candidate of candidates) {
-    try {
-      source = await readFile(candidate, "utf8");
-      path = candidate;
-      break;
-    } catch (error) {
-      if (error?.code !== "ENOENT") throw error;
+    const relativePath = essay.href.replace(new RegExp(`^/${language}/blog/`), "");
+    const candidates = [
+      join(projectRoot, "content", language, "blog", `${relativePath}.md`),
+      join(projectRoot, "content", language, "blog", relativePath, `${relativePath}.md`),
+    ];
+    let path;
+    let source;
+    for (const candidate of candidates) {
+      try {
+        source = await readFile(candidate, "utf8");
+        path = candidate;
+        break;
+      } catch (error) {
+        if (error?.code !== "ENOENT") throw error;
+      }
     }
-  }
-  if (!path || !source) throw new Error(`找不到博客正文：${relativePath}`);
+    if (!path || !source) throw new Error(`找不到博客正文：${relativePath}`);
 
-  const document = parseContentDocument(source, path);
-  const dates = effectiveContentDates(document.metadata);
+    const document = parseContentDocument(source, path);
+    const dates = effectiveContentDates(document.metadata);
+    return { route: essay.href, title: essay.title, summary: essay.sectionDescription || essay.title, ...dates };
+  }));
 
-  return essay?.available
-    ? [{ route: essay.href, title: essay.title, summary: essay.sectionDescription || essay.title, ...dates }]
-    : [];
+  return entries.filter(Boolean);
 }
 
 async function writeCrawlerFiles(entries, overviews) {

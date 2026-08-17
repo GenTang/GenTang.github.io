@@ -11,21 +11,22 @@ import {
 import { ReadingPage } from "@/app/components/ReadingPage";
 import { createPageMetadata } from "@/app/lib/siteMetadata";
 
-const contentPath = "/content/zh/blog/watermarking_on_aigc/watermarking_on_aigc.md";
+const contentPath = "/content/en/blog/watermarking_on_aigc/watermarking_on_aigc.md";
 const markdown = getMarkdownContent(contentPath);
 const title = getMarkdownTitle(markdown);
 const description = getMarkdownDescription(markdown);
 const source = withoutLeadingMarkdownTitle(markdown);
 const dates = getMarkdownMetadata(contentPath);
-const images = getBlogImages("zh", "watermarking_on_aigc");
+const images = getBlogImages("en", "watermarking_on_aigc");
 const outline = getMarkdownOutline(source);
 
 export const metadata: Metadata = createPageMetadata({
   title,
   description,
-  path: "/zh/blog/watermarking_on_aigc",
-  alternatePath: "/en/blog/watermarking_on_aigc",
-  keywords: ["文字水印", "KGW", "DeepSeek", "LLM", "AIGC检测", "z-score"],
+  path: "/en/blog/watermarking_on_aigc",
+  alternatePath: "/zh/blog/watermarking_on_aigc",
+  locale: "en_US",
+  keywords: ["text watermarking", "KGW", "DeepSeek", "LLM", "AIGC detection", "z-score"],
   publishedTime: dates.published,
   modifiedTime: dates.updated,
 });
@@ -33,14 +34,14 @@ export const metadata: Metadata = createPageMetadata({
 export default function WatermarkingOnAigc() {
   return (
     <ReadingPage
-      lang="zh"
+      lang="en"
       kind="blog"
       source={source}
       images={images}
-      languageHref="/en/blog/watermarking_on_aigc"
+      languageHref="/zh/blog/watermarking_on_aigc"
       article={{
         title,
-        readingTime: "约 15 分钟",
+        readingTime: "About 15 minutes",
         date: dates.published ?? "2026-08-17",
         outline,
         showDraftNotice: false,

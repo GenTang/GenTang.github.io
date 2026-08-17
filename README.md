@@ -43,6 +43,32 @@ git push
 
 线上地址：<https://gentang.github.io/>
 
+### 通知 IndexNow
+
+IndexNow 用于在内容新增、修改、删除或迁移后通知 Bing 等支持该协议的搜索引擎。首次使用先生成公开验证文件：
+
+```bash
+./scripts/indexnow.sh --init
+```
+
+脚本按 IndexNow 官方约定生成 `public/<Key>.txt`，其中**文件名（不含 `.txt`）与文件内容相同**。
+如果已经手工创建了这种 Key 文件，脚本会自动识别，无需再次运行 `--init`。将文件一并提交、推送，
+并等待 GitHub Pages 部署完成；确认 `https://gentang.github.io/<Key>.txt` 可以打开后，
+全站迁移或首次接入可执行一次：
+
+```bash
+./scripts/indexnow.sh --all
+```
+
+日常更新只提交真正发生变化的页面，并且要在 GitHub Pages 部署完成后执行：
+
+```bash
+./scripts/indexnow.sh /zh/blog/example/ /en/blog/example/
+```
+
+提交前可以用 `--dry-run` 检查 URL。`--all` 会读取 `out/sitemap.xml`，因此需要先运行
+`./scripts/publish.sh`。IndexNow 不替代 sitemap，也不会加快 Google 收录。
+
 ## 更新博客和书籍
 
 日常内容都在 `content/` 目录中。

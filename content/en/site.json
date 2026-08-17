@@ -36,11 +36,11 @@
   "essay": {
     "sectionLabel": "BLOG",
     "sectionTitle": "Blog",
-    "sectionDescription": "Long-form observations on the frontiers of artificial intelligence are being prepared",
-    "date": "TODO",
-    "title": "The first essay is in progress — coming soon",
-    "topic": "COMING SOON",
-    "href": "/en/blog/ai-as-collaborator",
-    "available": false
+    "sectionDescription": "",
+    "date": "2026-08-17",
+    "title": "Anthropic Is Adding Watermarks to Text. How Does It Work?",
+    "topic": "LLM WATERMARKING",
+    "href": "/en/blog/watermarking_on_aigc",
+    "available": true
   }
 }
