@@ -167,8 +167,8 @@ export function ReadingPage({
                 <h1>{article.title}</h1>
                 {article.summary && <p>{article.summary}</p>}
                 <div className="article-meta">
-                  <span>{article.readingTime}</span>
                   <time dateTime={article.date}>{article.date}</time>
+                  <span>{article.readingTime}</span>
                 </div>
               </header>
 

@@ -530,14 +530,19 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   const publishedBlog = await html("/zh/blog/watermarking_on_aigc");
   const englishBlog = await html("/en/blog/watermarking_on_aigc");
   const markdown = await readFile(resolve("content/zh/blog/watermarking_on_aigc/watermarking_on_aigc.md"), "utf8");
+  const englishMarkdown = await readFile(resolve("content/en/blog/watermarking_on_aigc/watermarking_on_aigc.md"), "utf8");
   const markdownTitle = markdown.match(/^#\s+(.+?)\s*$/m)?.[1];
+  const markdownSummary = markdown.match(/^summary:\s*(.+?)\s*$/m)?.[1];
+  const englishTitle = englishMarkdown.match(/^#\s+(.+?)\s*$/m)?.[1];
+  const englishSummary = englishMarkdown.match(/^summary:\s*(.+?)\s*$/m)?.[1];
   assert.match(publishedBlog, /id="comments-title">评论与讨论<\/h2>/);
   assert.match(publishedBlog, new RegExp(`src="${basePath}/generated/blog-images/zh/watermarking_on_aigc/pic/p-1\\.webp"`));
-  assert.ok(publishedBlog.includes(`<header class="article-header"><h1>${markdownTitle}</h1><div class="article-meta"><span>约 15 分钟</span><time dateTime="2026-08-17">2026-08-17</time></div></header>`));
+  assert.ok(publishedBlog.includes(`<header class="article-header"><h1>${markdownTitle}</h1><p>${markdownSummary}</p><div class="article-meta"><time dateTime="2026-08-17">2026-08-17</time><span>约 15 分钟阅读</span></div></header>`));
   assert.doesNotMatch(publishedBlog, /article-kicker|draft-notice|article-endmark|BLOG · 001|前沿笔记/);
   assert.match(publishedBlog, /class="code-listing-title"/);
   assert.match(englishBlog, new RegExp(`src="${basePath}/generated/blog-images/en/watermarking_on_aigc/pic/p-1\\.webp"`));
-  assert.match(englishBlog, /<span>About 15 minutes<\/span><time dateTime="2026-08-17">2026-08-17<\/time>/);
+  assert.ok(englishBlog.includes(`<header class="article-header"><h1>${englishTitle}</h1><p>${englishSummary}</p><div class="article-meta"><time dateTime="2026-08-17">2026-08-17</time><span>About 15 minutes</span></div></header>`));
+  assert.match(englishBlog, /Key Takeaways \/ TL;DR/);
   assert.match(englishBlog, /class="code-listing-title"/);
 
   const outlineStart = publishedBlog.indexOf('<nav aria-label="文章目录">');

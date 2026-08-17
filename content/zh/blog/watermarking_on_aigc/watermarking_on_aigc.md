@@ -1,9 +1,20 @@
 ---
 published: 2026-08-17
 updated: 2026-08-17
+summary: 从绿名单概率偏置到z-score统计检验：从零实现KGW文本水印，并验证文本长度对检测效果的影响。
 ---
 
 # Anthropic要在文本中加水印，这是如何做到的呢？
+
+> **本文要点 / TL;DR**
+>
+> **问题**：KGW如何在不明显破坏语义的情况下嵌入水印，又为什么能用z-score检测它？
+> 
+> **方法**：从零实现KGW，并在DeepSeek模型上比较无水印、正常水印与极端水印文本。
+> 
+> **结论**：正常强度的水印对语义影响有限；文本越长，水印信号越充分，检测的效果越好。
+>
+> 配套资源：[完整 Notebook（代码、数据与实验结果）](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc/code/kgw_from_scratch.ipynb)
 
 ## 缘起：Anthropic引入文本水印
 
@@ -23,7 +34,7 @@ updated: 2026-08-17
 1. **KGW算法**（基于绿名单划分的经典算法）
 2. **Google DeepMind SynthID-Text**
 
-本文将首先为您深入拆解KGW算法的技术细节（[完整代码](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc/code/kgw_from_scratch.ipynb)）；在下一篇博客中，我们将继续探讨SynthID-Text的实现奥秘。
+本文将首先拆解KGW算法的技术细节；在下一篇博客中，我们将继续探讨SynthID-Text。
 
 ## KGW算法细节
 
@@ -62,7 +73,7 @@ updated: 2026-08-17
 * 第 `8 - 10` 行：根据伪随机种子生成绿名单。
 * 第 `24 - 27` 行：为绿名单中词元的scores（logits）增加偏置值。
 
-#### 程序清单1（[完整代码](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc/code/kgw_from_scratch.ipynb)）
+#### 程序清单1（[完整 Notebook](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc/code/kgw_from_scratch.ipynb)）
 
 ```python
 class KGWLogitsProcessor(LogitsProcessor):
@@ -108,7 +119,7 @@ class KGWLogitsProcessor(LogitsProcessor):
 
 有了这样的数学基础，我们就可以直接利用正态分布的假设检验技术，设定阈值来反向推断一段文本是否包含水印。具体的检测代码实现如下：
 
-#### 程序清单2（[完整代码](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc/code/kgw_from_scratch.ipynb)）
+#### 程序清单2（[完整 Notebook](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc/code/kgw_from_scratch.ipynb)）
 
 ```python
 class KGWDetector:
@@ -180,8 +191,12 @@ class KGWDetector:
 	* **模型复述**：借助未添加水印的模型对原文本进行重新表述。
 	* **跨语言回译**：更简便的方法是进行双向翻译，比如：中文 → 英文 → 中文，利用翻译过程对语法结构和词汇分布的重构来打乱水印特征（当然这也要借助没有水印的模型）。
 
-## 最新研究热点与方向
+## 结论
 
-可以看出，该算法的核心缺陷在于**改变了原有的词元概率分布**，使得带水印模型生成的文本概率不同于原始模型。这种偏差在一般文本生成场景（如对话、写作）中尚可接受，但在对格式和逻辑严密性要求极高的场景（如代码生成，以及公式、JSON等强格式化文本生成）中，往往会带来致命的错误。
+KGW的核心并不复杂：生成时根据上下文确定绿名单并提高其中词元的采样概率，检测时重建同一份绿名单，再用z-score衡量绿名单命中次数是否显著偏高。它的价值在于把水印嵌入和统计检测连接成了一套可解释、可复现的机制。
+
+实验也揭示了这套机制的边界：正常水印强度可以在较好保持语义的同时留下统计信号，但检测效果依赖文本长度；提高水印强度虽然更容易检测，却会损害文本质量；复述、回译和截断也可能削弱水印。
+
+更根本的问题是，KGW改变了**改变了原有的词元概率分布**。使得带水印模型生成的文本概率不同于原始模型。这种偏差在一般文本生成场景（如对话、写作）中尚可接受，但在对格式和逻辑严密性要求极高的场景（如代码生成，以及公式、JSON等强格式化文本生成）中，往往会带来致命的错误。
 
 因此，业界正在探索**不改变文本原始概率分布的水印技术**（即无损/无偏水印）。这正是我们下一篇博客的主题：**Google DeepMind SynthID-Text**。
