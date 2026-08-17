@@ -58,8 +58,8 @@ KGW adds two operations after the model computes its original logits:
 
 The implementation below maps directly onto these steps:
 
-- Lines `8–10` deterministically construct the green list from the pseudorandom seed.
-- Lines `24–27` add the bias to the green-list logits.
+- Lines `9–11` deterministically construct the green list from the pseudorandom seed.
+- Lines `25–28` add the bias to the green-list logits.
 
 #### Listing 1 ([complete notebook](https://github.com/GenTang/GenTang.github.io/blob/main/content/en/blog/watermarking_on_aigc/code/kgw_from_scratch.ipynb))
 
@@ -133,7 +133,7 @@ class KGWDetector:
         z = (green - self.gamma * tokens) / math.sqrt(tokens * self.gamma * (1 - self.gamma))
 ```
 
-KGW detection is therefore a **probabilistic decision**. It inevitably produces both false positives and false negatives. In the example above, the normally watermarked passage is a false negative.
+KGW detection is therefore a **probabilistic decision**. It inevitably produces both false positives and false negatives. In the example above, all detections are correct. However, real‑world scenarios are not always this ideal.
 
 ![Figure 4 | 80%](./pic/p-4.webp)
 
@@ -163,13 +163,13 @@ We test the relationship between text length and detection power with the follow
 
 4. **Observe the watermarked group:** The watermarked distribution moves to the right as the prefix grows. At short lengths it overlaps substantially with the negative controls, so the decision boundary is ambiguous. With more tokens, the distributions separate and the watermark becomes easier to detect.
 
-![Figure 5 | 80%](./pic/p-5.webp)
+![Figure 5 | 90%](./pic/p-5.webp)
 
 ### Quantitative Evaluation
 
 We can also treat the detector as a standard **binary classifier** and evaluate it with familiar [classification metrics](/books/deconstructing_LLM/chapter-4/4-3). Here we report **ROC-AUC**, **Precision**, and **Recall** for several text lengths.
 
-![Figure 6 | 80%](./pic/p-6.webp)
+![Figure 6 | 90%](./pic/p-6.webp)
 
 ## Attacks and Evasion
 
@@ -179,7 +179,7 @@ The analysis above suggests two straightforward ways to weaken or remove this ki
 2. **Rewrite or back-translate the text:**
 
    - **Model paraphrasing:** Ask an unwatermarked model to rewrite the passage.
-   - **Cross-language back-translation:** Translate the passage into another language and then back again—for example, Chinese → English → Chinese. Translation reconstructs vocabulary and syntax, disrupting the watermark signal. This attack still requires a model without the same watermark.
+   - **Cross-language back-translation:** Translate the passage into another language and then back again—for example, English → Chinese → English. Translation reconstructs vocabulary and syntax, disrupting the watermark signal. This attack still requires a model without the same watermark.
 
 ## Current Research Directions
 
