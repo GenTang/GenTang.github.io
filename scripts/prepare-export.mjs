@@ -111,35 +111,42 @@ async function overviewEntries() {
 }
 
 async function blogEntries() {
-  const entries = await Promise.all(["zh", "en"].map(async (language) => {
+  const entriesByLanguage = await Promise.all(["zh", "en"].map(async (language) => {
     const siteConfig = JSON.parse(await readFile(join(projectRoot, "content", language, "site.json"), "utf8"));
-    const essay = siteConfig.essay;
-    if (!essay?.available) return;
+    const section = siteConfig.essay;
+    const posts = section?.posts?.filter((post) => post.available) ?? [];
 
-    const relativePath = essay.href.replace(new RegExp(`^/${language}/blog/`), "");
-    const candidates = [
-      join(projectRoot, "content", language, "blog", `${relativePath}.md`),
-      join(projectRoot, "content", language, "blog", relativePath, `${relativePath}.md`),
-    ];
-    let path;
-    let source;
-    for (const candidate of candidates) {
-      try {
-        source = await readFile(candidate, "utf8");
-        path = candidate;
-        break;
-      } catch (error) {
-        if (error?.code !== "ENOENT") throw error;
+    return Promise.all(posts.map(async (post) => {
+      const relativePath = post.href.replace(new RegExp(`^/${language}/blog/`), "");
+      const candidates = [
+        join(projectRoot, "content", language, "blog", `${relativePath}.md`),
+        join(projectRoot, "content", language, "blog", relativePath, `${relativePath}.md`),
+      ];
+      let path;
+      let source;
+      for (const candidate of candidates) {
+        try {
+          source = await readFile(candidate, "utf8");
+          path = candidate;
+          break;
+        } catch (error) {
+          if (error?.code !== "ENOENT") throw error;
+        }
       }
-    }
-    if (!path || !source) throw new Error(`找不到博客正文：${relativePath}`);
+      if (!path || !source) throw new Error(`找不到博客正文：${relativePath}`);
 
-    const document = parseContentDocument(source, path);
-    const dates = effectiveContentDates(document.metadata);
-    return { route: essay.href, title: essay.title, summary: essay.sectionDescription || essay.title, ...dates };
+      const document = parseContentDocument(source, path);
+      const dates = effectiveContentDates(document.metadata);
+      return {
+        route: post.href,
+        title: post.title,
+        summary: document.metadata.summary || section.sectionDescription || post.title,
+        ...dates,
+      };
+    }));
   }));
 
-  return entries.filter(Boolean);
+  return entriesByLanguage.flat();
 }
 
 async function writeCrawlerFiles(entries, overviews) {

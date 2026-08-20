@@ -37,10 +37,14 @@
     "sectionLabel": "BLOG",
     "sectionTitle": "Blog",
     "sectionDescription": "",
-    "date": "2026-08-17",
-    "title": "Anthropic Is Adding Watermarks to Text. How Does It Work?",
-    "topic": "LLM WATERMARKING",
-    "href": "/en/blog/watermarking_on_aigc",
-    "available": true
+    "posts": [
+      {
+        "date": "2026-08-17",
+        "title": "Anthropic Is Adding Watermarks to Text. How Does It Work?",
+        "topic": "LLM WATERMARKING",
+        "href": "/en/blog/watermarking_on_aigc",
+        "available": true
+      }
+    ]
   }
 }

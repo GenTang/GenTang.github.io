@@ -80,6 +80,11 @@ IndexNow 用于在内容新增、修改、删除或迁移后通知 Bing 等支�
 
 每篇博客使用一个 Markdown 文件。
 
+目录型博客统一使用 `content/{语言}/blog/{slug}/{slug}.md`，并在
+`content/{语言}/site.json` 的 `essay.posts` 中登记。页面路由位于
+`app/{语言}/blog/{slug}/page.tsx`，可以复制现有博客路由后修改正文路径、URL 和图片目录。
+首页展示 `essay.posts` 中的第一篇，博客页展示其中的全部文章，因此请按发布时间倒序排列。
+
 已发布的博客在文件顶部维护日期，统一使用 `YYYY-MM-DD`：
 
 ```markdown

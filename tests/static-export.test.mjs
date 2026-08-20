@@ -67,7 +67,8 @@ test("exports the homepage with local assets and the intended section order", as
   assert.match(source, /解构大语言模型/);
   assert.match(source.replaceAll("<!-- -->", ""), /全书已完成 · 13 章/);
   assert.doesNotMatch(source, /class="chapter-line"/);
-  assert.match(source, /Anthropic要在文本中加水印，这是如何做到的呢？/);
+  assert.match(source, /Anthropic要给文本加水印？Part 2：从有偏的KGW到无偏的SynthID-Text/);
+  assert.match(source, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc_2/"`));
   assert.match(source, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc/"`));
   assert.match(source, /持续更新/);
   assert.match(source, /OPEN TO WORK/);
@@ -132,10 +133,12 @@ test("exports aligned bilingual blog landing pages that match the homepage state
   ]);
 
   assert.match(chinese, /<h1>博客<\/h1>/);
-  assert.match(chinese, /Anthropic要在文本中加水印，这是如何做到的呢？/);
+  assert.match(chinese, /Anthropic要给文本加水印？Part 2：从有偏的KGW到无偏的SynthID-Text/);
+  assert.match(chinese, /Anthropic要给文本加水印？Part 1：奠基之作——KGW/);
   assert.match(chinese, /class="essay-row"/);
   assert.doesNotMatch(chinese, /class="essay-row is-disabled"|name="robots" content="noindex, follow"/);
   assert.match(chinese, new RegExp(`href="${basePath}/en/blog/"`));
+  assert.match(chinese, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc_2/"`));
   assert.match(chinese, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc/"`));
 
   assert.match(english, /<h1>Blog<\/h1>/);
@@ -176,6 +179,7 @@ test("exports bilingual About pages and the static search index", async () => {
   assert.ok(entries.some((entry) => entry.lang === "en" && entry.url === "/en/about"));
   assert.ok(entries.some((entry) => entry.lang === "zh" && entry.url === "/zh/books/deconstructing_LLM/chapter-11/11-1"));
   assert.ok(entries.some((entry) => entry.lang === "zh" && entry.url === "/zh/blog/watermarking_on_aigc"));
+  assert.ok(entries.some((entry) => entry.lang === "zh" && entry.url === "/zh/blog/watermarking_on_aigc_2"));
   assert.ok(entries.some((entry) => entry.lang === "en" && entry.url === "/en/blog/watermarking_on_aigc"));
   assert.ok(!entries.some((entry) => entry.url.includes("ai-as-collaborator")));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/about")}</loc>`));
@@ -210,10 +214,12 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/books/deconstructing_LLM/chapter-1")}</loc>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/books/deconstructing_LLM/chapter-1/1-4")}</loc>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/blog/watermarking_on_aigc")}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/blog/watermarking_on_aigc_2")}</loc>`));
   assert.match(sitemap, new RegExp(`<loc>${publicUrl("/zh/blog/watermarking_on_aigc").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc>\\s*<lastmod>2026-08-17</lastmod>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/blog/watermarking_on_aigc")}</loc>`));
   assert.ok(rss.includes(`<link>${publicUrl("/zh/books/deconstructing_LLM/chapter-13/13-6")}</link>`));
   assert.ok(rss.includes(`<link>${publicUrl("/zh/blog/watermarking_on_aigc")}</link>`));
+  assert.ok(rss.includes(`<link>${publicUrl("/zh/blog/watermarking_on_aigc_2")}</link>`));
   assert.match(rss, /<pubDate>Mon, 10 Aug 2026 00:00:00 GMT<\/pubDate>/);
   assert.ok(rss.includes(`<link>${publicUrl("/zh/")}</link>`));
   assert.match(rss, /13\.6 本章小结/);
@@ -357,7 +363,8 @@ test("exports every current reading route", async () => {
     ["/en/books/deconstructing_LLM/chapter-1/1-2", /1.2 Data Foundation/],
     ["/en/books/deconstructing_LLM/chapter-1/1-3", /1.3 Model Architecture/],
     ["/en/books/deconstructing_LLM/chapter-1/1-4", /1.4 About This Book/],
-    ["/zh/blog/watermarking_on_aigc", /Anthropic要在文本中加水印，这是如何做到的呢？/],
+    ["/zh/blog/watermarking_on_aigc", /Anthropic要给文本加水印？Part 1：奠基之作——KGW/],
+    ["/zh/blog/watermarking_on_aigc_2", /Anthropic要给文本加水印？Part 2：从有偏的KGW到无偏的SynthID-Text/],
     ["/en/blog/watermarking_on_aigc", /Anthropic Is Adding Watermarks to Text\. How Does It Work\?/],
   ];
 
@@ -528,11 +535,14 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.doesNotMatch(overview, /安装 Giscus App/);
 
   const publishedBlog = await html("/zh/blog/watermarking_on_aigc");
+  const synthIdBlog = await html("/zh/blog/watermarking_on_aigc_2");
   const englishBlog = await html("/en/blog/watermarking_on_aigc");
   const markdown = await readFile(resolve("content/zh/blog/watermarking_on_aigc/watermarking_on_aigc.md"), "utf8");
+  const synthIdMarkdown = await readFile(resolve("content/zh/blog/watermarking_on_aigc_2/watermarking_on_aigc_2.md"), "utf8");
   const englishMarkdown = await readFile(resolve("content/en/blog/watermarking_on_aigc/watermarking_on_aigc.md"), "utf8");
   const markdownTitle = markdown.match(/^#\s+(.+?)\s*$/m)?.[1];
   const markdownSummary = markdown.match(/^summary:\s*(.+?)\s*$/m)?.[1];
+  const synthIdPublished = synthIdMarkdown.match(/^published:\s*(.+?)\s*$/m)?.[1];
   const englishTitle = englishMarkdown.match(/^#\s+(.+?)\s*$/m)?.[1];
   const englishSummary = englishMarkdown.match(/^summary:\s*(.+?)\s*$/m)?.[1];
   assert.match(publishedBlog, /id="comments-title">评论与讨论<\/h2>/);
@@ -540,6 +550,9 @@ test("exports formulas, footnotes, chapter images, and their anchors", async () 
   assert.ok(publishedBlog.includes(`<header class="article-header"><h1>${markdownTitle}</h1><p>${markdownSummary}</p><div class="article-meta"><time dateTime="2026-08-17">2026-08-17</time><span>约 15 分钟阅读</span></div></header>`));
   assert.doesNotMatch(publishedBlog, /article-kicker|draft-notice|article-endmark|BLOG · 001|前沿笔记/);
   assert.match(publishedBlog, /class="code-listing-title"/);
+  assert.match(synthIdBlog, /id="comments-title">评论与讨论<\/h2>/);
+  assert.match(synthIdBlog, new RegExp(`src="${basePath}/generated/blog-images/zh/watermarking_on_aigc_2/pic/p-1\\.webp"`));
+  assert.ok(synthIdBlog.includes(`property="article:published_time" content="${synthIdPublished}"`));
   assert.match(englishBlog, new RegExp(`src="${basePath}/generated/blog-images/en/watermarking_on_aigc/pic/p-1\\.webp"`));
   assert.ok(englishBlog.includes(`<header class="article-header"><h1>${englishTitle}</h1><p>${englishSummary}</p><div class="article-meta"><time dateTime="2026-08-17">2026-08-17</time><span>About 15 minutes</span></div></header>`));
   assert.match(englishBlog, /Key Takeaways \/ TL;DR/);

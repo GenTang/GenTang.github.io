@@ -19,10 +19,13 @@ function highlightedTitle(line: string) {
 export function HomeView({ lang }: { lang: "zh" | "en" }) {
   const content = lang === "en" ? enContent : zhContent;
   const { hero, book } = content;
-  const blogDates = getBlogMarkdownMetadata(lang, content.essay.href);
+  const posts = content.essay.posts.slice(0, 3).map((post) => {
+    const blogDates = getBlogMarkdownMetadata(lang, post.href);
+    return { ...post, date: blogDates.published ?? post.date };
+  });
   const essay = {
     ...content.essay,
-    date: blogDates.published ?? content.essay.date,
+    posts,
   };
   const publishedChapters = getDeconstructingLlmNavigation(lang).chapters.filter(
     (chapter) => chapter.href,

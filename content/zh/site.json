@@ -37,10 +37,21 @@
     "sectionLabel": "BLOG",
     "sectionTitle": "博客",
     "sectionDescription": "",
-    "date": "2026-08-17",
-    "title": "Anthropic要在文本中加水印，这是如何做到的呢？",
-    "topic": "LLM WATERMARKING",
-    "href": "/zh/blog/watermarking_on_aigc",
-    "available": true
+    "posts": [
+      {
+        "date": "2026-08-20",
+        "title": "Anthropic要给文本加水印？Part 2：从有偏的KGW到无偏的SynthID-Text",
+        "topic": "LLM WATERMARKING",
+        "href": "/zh/blog/watermarking_on_aigc_2",
+        "available": true
+      },
+      {
+        "date": "2026-08-17",
+        "title": "Anthropic要给文本加水印？Part 1：奠基之作——KGW",
+        "topic": "LLM WATERMARKING",
+        "href": "/zh/blog/watermarking_on_aigc",
+        "available": true
+      }
+    ]
   }
 }

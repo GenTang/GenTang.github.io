@@ -10,7 +10,7 @@ export const metadata: Metadata = createPageMetadata({
   alternatePath: "/zh/blog",
   locale: "en_US",
   kind: "website",
-  noIndex: !enContent.essay.available,
+  noIndex: !enContent.essay.posts.some((post) => post.available),
 });
 
 export default function EnglishBlogIndex() {

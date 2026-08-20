@@ -7,8 +7,11 @@ import { SiteHeader } from "./SiteHeader";
 
 export function BlogIndexPage({ lang }: { lang: "zh" | "en" }) {
   const content = lang === "en" ? enContent : zhContent;
-  const dates = getBlogMarkdownMetadata(lang, content.essay.href);
-  const essay = { ...content.essay, date: dates.published ?? content.essay.date };
+  const posts = content.essay.posts.map((post) => {
+    const dates = getBlogMarkdownMetadata(lang, post.href);
+    return { ...post, date: dates.published ?? post.date };
+  });
+  const essay = { ...content.essay, posts };
 
   return (
     <div className="site-shell">

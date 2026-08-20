@@ -148,9 +148,14 @@ async function writeSearchIndex(markdown) {
     language,
     JSON.parse(await readFile(join(contentRoot, language, "site.json"), "utf8")),
   ])));
+  const availableBlogs = new Set(Object.values(siteConfigs).flatMap((config) =>
+    config.essay?.posts?.filter((post) => post.available).map((post) => post.href) ?? []
+  ));
   const entries = Object.entries(markdown)
     .map(([key, source]) => searchEntryForMarkdown(key, source))
-    .filter((entry) => entry && (entry.kind !== "博客" && entry.kind !== "Blog" || siteConfigs[entry.lang]?.essay?.available));
+    .filter((entry) => entry && (
+      entry.kind !== "博客" && entry.kind !== "Blog" || availableBlogs.has(entry.url)
+    ));
 
   await mkdir(dirname(generatedSearchIndex), { recursive: true });
   await writeFile(generatedSearchIndex, `${JSON.stringify(entries)}\n`, "utf8");

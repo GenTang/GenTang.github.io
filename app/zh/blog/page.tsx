@@ -9,7 +9,7 @@ export const metadata: Metadata = createPageMetadata({
   path: "/zh/blog",
   alternatePath: "/en/blog",
   kind: "website",
-  noIndex: !zhContent.essay.available,
+  noIndex: !zhContent.essay.posts.some((post) => post.available),
 });
 
 export default function ChineseBlogIndex() {

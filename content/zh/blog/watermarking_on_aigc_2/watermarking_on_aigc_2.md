@@ -1,7 +1,7 @@
 ---
-published: 2026-08-18
-updated: 2026-08-18
-summary: 从两个token的例子解释KGW为何会扭曲模型分布，再推导Tournament的无偏性、多轮SynthID-Text及Weighted Mean检测，并通过检测率和Delta NLL比较两种算法。
+published: 2026-08-20
+updated: 2026-08-20
+summary: 从两个token的例子解释KGW为何会扭曲模型分布，再推导SynthID的无偏性、实现SynthID-Text及Weighted Mean检测，并通过检测率和`Delta NLL`比较两种算法。
 ---
 
 
@@ -9,13 +9,13 @@ summary: 从两个token的例子解释KGW为何会扭曲模型分布，再推导
 
 > **本文要点 / TL;DR**
 >
-> **问题**：KGW为什么会扭曲模型的原始概率分布，而SynthID-Text又如何利用Tournament实现期望意义下的无偏水印？
+> **问题**：KGW为什么会扭曲模型的原始概率分布？SynthID-Text又如何实现期望意义下的无偏水印？
 >
 > **方法**：从两个token的例子出发，推导单轮及多轮Tournament的概率变换，从零实现SynthID-Text与Weighted Mean检测器，并在相同数据和生成配置下与KGW进行比较。
 >
-> **结论**：SynthID-Text在期望意义下保持模型原始分布；实验中，其生成质量与KGW接近，`Delta NLL`更低，但水印检测能力尚未表现出显著优势。
+> **结论**：SynthID-Text在期望意义下保持模型原始分布；实验中，其生成质量与KGW接近，`Delta NLL`更低。
 >
-> 配套资源：[完整 Notebook（代码、数据与实验结果）]()
+> 配套资源：[完整 Notebook（代码、数据与实验结果）](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc_2/code/synthid_weighted_mean_from_scratch.ipynb)
 
 ## 如何理解KGW算法是有偏的？
 
@@ -29,22 +29,26 @@ summary: 从两个token的例子解释KGW为何会扭曲模型分布，再推导
 
 假设当前只有两个备选token：A和B，它们的原始生成概率设定如下：
 
-* P(A) = 0.9, P(B) = 0.1。
-* **规则**：每次恰好选择一个token作为green token，并设置增益系数 
-
-$$e^\delta=2$$
+-  P(A) = 0.9, P(B) = 0.1。
+- **规则**：每次恰好选择一个token作为green token，并设置增益系数$e^\delta=2$
 
 如果A被划入绿名单：
 
-$$p'(A)=\frac{2\times 0.9}{2\times 0.9+0.1}=\frac{18}{19}\approx 0.9474$$
+$$
+p'(A)=\frac{2\times 0.9}{2\times 0.9+0.1}=\frac{18}{19}\approx 0.9474
+$$
 
 如果B被划入绿名单：
 
-$$p'(A)=\frac{0.9}{0.9+2\times 0.1}=\frac{9}{11}\approx 0.8182$$
+$$
+p'(A)=\frac{0.9}{0.9+2\times 0.1}=\frac{9}{11}\approx 0.8182
+$$
 
 由于这两种绿名单划分情况发生的概率相等，我们来计算A的期望概率：
 
-$$\mathbb{E}[p'(A)]=\frac{0.9474+0.8182}{2}\approx 0.8828$$
+$$
+\mathbb{E}[p'(A)]=\frac{0.9474+0.8182}{2}\approx 0.8828
+$$
 
 显然，期望值0.8828并不等于原始概率0.9。这证明了，即使在平均意义上，KGW算法依然会改变模型的原始概率分布，因此它是一个有偏算法。
 
@@ -68,7 +72,9 @@ $$\mathbb{E}[p'(A)]=\frac{0.9474+0.8182}{2}\approx 0.8828$$
 
 最后，我们计算这四种情况的数学期望：
 
-$$\mathbb{E}[p'(A)]=\frac{0.90+0.90+0.99+0.81}{4}=0.90$$
+$$
+\mathbb{E}[p'(A)]=\frac{0.90+0.90+0.99+0.81}{4}=0.90
+$$
 
 此时，A的期望概率完美回归了原始概率0.9。在这种情况下，我们称 Tournament算法是**无偏的（Unbiased）**。这说明，虽然在单次生成时概率依然为了嵌入水印而被扭曲，但在宏观的期望层面上，概率分布没有任何偏移，模型依然保持在原始的最优状态下运行。
 
@@ -102,14 +108,17 @@ $$\mathbb{E}[p'(A)]=\frac{0.90+0.90+0.99+0.81}{4}=0.90$$
 在正式讨论多轮Tournament之前，我们先从单轮情形出发，推导它的概率等价形式。
 
 - 设模型词表的大小为$vs$，模型输出的概率分布为
-$$\sum_{i=1}^{vs}p_i=1.$$
+
+$$
+\sum_{i=1}^{vs}p_i=1.
+$$
 
 - 为每个token随机分配的水印信号分数（g-values）分布为
 
 $$
-g_i\sim\operatorname{Bernoulli}\left(\frac12\right),
+g_i\sim\operatorname{Bernoulli}\left(\frac{1}{2}\right),
 \qquad
-\Pr(g_i=1)=\Pr(g_i=0)=\frac12.
+\Pr(g_i=1)=\Pr(g_i=0)=\frac{1}{2}.
 $$
 
 - 经过一轮Tournament后，最终输出token的概率分布将转变为
@@ -130,7 +139,7 @@ $$
 
 关于这一结论，纯数学层面的证明虽然不难，但未免有些枯燥生涩。作为一个偏向实战的技术专栏，我们不妨换一种更Geek的方式来验证它：分别实现显式Tournament与等价的logits修正，并通过代码验证二者得到的概率分布逐元素一致。
 
-#### 程序清单1（[完整 Notebook]()）
+#### 程序清单1（[完整 Notebook](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc_2/code/synthid_weighted_mean_from_scratch.ipynb)）
 
 ```python
 def explicit_tournament(prob, g):
@@ -219,7 +228,7 @@ $$
 
 为了让大家更清晰地理解其底层的运行逻辑，相应的核心代码实现如下，基本上就是上面数学公式的直接翻译：
 
-#### 程序清单2（[完整 Notebook]()）
+#### 程序清单2（[完整 Notebook](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc_2/code/synthid_weighted_mean_from_scratch.ipynb)）
 
 ```python
 def update_logits(logits, g_values):
@@ -264,7 +273,7 @@ def update_logits(logits, g_values):
 
 具体的核心逻辑，我们可以通过如下代码来实现：
 
-#### 程序清单3（[完整 Notebook]()）
+#### 程序清单3（[完整 Notebook](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc_2/code/synthid_weighted_mean_from_scratch.ipynb)）
 
 ```python
 class MinimalSynthID(LogitsProcessor):
@@ -319,17 +328,21 @@ class MinimalSynthID(LogitsProcessor):
 
 在多轮锦标赛中，各层注入的水印信号强度并不是一样的。从数学上可以严谨地证明，在包含水印的假设（$H_1$）下，token在第$\ell$层得分$g=1$的概率为：
 
-
-$$P(g_{t,\ell}=1\mid H_1)=\frac{1}{2}+\delta_\ell$$
+$$
+P(g_{t,\ell}=1\mid H_1)=\frac{1}{2}+\delta_\ell
+$$
 
 而随着锦标赛层数的加深，信号的偏移量$\delta$呈现出递减的趋势，即：
 
-$$\delta_1\geq\delta_2\geq\cdots\geq\delta_m$$
+$$
+\delta_1\geq\delta_2\geq\cdots\geq\delta_m
+$$
 
 由此可以推导得出：
 
-
-$$P(g_{t,1}=1\mid H_1)\geq P(g_{t,2}=1\mid H_1)\geq\cdots$$
+$$
+P(g_{t,1}=1\mid H_1)\geq P(g_{t,2}=1\mid H_1)\geq\cdots
+$$
 
 这意味着：**越浅层的Tournament，水印信号越强。** 因此，在检测算法中，我们理应为浅层信号赋予更高的权重。
 
@@ -345,7 +358,7 @@ $$P(g_{t,1}=1\mid H_1)\geq P(g_{t,2}=1\mid H_1)\geq\cdots$$
 
 具体的检测逻辑代码实现如下：
 
-#### 程序清单4（[完整 Notebook]()）
+#### 程序清单4（[完整 Notebook](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc_2/code/synthid_weighted_mean_from_scratch.ipynb)）
 ```python
 def sequence_g_values(input_ids, processor):
     """检测端重建整段序列的g-values"""
@@ -429,7 +442,7 @@ $$
 
 与前三个指标相比，`Delta NLL`衡量的是一种不容易通过肉眼直接观察到的分布变化，即使两段文本在字面和语义上高度相似，它们的`Delta NLL`仍然可能存在明显差异。
 
-![图1 | 70%](./pic/p-1.webp)
+![图1 | 60%](./pic/p-1.webp)
 
 从图中的结果来看KGW与SynthID在`chrF`、`Semantic Cosine` 和`Length Ratio`上的差异较小，说明二者生成文本的表面质量和语义质量较为接近。
 
@@ -441,7 +454,7 @@ $$
 
 整体结果与KGW类似：无水印模型文本和人工文本的检测分数大致符合零假设下的理论分布；添加水印后，分布则发生了明显偏移。这说明SynthID确实在生成文本中引入了能够被统计检测器识别的水印信号。
 
-![图2 | 70%](./pic/p-2.webp)
+![图2 | 90%](./pic/p-2.webp)
 
 我们还分别统计了不同Tournament layer上g-value的平均值。结果显示，而随着层级增加，其均值逐渐向零假设下的理论期望$0.5$靠近。
 
@@ -470,13 +483,18 @@ $$
     * **两次都抽中A**：概率为 $0.9 \times 0.9 = 0.81$，此时 A 必然获胜。
     * **抽中A和B**：包含“先A后B”和“先B后A”两种情况，概率为 $2 \times 0.09 = 0.18$。由于两者分数相同，A有0.5的概率获胜，即贡献了0.09的胜率。
     * **两次都抽中B**：概率为 0.01，此时A必然失败。
-    * 综合计算：$$p'(A)=0.81+0.18\times 0.5=0.90$$
+    * 综合计算：
+
+    $$
+    p'(A)=0.81+0.18\times 0.5=0.90
+    $$
 
 [^2]: 不过，算法并不是永久偏爱某一组token。由于
     $$
-    \mathbb E[g_i]=\frac12,
+    \mathbb E[g_i]=\frac{1}{2},
     \qquad
-    \mathbb E[q]=\frac12,$$
+    \mathbb E[q]=\frac{1}{2}.
+    $$
     对伪随机 $g$-value 取平均后，有
     $$
     \mathbb E_g[p_i']=p_i\left(1+\mathbb E[g_i]-\mathbb E[q]\right)=p_i.
