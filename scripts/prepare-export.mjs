@@ -2,6 +2,7 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { effectiveContentDates, parseContentDocument } from "./lib/content-metadata.mjs";
+import { generateConfiguredMediumImport } from "./medium-import.mjs";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputRoot = join(projectRoot, "out");
@@ -297,13 +298,15 @@ export async function prepareExport() {
     ...feedEntries,
     ...await bookEntries("en"),
   ];
-  await Promise.all([
+  const [, , , , mediumImports] = await Promise.all([
     writeFile(join(outputRoot, ".nojekyll"), "", "utf8"),
     writeCrawlerFiles(crawlerEntries, overviews),
     writeFeeds(feedEntries),
     markEnglishPages(),
+    generateConfiguredMediumImport(),
   ]);
-  console.log(`静态站点已生成到 out/，包含 ${feedEntries.length} 个订阅条目。\n`);
+  const mediumMessage = mediumImports?.length ? `，${mediumImports.length} 篇 Medium 临时导入页` : "";
+  console.log(`静态站点已生成到 out/，包含 ${feedEntries.length} 个订阅条目${mediumMessage}。\n`);
 }
 
 const invokedDirectly = process.argv[1]

@@ -69,6 +69,49 @@ IndexNow 用于在内容新增、修改、删除或迁移后通知 Bing 等支�
 提交前可以用 `--dry-run` 检查 URL。`--all` 会读取 `out/sitemap.xml`，因此需要先运行
 `./scripts/publish.sh`。IndexNow 不替代 sitemap，也不会加快 Google 收录。
 
+### 临时生成 Medium 导入页
+
+Medium 的网页导入对公式、WebP 图片和嵌套列表支持有限。下面的命令会在构建时生成专用的临时 HTML：本地图片只在 `out/medium-import/` 中转换为 PNG，块级公式转换为图片，原始 Markdown 和 `images/` 不会被修改。临时页不会出现在站内导航、RSS 或 sitemap 中，并带有 `noindex`；但 URL 是公开且可预测的，不是带密码的私有页面。
+
+生成单篇内容，可以传 Markdown 路径或线上页面路径：
+
+```bash
+pnpm medium:stage -- /en/blog/watermarking_on_aigc/
+```
+
+一次生成多篇内容，传入多个参数：
+
+```bash
+pnpm medium:stage -- /en/blog/watermarking_on_aigc/ /en/blog/watermarking_on_aigc_2/
+```
+
+生成整章时传入章节目录；脚本会递归读取该目录内的全部 Markdown：
+
+```bash
+pnpm medium:stage -- content/en/books/deconstructing_LLM/chapter_3
+```
+
+生成全部中英文博客和书稿：
+
+```bash
+pnpm medium:stage -- --all
+```
+
+`medium:stage` 会覆盖上一次选择，并把文件列表写入 `medium-import.json`。提交、推送并等待 GitHub Pages 部署后，运行 `pnpm medium:status` 查看可粘贴到 Medium Import Tool 的 URL。导入完成后请先做两项检查：
+
+1. 在 Medium 中把 canonical link 改为“小胖笔记”的原始文章 URL，避免 canonical 留在临时导入页。
+2. 复制 Medium 正文中每张图片的地址，确认已经是 `miro.medium.com` 等 Medium 自有地址，不再依赖 `gentang.github.io/medium-import/`。
+
+确认无误后可以撤下某一篇、一个章节，或全部临时页：
+
+```bash
+pnpm medium:remove -- /en/blog/watermarking_on_aigc/
+pnpm medium:remove -- content/en/books/deconstructing_LLM/chapter_3
+pnpm medium:remove
+```
+
+提交并推送删除后的状态；下次部署会清除 `/medium-import/`，原临时 URL 随后返回 404。
+
 ## 更新博客和书籍
 
 日常内容都在 `content/` 目录中。
