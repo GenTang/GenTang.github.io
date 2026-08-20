@@ -43,8 +43,14 @@ test("generates several configured pages and removes the temporary tree when con
 
   const results = await generateConfiguredMediumImport({ configPath, outputRoot, siteUrl });
   assert.equal(results.length, 2);
-  await access(join(outputRoot, "medium-import/en/blog/watermarking_on_aigc/index.html"));
-  await access(join(outputRoot, "medium-import/en/blog/watermarking_on_aigc_2/index.html"));
+  const version = results[0].importVersion;
+  assert.ok(version);
+  assert.ok(results.every((result) => result.importVersion === version));
+  await access(join(outputRoot, `medium-import/${version}/en/blog/watermarking_on_aigc/index.html`));
+  await access(join(outputRoot, `medium-import/${version}/en/blog/watermarking_on_aigc_2/index.html`));
+  const manifest = JSON.parse(await readFile(join(outputRoot, "medium-import/manifest.json"), "utf8"));
+  assert.equal(manifest.importVersion, version);
+  assert.equal(manifest.pages.length, 2);
 
   const missingConfig = join(outputRoot, "removed-medium-import.json");
   assert.equal(await generateConfiguredMediumImport({ configPath: missingConfig, outputRoot, siteUrl }), null);
@@ -54,15 +60,16 @@ test("generates several configured pages and removes the temporary tree when con
 test("generates a Medium import page with public PNG assets and compatible lists", async () => {
   const outputRoot = await mkdtemp(join(tmpdir(), "xiaopang-medium-import-"));
   const result = await generateMediumImport({
+    importVersion: "20260820153000123",
     input: "/en/blog/watermarking_on_aigc/",
     outputRoot,
     siteUrl,
   });
 
   assert.equal(result.canonical, "https://gentang.github.io/en/blog/watermarking_on_aigc/");
-  assert.equal(result.importUrl, "https://gentang.github.io/medium-import/en/blog/watermarking_on_aigc/");
+  assert.equal(result.importUrl, "https://gentang.github.io/medium-import/20260820153000123/en/blog/watermarking_on_aigc/");
 
-  const htmlPath = join(outputRoot, "medium-import/en/blog/watermarking_on_aigc/index.html");
+  const htmlPath = join(outputRoot, "medium-import/20260820153000123/en/blog/watermarking_on_aigc/index.html");
   const html = await readFile(htmlPath, "utf8");
   assert.match(html, /<meta name="robots" content="noindex,nofollow,noarchive">/);
   assert.match(html, /<link rel="canonical" href="https:\/\/gentang\.github\.io\/en\/blog\/watermarking_on_aigc\/">/);

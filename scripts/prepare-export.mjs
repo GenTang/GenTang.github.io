@@ -307,6 +307,11 @@ export async function prepareExport() {
   ]);
   const mediumMessage = mediumImports?.length ? `，${mediumImports.length} 篇 Medium 临时导入页` : "";
   console.log(`静态站点已生成到 out/，包含 ${feedEntries.length} 个订阅条目${mediumMessage}。\n`);
+  if (mediumImports?.length) {
+    console.log("本次构建的 Medium 临时导入地址：");
+    for (const page of mediumImports) console.log(page.importUrl);
+    console.log("");
+  }
 }
 
 const invokedDirectly = process.argv[1]

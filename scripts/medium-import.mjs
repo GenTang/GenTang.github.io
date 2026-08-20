@@ -209,12 +209,21 @@ function contentIdentity(sourcePath) {
 }
 
 export function describeMediumSource(sourcePath, siteUrl = defaultSiteUrl) {
+  return describeVersionedMediumSource(sourcePath, siteUrl);
+}
+
+export function mediumImportVersion(now = new Date()) {
+  return now.toISOString().replace(/\D/g, "").slice(0, 17);
+}
+
+function describeVersionedMediumSource(sourcePath, siteUrl = defaultSiteUrl, importVersion) {
   const identity = contentIdentity(sourcePath);
   const siteRoot = normalizeSiteUrl(siteUrl);
+  const importPrefix = importVersion ? `medium-import/${importVersion}/` : "medium-import/";
   return {
     ...identity,
     canonical: new URL(identity.route, siteRoot).href,
-    importUrl: new URL(`medium-import/${identity.route}`, siteRoot).href,
+    importUrl: new URL(`${importPrefix}${identity.route}`, siteRoot).href,
   };
 }
 
@@ -611,12 +620,17 @@ async function renderArticle(source, options) {
   return String(result);
 }
 
-export async function generateMediumImport({ input, outputRoot = defaultOutputRoot, siteUrl = defaultSiteUrl }) {
+export async function generateMediumImport({
+  importVersion = mediumImportVersion(),
+  input,
+  outputRoot = defaultOutputRoot,
+  siteUrl = defaultSiteUrl,
+}) {
   const sourcePath = await resolveMediumSource(input);
-  const identity = describeMediumSource(sourcePath, siteUrl);
+  const identity = describeVersionedMediumSource(sourcePath, siteUrl, importVersion);
   const siteRoot = normalizeSiteUrl(siteUrl);
   const { canonical, importUrl } = identity;
-  const outputDirectory = join(outputRoot, "medium-import", ...identity.route.split("/").filter(Boolean));
+  const outputDirectory = join(outputRoot, "medium-import", importVersion, ...identity.route.split("/").filter(Boolean));
   const assetDirectory = join(outputDirectory, "assets");
   const assets = new AssetManager({ assetBaseUrl: new URL("assets/", importUrl), assetDirectory });
   await assets.initialize();
@@ -643,11 +657,12 @@ export async function generateMediumImport({ input, outputRoot = defaultOutputRo
     title,
   }));
 
-  return { canonical, importUrl, outputDirectory, sourcePath, title };
+  return { canonical, importUrl, importVersion, outputDirectory, sourcePath, title };
 }
 
 export async function generateConfiguredMediumImport({
   configPath = defaultConfigPath,
+  importVersion = mediumImportVersion(),
   outputRoot = defaultOutputRoot,
   siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || defaultSiteUrl,
 } = {}) {
@@ -660,6 +675,18 @@ export async function generateConfiguredMediumImport({
 
   const sources = await resolveMediumSources(config.sources);
   const results = [];
-  for (const source of sources) results.push(await generateMediumImport({ input: source, outputRoot, siteUrl }));
+  for (const source of sources) {
+    results.push(await generateMediumImport({ importVersion, input: source, outputRoot, siteUrl }));
+  }
+  await writeFile(join(outputRoot, "medium-import", "manifest.json"), `${JSON.stringify({
+    generatedAt: new Date().toISOString(),
+    importVersion,
+    pages: results.map(({ canonical, importUrl, sourcePath, title }) => ({
+      canonical,
+      importUrl,
+      source: mediumSourceConfigValue(sourcePath),
+      title,
+    })),
+  }, null, 2)}\n`, "utf8");
   return results;
 }

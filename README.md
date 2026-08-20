@@ -97,7 +97,7 @@ pnpm medium:stage -- content/en/books/deconstructing_LLM/chapter_3
 pnpm medium:stage -- --all
 ```
 
-`medium:stage` 会覆盖上一次选择，并把文件列表写入 `medium-import.json`。提交、推送并等待 GitHub Pages 部署后，运行 `pnpm medium:status` 查看可粘贴到 Medium Import Tool 的 URL。导入完成后请先做两项检查：
+`medium:stage` 会覆盖上一次选择，并把文件列表写入 `medium-import.json`。每次运行 `./scripts/publish.sh` 都会生成一个新的时间版本路径，并在终端末尾打印完整 URL；旧版本会从本次 `out/` 中清除，避免 Medium 继续使用上一次的导入缓存。也可以在构建后运行 `pnpm medium:status` 再次查看本次 URL。提交、推送并等待 GitHub Pages 部署后，再把这个新地址粘贴到 Medium Import Tool。导入完成后请先做两项检查：
 
 1. 在 Medium 中把 canonical link 改为“小胖笔记”的原始文章 URL，避免 canonical 留在临时导入页。
 2. 复制 Medium 正文中每张图片的地址，确认已经是 `miro.medium.com` 等 Medium 自有地址，不再依赖 `gentang.github.io/medium-import/`。

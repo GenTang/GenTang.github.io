@@ -5,14 +5,13 @@ import { access, readFile, unlink, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  describeMediumSource,
   mediumSourceConfigValue,
   resolveMediumSources,
 } from "./medium-import.mjs";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const configPath = resolve(projectRoot, "medium-import.json");
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://gentang.github.io/";
+const manifestPath = resolve(projectRoot, "out", "medium-import", "manifest.json");
 
 async function exists(path) {
   try {
@@ -35,8 +34,7 @@ async function stage(args) {
   const sourcePaths = await resolveMediumSources(selectors, { all });
   const config = { sources: sourcePaths.map(mediumSourceConfigValue) };
   await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
-  console.log(`已登记 ${sourcePaths.length} 篇 Medium 临时页。提交并推送 medium-import.json，部署完成后访问：`);
-  for (const sourcePath of sourcePaths) console.log(describeMediumSource(sourcePath, siteUrl).importUrl);
+  console.log(`已登记 ${sourcePaths.length} 篇 Medium 临时页。运行 publish 后，终端会打印本次构建的全新导入地址。`);
 }
 
 async function remove(args) {
@@ -67,13 +65,13 @@ async function status() {
     console.log("当前没有 Medium 临时页。");
     return;
   }
-  const config = await readConfig();
-  const sourcePaths = await resolveMediumSources(config.sources ?? []);
-  console.log(`当前共 ${sourcePaths.length} 篇：`);
-  for (const sourcePath of sourcePaths) {
-    const descriptor = describeMediumSource(sourcePath, siteUrl);
-    console.log(`${mediumSourceConfigValue(sourcePath)}\n  ${descriptor.importUrl}`);
+  if (!(await exists(manifestPath))) {
+    console.log("尚未生成本次 Medium 临时页，请先运行 ./scripts/publish.sh。");
+    return;
   }
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  console.log(`本次构建版本 ${manifest.importVersion}，共 ${manifest.pages?.length ?? 0} 篇：`);
+  for (const page of manifest.pages ?? []) console.log(`${page.source}\n  ${page.importUrl}`);
 }
 
 const [command, ...args] = process.argv.slice(2);
