@@ -461,12 +461,34 @@ function mediumCodeCompatibilityPlugin() {
         .join("")
         .replace(/\n$/, "");
       const lines = value.split("\n");
-      code.children = lines.flatMap((line, index) => [
-        { type: "text", value: line || " " },
-        ...(index < lines.length - 1
-          ? [{ children: [], properties: {}, tagName: "br", type: "element" }]
-          : []),
-      ]);
+      code.children = lines.flatMap((line, index) => {
+        const leadingSpaces = line.match(/^ +/)?.[0].length ?? 0;
+        const indentation = "\u00a0".repeat(leadingSpaces);
+        return [
+          { type: "text", value: `${indentation}${line.slice(leadingSpaces)}` || " " },
+          ...(index < lines.length - 1
+            ? [{ children: [], properties: {}, tagName: "br", type: "element" }]
+            : []),
+        ];
+      });
+    });
+  };
+}
+
+function mediumTldrCompatibilityPlugin() {
+  return (tree) => {
+    visit(tree, "element", (node) => {
+      if (!isElement(node, "p") || node.children?.length !== 1 || !isElement(node.children[0], "strong")) return;
+      const strong = node.children[0];
+      const label = (strong.children ?? [])
+        .filter((child) => child.type === "text")
+        .map((child) => child.value)
+        .join("")
+        .trim();
+      if (!/^(?:Key Takeaways\s*\/\s*TL;DR|核心导读)$/i.test(label)) return;
+      node.tagName = "h2";
+      node.properties = {};
+      node.children = strong.children ?? [];
     });
   };
 }
@@ -620,6 +642,7 @@ async function renderArticle(source, options) {
       footnoteLabel: options.language === "zh" ? "注释" : "Footnotes",
     })
     .use(mediumCodeCompatibilityPlugin)
+    .use(mediumTldrCompatibilityPlugin)
     .use(mediumListingCompatibilityPlugin)
     .use(mediumListCompatibilityPlugin)
     .use(mediumImageCompatibilityPlugin)

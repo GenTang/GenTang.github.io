@@ -79,12 +79,16 @@ test("generates a Medium import page with public PNG assets and compatible lists
   assert.doesNotMatch(html, /\$\$/);
   assert.doesNotMatch(html, /<(?:ol|ul|li|blockquote)(?:\s|>)/);
   assert.doesNotMatch(html, /<p>\s*<\/p>/);
+  assert.match(html, /<p><em>Originally published[^]*?<\/em><\/p><h2>Key Takeaways \/ TL;DR<\/h2>/);
   assert.match(html, /<pre><code class="language-python">[^]*<br>/);
   assert.match(html, /<p class="medium-listing-title"><strong>Listing 1 \(<a href="[^"]+">Complete Notebook<\/a>\)<\/strong><\/p>/);
   assert.doesNotMatch(html, /<h4>Listing 1/);
   assert.match(html, /<code>Z_score<\/code>/);
   assert.match(html, /<p class="medium-formula"><img[^>]+formula-[a-f0-9]+\.png/);
   assert.doesNotMatch(html, /code-python-[a-f0-9]+\.png/);
+  assert.match(html, /<br>\u00a0{4}def greenlist/);
+  assert.match(html, /<br>\u00a0{8}"""Deterministically/);
+  assert.match(html, /<br>\u00a0{12}previous_token =/);
 
   const imageUrls = [...html.matchAll(/<img[^>]+src="([^"]+)"/g)].map((match) => match[1]);
   assert.equal(imageUrls.length, 7);
