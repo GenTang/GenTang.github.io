@@ -35,6 +35,7 @@ test("generates several configured pages and removes the temporary tree when con
   const outputRoot = await mkdtemp(join(tmpdir(), "xiaopang-medium-configured-"));
   const configPath = join(outputRoot, "medium-import.json");
   await writeFile(configPath, JSON.stringify({
+    importVersion: "20260820153000123",
     sources: [
       "content/en/blog/watermarking_on_aigc/watermarking_on_aigc.md",
       "content/en/blog/watermarking_on_aigc_2/watermarking_on_aigc_2.md",
@@ -44,7 +45,7 @@ test("generates several configured pages and removes the temporary tree when con
   const results = await generateConfiguredMediumImport({ configPath, outputRoot, siteUrl });
   assert.equal(results.length, 2);
   const version = results[0].importVersion;
-  assert.ok(version);
+  assert.equal(version, "20260820153000123");
   assert.ok(results.every((result) => result.importVersion === version));
   await access(join(outputRoot, `medium-import/${version}/en/blog/watermarking_on_aigc/index.html`));
   await access(join(outputRoot, `medium-import/${version}/en/blog/watermarking_on_aigc_2/index.html`));

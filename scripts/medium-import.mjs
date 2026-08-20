@@ -662,7 +662,7 @@ export async function generateMediumImport({
 
 export async function generateConfiguredMediumImport({
   configPath = defaultConfigPath,
-  importVersion = mediumImportVersion(),
+  importVersion,
   outputRoot = defaultOutputRoot,
   siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || defaultSiteUrl,
 } = {}) {
@@ -672,15 +672,16 @@ export async function generateConfiguredMediumImport({
   const config = JSON.parse(await readFile(configPath, "utf8"));
   if (!config || typeof config !== "object" || Array.isArray(config)) throw new Error("medium-import.json 必须是单个对象");
   if (!Array.isArray(config.sources) || config.sources.length === 0) throw new Error("medium-import.json 缺少 sources");
+  const selectedVersion = importVersion ?? config.importVersion ?? mediumImportVersion();
 
   const sources = await resolveMediumSources(config.sources);
   const results = [];
   for (const source of sources) {
-    results.push(await generateMediumImport({ importVersion, input: source, outputRoot, siteUrl }));
+    results.push(await generateMediumImport({ importVersion: selectedVersion, input: source, outputRoot, siteUrl }));
   }
   await writeFile(join(outputRoot, "medium-import", "manifest.json"), `${JSON.stringify({
     generatedAt: new Date().toISOString(),
-    importVersion,
+    importVersion: selectedVersion,
     pages: results.map(({ canonical, importUrl, sourcePath, title }) => ({
       canonical,
       importUrl,

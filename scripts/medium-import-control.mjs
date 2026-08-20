@@ -5,6 +5,7 @@ import { access, readFile, unlink, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  mediumImportVersion,
   mediumSourceConfigValue,
   resolveMediumSources,
 } from "./medium-import.mjs";
@@ -32,7 +33,10 @@ async function stage(args) {
   const selectors = normalizedArgs.filter((argument) => argument !== "--all");
   if (all && selectors.length > 0) throw new Error("--all 不能与文件或目录选择器同时使用");
   const sourcePaths = await resolveMediumSources(selectors, { all });
-  const config = { sources: sourcePaths.map(mediumSourceConfigValue) };
+  const config = {
+    importVersion: mediumImportVersion(),
+    sources: sourcePaths.map(mediumSourceConfigValue),
+  };
   await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
   console.log(`已登记 ${sourcePaths.length} 篇 Medium 临时页。运行 publish 后，终端会打印本次构建的全新导入地址。`);
 }
@@ -52,12 +56,23 @@ async function remove(args) {
     .filter((source) => !removed.has(source));
 
   if (remaining.length > 0) {
-    await writeFile(configPath, `${JSON.stringify({ sources: remaining }, null, 2)}\n`, "utf8");
+    await writeFile(configPath, `${JSON.stringify({
+      importVersion: config.importVersion ?? mediumImportVersion(),
+      sources: remaining,
+    }, null, 2)}\n`, "utf8");
   } else {
     await unlink(configPath);
   }
   console.log(`已删除 ${currentPaths.length - remaining.length} 篇临时页配置，剩余 ${remaining.length} 篇。`);
   console.log("提交并推送这次删除；GitHub Pages 重新部署后，临时 URL 将返回 404。");
+}
+
+async function refreshVersion() {
+  if (!(await exists(configPath))) return;
+  const config = await readConfig();
+  const importVersion = mediumImportVersion();
+  await writeFile(configPath, `${JSON.stringify({ ...config, importVersion }, null, 2)}\n`, "utf8");
+  console.log(`本次 Medium 临时页版本：${importVersion}`);
 }
 
 async function status() {
@@ -80,6 +95,7 @@ try {
   if (command === "stage") await stage(args);
   else if (command === "remove") await remove(args);
   else if (command === "status") await status();
+  else if (command === "refresh-version") await refreshVersion();
   else throw new Error("用法：pnpm medium:stage -- <文件或目录...> | pnpm medium:stage -- --all | pnpm medium:status | pnpm medium:remove [文件或目录...]");
 } catch (error) {
   console.error(error.message);
