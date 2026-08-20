@@ -247,45 +247,6 @@ function shortHash(value) {
   return createHash("sha256").update(value).digest("hex").slice(0, 10);
 }
 
-function escapeXml(value) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&apos;");
-}
-
-function codeSvg(value, language = "text") {
-  const maxCharacters = 112;
-  const sourceLines = value.replaceAll("\t", "    ").split("\n");
-  const rows = [];
-  sourceLines.forEach((sourceLine, index) => {
-    const chunks = sourceLine.match(new RegExp(`.{1,${maxCharacters}}`, "g")) ?? [""];
-    chunks.forEach((chunk, chunkIndex) => rows.push({
-      code: chunk,
-      number: chunkIndex === 0 ? String(index + 1) : "",
-    }));
-  });
-
-  const fontSize = 20;
-  const lineHeight = 32;
-  const codeX = 92;
-  const width = Math.max(880, Math.min(1480, codeX + Math.min(maxCharacters, Math.max(...rows.map((row) => row.code.length))) * 12 + 32));
-  const headerHeight = 42;
-  const height = headerHeight + rows.length * lineHeight + 24;
-  const text = rows.map((row, index) => {
-    const y = headerHeight + (index + 1) * lineHeight - 8;
-    return `<text x="30" y="${y}" fill="#8a94a3" text-anchor="end">${row.number}</text><text x="${codeX}" y="${y}" fill="#273142">${escapeXml(row.code || " ")}</text>`;
-  }).join("");
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-    <rect width="100%" height="100%" rx="12" fill="#f7f8fa" stroke="#dfe3e8" stroke-width="2"/>
-    <text x="30" y="28" fill="#657184" font-family="Arial, sans-serif" font-size="15">${escapeXml(language || "text")}</text>
-    <g font-family="DejaVu Sans Mono, Menlo, Monaco, Consolas, monospace" font-size="${fontSize}" xml:space="preserve">${text}</g>
-  </svg>`;
-}
-
 async function formulaSvg(tex) {
   mathJaxReady ??= MathJax.init({ loader: { load: ["input/tex", "output/svg"] } });
   const mathJax = await mathJaxReady;
@@ -351,17 +312,6 @@ class AssetManager {
     return record;
   }
 
-  async code(value, language) {
-    const key = `code:${language ?? "text"}:${value}`;
-    if (this.records.has(key)) return this.records.get(key);
-
-    const fileName = `code-${safeStem(language ?? "text")}-${shortHash(`${mediumAssetVersion}:${key}`)}.png`;
-    const outputPath = join(this.assetDirectory, fileName);
-    await sharp(Buffer.from(codeSvg(value, language))).png({ compressionLevel: 9 }).toFile(outputPath);
-    const record = { fileName, url: new URL(fileName, this.assetBaseUrl).href };
-    this.records.set(key, record);
-    return record;
-  }
 }
 
 function localImage(url) {
@@ -395,11 +345,7 @@ function mediumAssetPlugin(options) {
   return async (tree) => {
     const images = [];
     const formulas = [];
-    const codeBlocks = [];
     visit(tree, "image", (node) => images.push(node));
-    visit(tree, "code", (node, index, parent) => {
-      if (parent && typeof index === "number") codeBlocks.push({ index, node, parent });
-    });
     visit(tree, (node, index, parent) => {
       if ((node.type === "math" || node.type === "inlineMath") && parent && typeof index === "number") {
         formulas.push({ index, node, parent });
@@ -437,16 +383,6 @@ function mediumAssetPlugin(options) {
         title: undefined,
         type: "image",
         url: (await options.assets.formula(node.value)).url,
-      };
-    }
-
-    for (const { index, node, parent } of codeBlocks) {
-      parent.children[index] = {
-        alt: `${node.lang || "Code"} listing`,
-        data: { hProperties: { className: ["medium-code-image"], style: "width:100%;max-width:100%;height:auto" } },
-        title: undefined,
-        type: "image",
-        url: (await options.assets.code(node.value, node.lang)).url,
       };
     }
 
@@ -511,6 +447,76 @@ function mediumImageCompatibilityPlugin() {
 
 function isElement(node, tagName) {
   return node?.type === "element" && node.tagName === tagName;
+}
+
+function mediumCodeCompatibilityPlugin() {
+  return (tree) => {
+    visit(tree, "element", (node) => {
+      if (!isElement(node, "pre")) return;
+      const code = node.children?.find((child) => isElement(child, "code"));
+      if (!code) return;
+      const value = (code.children ?? [])
+        .filter((child) => child.type === "text")
+        .map((child) => child.value)
+        .join("")
+        .replace(/\n$/, "");
+      const lines = value.split("\n");
+      code.children = lines.flatMap((line, index) => [
+        { type: "text", value: line || " " },
+        ...(index < lines.length - 1
+          ? [{ children: [], properties: {}, tagName: "br", type: "element" }]
+          : []),
+      ]);
+    });
+  };
+}
+
+function mediumListingCompatibilityPlugin() {
+  return (tree) => {
+    visit(tree, "element", (node) => {
+      if (!isElement(node, "h4")) return;
+      const label = (node.children ?? [])
+        .filter((child) => child.type === "text")
+        .map((child) => child.value)
+        .join("")
+        .trim();
+      if (!/^(?:Listing\s+\d+|程序清单\s*\d+)/i.test(label)) return;
+
+      node.tagName = "p";
+      node.properties = { className: ["medium-listing-title"] };
+      node.children = [{
+        children: node.children ?? [],
+        properties: {},
+        tagName: "strong",
+        type: "element",
+      }];
+    });
+  };
+}
+
+function mediumBlockSpacingPlugin() {
+  const blockContainers = new Set(["article", "aside", "blockquote", "body", "div", "li", "main", "ol", "section", "ul"]);
+
+  return (tree) => {
+    function rewrite(parent) {
+      if (!Array.isArray(parent.children)) return;
+      const children = [];
+      for (const child of parent.children) {
+        rewrite(child);
+        if (isElement(child, "blockquote")) {
+          children.push(...(child.children ?? []).filter((nested) => nested.type !== "text" || nested.value.trim()));
+          continue;
+        }
+        if (isElement(child, "p") && !(child.children ?? []).some((nested) => nested.type !== "text" || nested.value.trim())) continue;
+        children.push(child);
+      }
+      const blockContainer = parent.type === "root" || (parent.type === "element" && blockContainers.has(parent.tagName));
+      parent.children = blockContainer
+        ? children.filter((child) => child.type !== "text" || child.value.trim())
+        : children;
+    }
+    rewrite(tree);
+  };
 }
 
 function mediumListCompatibilityPlugin() {
@@ -588,6 +594,7 @@ function htmlDocument({ body, language, summary, title }) {
     .medium-image img, .medium-formula img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
     .medium-image-caption { margin: 0 0 20px; color: #777; text-align: center; font: 14px/1.4 Arial, Helvetica, sans-serif; }
     .medium-list-line { margin: 0 0 12px; }
+    .medium-listing-title { margin: 28px 0 12px; font-family: Arial, Helvetica, sans-serif; }
     table { width: 100%; border-collapse: collapse; font: 15px/1.45 Arial, Helvetica, sans-serif; }
     th, td { padding: 8px 10px; border: 1px solid #ddd; text-align: left; }
   </style>
@@ -612,8 +619,11 @@ async function renderArticle(source, options) {
       footnoteBackLabel: options.language === "zh" ? "返回正文" : "Back to content",
       footnoteLabel: options.language === "zh" ? "注释" : "Footnotes",
     })
+    .use(mediumCodeCompatibilityPlugin)
+    .use(mediumListingCompatibilityPlugin)
     .use(mediumListCompatibilityPlugin)
     .use(mediumImageCompatibilityPlugin)
+    .use(mediumBlockSpacingPlugin)
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(source);
   return String(result);
@@ -638,8 +648,8 @@ export async function generateMediumImport({
   const { body: frontmatterBody, metadata } = parseFrontmatter(raw);
   const { body, title } = extractTitle(frontmatterBody, identity.slug);
   const note = identity.language === "zh"
-    ? `> 本文首发于[小胖笔记](${canonical})。`
-    : `> Originally published on [Xiaopang Notes](${canonical}).`;
+    ? `*本文首发于[小胖笔记](${canonical})。*`
+    : `*Originally published on [Xiaopang Notes](${canonical}).*`;
   const source = `# ${title}\n\n${metadata.summary ? `*${metadata.summary}*\n\n` : ""}${note}\n\n${body.trim()}\n`;
   const rendered = await renderArticle(source, {
     assets,

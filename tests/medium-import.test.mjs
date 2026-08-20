@@ -77,13 +77,17 @@ test("generates a Medium import page with public PNG assets and compatible lists
   assert.doesNotMatch(html, /\.webp(?:["?#])/);
   assert.doesNotMatch(html, /data:image/);
   assert.doesNotMatch(html, /\$\$/);
-  assert.doesNotMatch(html, /<(?:ol|ul|li|pre)(?:\s|>)/);
+  assert.doesNotMatch(html, /<(?:ol|ul|li|blockquote)(?:\s|>)/);
+  assert.doesNotMatch(html, /<p>\s*<\/p>/);
+  assert.match(html, /<pre><code class="language-python">[^]*<br>/);
+  assert.match(html, /<p class="medium-listing-title"><strong>Listing 1 \(<a href="[^"]+">Complete Notebook<\/a>\)<\/strong><\/p>/);
+  assert.doesNotMatch(html, /<h4>Listing 1/);
   assert.match(html, /<code>Z_score<\/code>/);
   assert.match(html, /<p class="medium-formula"><img[^>]+formula-[a-f0-9]+\.png/);
-  assert.equal((html.match(/code-python-[a-f0-9]+\.png/g) ?? []).length, 2);
+  assert.doesNotMatch(html, /code-python-[a-f0-9]+\.png/);
 
   const imageUrls = [...html.matchAll(/<img[^>]+src="([^"]+)"/g)].map((match) => match[1]);
-  assert.equal(imageUrls.length, 9);
+  assert.equal(imageUrls.length, 7);
   assert.ok(imageUrls.every((url) => url.startsWith(`${result.importUrl}assets/`) && url.endsWith(".png")));
   for (const url of imageUrls) {
     const relativeAsset = new URL(url).pathname.replace(/^\/medium-import\//, "medium-import/");
