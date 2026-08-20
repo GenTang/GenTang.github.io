@@ -11,21 +11,22 @@ import {
 import { ReadingPage } from "@/app/components/ReadingPage";
 import { createPageMetadata } from "@/app/lib/siteMetadata";
 
-const contentPath = "/content/zh/blog/watermarking_on_aigc_2/watermarking_on_aigc_2.md";
+const contentPath = "/content/en/blog/watermarking_on_aigc_2/watermarking_on_aigc_2.md";
 const markdown = getMarkdownContent(contentPath);
 const title = getMarkdownTitle(markdown);
 const contentMetadata = getMarkdownMetadata(contentPath);
 const description = contentMetadata.summary ?? getMarkdownDescription(markdown);
 const source = withoutLeadingMarkdownTitle(markdown);
-const images = getBlogImages("zh", "watermarking_on_aigc_2");
+const images = getBlogImages("en", "watermarking_on_aigc_2");
 const outline = getMarkdownOutline(source);
 
 export const metadata: Metadata = createPageMetadata({
   title,
   description,
-  path: "/zh/blog/watermarking_on_aigc_2",
-  alternatePath: "/en/blog/watermarking_on_aigc_2",
-  keywords: ["文本水印", "SynthID-Text", "Tournament Sampling", "Weighted Mean", "KGW", "LLM"],
+  path: "/en/blog/watermarking_on_aigc_2",
+  alternatePath: "/zh/blog/watermarking_on_aigc_2",
+  locale: "en_US",
+  keywords: ["text watermarking", "SynthID-Text", "Tournament Sampling", "Weighted Mean", "KGW", "LLM"],
   publishedTime: contentMetadata.published,
   modifiedTime: contentMetadata.updated,
 });
@@ -33,15 +34,15 @@ export const metadata: Metadata = createPageMetadata({
 export default function SynthIdTextWatermarking() {
   return (
     <ReadingPage
-      lang="zh"
+      lang="en"
       kind="blog"
       source={source}
       images={images}
-      languageHref="/en/blog/watermarking_on_aigc_2"
+      languageHref="/zh/blog/watermarking_on_aigc_2"
       article={{
         title,
         summary: contentMetadata.summary,
-        readingTime: "约 25 分钟阅读",
+        readingTime: "About 25 minutes",
         date: contentMetadata.published ?? "2026-08-20",
         outline,
         showDraftNotice: false,
