@@ -1,10 +1,10 @@
 ---
 published: 2026-08-17
-updated: 2026-08-17
+updated: 2026-08-20
 summary: From green-list probability bias to z-score hypothesis testing: implementing KGW text watermarking from scratch and measuring how text length affects detection.
 ---
 
-# Anthropic Is Adding Watermarks to Text. How Does It Work?
+# Anthropic Is Adding Watermarks to Text Part 1: The Foundational Work—KGW
 
 > **Key Takeaways / TL;DR**
 >
@@ -115,7 +115,7 @@ The basic idea is straightforward: under a null hypothesis, observations should 
 For KGW, every token in an **unwatermarked** passage has a fixed probability of landing in the green list. If the green-list ratio is 25%, that probability is 0.25. Let a passage contain $n$ scored tokens, of which $x$ are green. Under the unwatermarked null hypothesis, $x$ follows a binomial distribution, as illustrated in Figure 3. We can standardize the count using
 
 $$
-Z_{score} = \frac{x - np}{\sqrt{np(1-p)}}.
+Z_{score} = \frac{x - np}{\sqrt{np(1-p)}}
 $$
 
 For sufficiently large $n$, this statistic is approximately standard normal.

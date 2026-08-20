@@ -40,14 +40,14 @@
     "posts": [
       {
         "date": "2026-08-20",
-        "title": "Anthropic Is Adding Watermarks to Text? Part 2: From Biased KGW to Unbiased SynthID-Text",
+        "title": "Anthropic Is Adding Watermarks to Text Part 2: From Biased KGW to Unbiased SynthID-Text",
         "topic": "LLM WATERMARKING",
         "href": "/en/blog/watermarking_on_aigc_2",
         "available": true
       },
       {
         "date": "2026-08-17",
-        "title": "Anthropic Is Adding Watermarks to Text. How Does It Work?",
+        "title": "Anthropic Is Adding Watermarks to Text Part 1: The Foundational Work—KGW",
         "topic": "LLM WATERMARKING",
         "href": "/en/blog/watermarking_on_aigc",
         "available": true

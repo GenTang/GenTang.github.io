@@ -18,6 +18,8 @@ const contentRoot = join(projectRoot, "content");
 const defaultConfigPath = join(projectRoot, "medium-import.json");
 const defaultOutputRoot = join(projectRoot, "out");
 const defaultSiteUrl = "https://gentang.github.io/";
+const mediumAssetVersion = "v2";
+const mediumFormulaCanvasWidth = 760;
 
 let mathJaxReady;
 
@@ -236,6 +238,45 @@ function shortHash(value) {
   return createHash("sha256").update(value).digest("hex").slice(0, 10);
 }
 
+function escapeXml(value) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
+function codeSvg(value, language = "text") {
+  const maxCharacters = 112;
+  const sourceLines = value.replaceAll("\t", "    ").split("\n");
+  const rows = [];
+  sourceLines.forEach((sourceLine, index) => {
+    const chunks = sourceLine.match(new RegExp(`.{1,${maxCharacters}}`, "g")) ?? [""];
+    chunks.forEach((chunk, chunkIndex) => rows.push({
+      code: chunk,
+      number: chunkIndex === 0 ? String(index + 1) : "",
+    }));
+  });
+
+  const fontSize = 20;
+  const lineHeight = 32;
+  const codeX = 92;
+  const width = Math.max(880, Math.min(1480, codeX + Math.min(maxCharacters, Math.max(...rows.map((row) => row.code.length))) * 12 + 32));
+  const headerHeight = 42;
+  const height = headerHeight + rows.length * lineHeight + 24;
+  const text = rows.map((row, index) => {
+    const y = headerHeight + (index + 1) * lineHeight - 8;
+    return `<text x="30" y="${y}" fill="#8a94a3" text-anchor="end">${row.number}</text><text x="${codeX}" y="${y}" fill="#273142">${escapeXml(row.code || " ")}</text>`;
+  }).join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+    <rect width="100%" height="100%" rx="12" fill="#f7f8fa" stroke="#dfe3e8" stroke-width="2"/>
+    <text x="30" y="28" fill="#657184" font-family="Arial, sans-serif" font-size="15">${escapeXml(language || "text")}</text>
+    <g font-family="DejaVu Sans Mono, Menlo, Monaco, Consolas, monospace" font-size="${fontSize}" xml:space="preserve">${text}</g>
+  </svg>`;
+}
+
 async function formulaSvg(tex) {
   mathJaxReady ??= MathJax.init({ loader: { load: ["input/tex", "output/svg"] } });
   const mathJax = await mathJaxReady;
@@ -262,9 +303,12 @@ class AssetManager {
     if (!(await exists(sourcePath))) throw new Error(`图片不存在：${sourcePath}`);
 
     const extension = extname(sourcePath).toLowerCase();
-    const fileName = `${safeStem(basename(sourcePath, extension))}-${shortHash(relative(projectRoot, sourcePath))}.png`;
+    const fileName = `${safeStem(basename(sourcePath, extension))}-${shortHash(`${mediumAssetVersion}:${relative(projectRoot, sourcePath)}`)}.png`;
     const outputPath = join(this.assetDirectory, fileName);
-    await sharp(sourcePath).png({ compressionLevel: 9 }).toFile(outputPath);
+    await sharp(sourcePath)
+      .resize({ width: 1400, withoutEnlargement: true })
+      .png({ colours: 256, compressionLevel: 9, dither: 0.8, effort: 10, palette: true, quality: 90 })
+      .toFile(outputPath);
     const record = { fileName, url: new URL(fileName, this.assetBaseUrl).href };
     this.records.set(key, record);
     return record;
@@ -274,21 +318,38 @@ class AssetManager {
     const key = `formula:${tex}`;
     if (this.records.has(key)) return this.records.get(key);
 
-    const fileName = `formula-${shortHash(key)}.png`;
+    const fileName = `formula-${shortHash(`${mediumAssetVersion}:${key}`)}.png`;
     const outputPath = join(this.assetDirectory, fileName);
     const svg = await formulaSvg(tex);
-    const rendered = await sharp(Buffer.from(svg), { density: 240 }).png({ compressionLevel: 9 }).toBuffer();
+    const rendered = await sharp(Buffer.from(svg), { density: 120 })
+      .flatten({ background: "#ffffff" })
+      .png({ compressionLevel: 9 })
+      .toBuffer();
+    const { width = 0 } = await sharp(rendered).metadata();
+    const horizontalSpace = Math.max(24, mediumFormulaCanvasWidth - width);
     const padded = await sharp(rendered)
       .extend({
-        background: { alpha: 0, b: 255, g: 255, r: 255 },
-        bottom: 24,
-        left: 32,
-        right: 32,
-        top: 24,
+        background: { alpha: 1, b: 255, g: 255, r: 255 },
+        bottom: 8,
+        left: Math.floor(horizontalSpace / 2),
+        right: Math.ceil(horizontalSpace / 2),
+        top: 8,
       })
       .png({ compressionLevel: 9 })
       .toFile(outputPath);
     const record = { fileName, url: new URL(fileName, this.assetBaseUrl).href, size: padded.size };
+    this.records.set(key, record);
+    return record;
+  }
+
+  async code(value, language) {
+    const key = `code:${language ?? "text"}:${value}`;
+    if (this.records.has(key)) return this.records.get(key);
+
+    const fileName = `code-${safeStem(language ?? "text")}-${shortHash(`${mediumAssetVersion}:${key}`)}.png`;
+    const outputPath = join(this.assetDirectory, fileName);
+    await sharp(Buffer.from(codeSvg(value, language))).png({ compressionLevel: 9 }).toFile(outputPath);
+    const record = { fileName, url: new URL(fileName, this.assetBaseUrl).href };
     this.records.set(key, record);
     return record;
   }
@@ -325,7 +386,11 @@ function mediumAssetPlugin(options) {
   return async (tree) => {
     const images = [];
     const formulas = [];
+    const codeBlocks = [];
     visit(tree, "image", (node) => images.push(node));
+    visit(tree, "code", (node, index, parent) => {
+      if (parent && typeof index === "number") codeBlocks.push({ index, node, parent });
+    });
     visit(tree, (node, index, parent) => {
       if ((node.type === "math" || node.type === "inlineMath") && parent && typeof index === "number") {
         formulas.push({ index, node, parent });
@@ -366,6 +431,16 @@ function mediumAssetPlugin(options) {
       };
     }
 
+    for (const { index, node, parent } of codeBlocks) {
+      parent.children[index] = {
+        alt: `${node.lang || "Code"} listing`,
+        data: { hProperties: { className: ["medium-code-image"], style: "width:100%;max-width:100%;height:auto" } },
+        title: undefined,
+        type: "image",
+        url: (await options.assets.code(node.value, node.lang)).url,
+      };
+    }
+
     visit(tree, "link", (node) => {
       node.url = absoluteContentUrl(node.url, options);
     });
@@ -377,37 +452,51 @@ function classes(node) {
   return Array.isArray(value) ? value : typeof value === "string" ? value.split(/\s+/) : [];
 }
 
-function mediumFigurePlugin() {
+function mediumImageCompatibilityPlugin() {
   return (tree) => {
-    function figure(image) {
+    function imageParagraph(image) {
       const formula = classes(image).includes("medium-display-formula");
-      const caption = image.properties?.dataMediumCaption;
-      const node = {
+      return {
         children: [image],
-        properties: { className: [formula ? "medium-formula" : "medium-figure"] },
-        tagName: "figure",
+        properties: { className: [formula ? "medium-formula" : "medium-image"] },
+        tagName: "p",
         type: "element",
       };
-      if (!formula && typeof caption === "string" && caption) {
-        node.children.push({
-          children: [{ type: "text", value: caption }],
-          properties: {},
-          tagName: "figcaption",
-          type: "element",
-        });
-      }
-      return node;
     }
 
-    visit(tree, "element", (node, index, parent) => {
-      if (node.tagName === "p" && node.children?.length === 1 && isElement(node.children[0], "img")) {
-        Object.assign(node, figure(node.children[0]));
-        return;
+    function captionParagraph(caption) {
+      return {
+        children: [{ children: [{ type: "text", value: caption }], properties: {}, tagName: "em", type: "element" }],
+        properties: { className: ["medium-image-caption"] },
+        tagName: "p",
+        type: "element",
+      };
+    }
+
+    function rewrite(parent) {
+      if (!Array.isArray(parent.children)) return;
+      const children = [];
+      for (const child of parent.children) {
+        if (isElement(child, "p") && child.children?.length === 1 && isElement(child.children[0], "img")) {
+          const image = child.children[0];
+          children.push(imageParagraph(image));
+          const caption = image.properties?.dataMediumCaption;
+          if (typeof caption === "string" && caption && !classes(image).includes("medium-display-formula")) {
+            children.push(captionParagraph(caption));
+          }
+          continue;
+        }
+        if (isElement(child, "img")) {
+          children.push(imageParagraph(child));
+          continue;
+        }
+        rewrite(child);
+        children.push(child);
       }
-      if (node.tagName === "img" && classes(node).includes("medium-display-formula") && parent && typeof index === "number") {
-        parent.children[index] = figure(node);
-      }
-    });
+      parent.children = children;
+    }
+
+    rewrite(tree);
   };
 }
 
@@ -416,31 +505,46 @@ function isElement(node, tagName) {
 }
 
 function mediumListCompatibilityPlugin() {
-  const lineBreak = () => ({ children: [], properties: {}, tagName: "br", type: "element" });
-  const marker = (value) => ({ type: "text", value: `${value} ` });
-
-  function flattenListItem(item) {
-    const children = [];
-    for (const child of item.children ?? []) {
-      if (isElement(child, "p")) {
-        children.push(...(child.children ?? []));
-      } else if (isElement(child, "ul") || isElement(child, "ol")) {
-        const ordered = child.tagName === "ol";
-        const nestedItems = (child.children ?? []).filter((nested) => isElement(nested, "li"));
-        nestedItems.forEach((nestedItem, index) => {
-          children.push(lineBreak(), marker(ordered ? `${index + 1}.` : "•"), ...flattenListItem(nestedItem));
-        });
-      } else {
-        children.push(child);
+  function listParagraphs(list, depth = 0) {
+    const ordered = list.tagName === "ol";
+    const start = Number(list.properties?.start ?? 1);
+    const items = (list.children ?? []).filter((child) => isElement(child, "li"));
+    return items.flatMap((item, index) => {
+      const inline = [];
+      const nested = [];
+      for (const child of item.children ?? []) {
+        if (isElement(child, "p")) inline.push(...(child.children ?? []));
+        else if (isElement(child, "ol") || isElement(child, "ul")) nested.push(child);
+        else inline.push(child);
       }
-    }
-    return children;
+      while (inline[0]?.type === "text" && !inline[0].value.trim()) inline.shift();
+      while (inline.at(-1)?.type === "text" && !inline.at(-1).value.trim()) inline.pop();
+      const prefix = `${" ".repeat(depth)}${ordered ? `${start + index}.` : "•"} `;
+      const paragraph = {
+        children: [{ type: "text", value: prefix }, ...inline],
+        properties: { className: ["medium-list-line"] },
+        tagName: "p",
+        type: "element",
+      };
+      return [paragraph, ...nested.flatMap((child) => listParagraphs(child, depth + 1))];
+    });
   }
 
   return (tree) => {
-    visit(tree, "element", (node) => {
-      if (isElement(node, "li")) node.children = flattenListItem(node);
-    });
+    function rewrite(parent) {
+      if (!Array.isArray(parent.children)) return;
+      const children = [];
+      for (const child of parent.children) {
+        if (isElement(child, "ol") || isElement(child, "ul")) {
+          children.push(...listParagraphs(child));
+          continue;
+        }
+        rewrite(child);
+        children.push(child);
+      }
+      parent.children = children;
+    }
+    rewrite(tree);
   };
 }
 
@@ -472,9 +576,10 @@ function htmlDocument({ body, canonical, language, summary, title }) {
     blockquote { margin: 28px 0; padding-left: 20px; border-left: 3px solid #c8c8c8; color: #555; }
     pre { overflow-x: auto; margin: 28px 0; padding: 20px; border-radius: 6px; background: #f5f6f7; font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     code { font: .88em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .medium-figure, .medium-formula { margin: 30px auto; text-align: center; }
-    .medium-figure img, .medium-formula img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
-    .medium-figure figcaption { margin-top: 8px; color: #777; font: 14px/1.4 Arial, Helvetica, sans-serif; }
+    .medium-image, .medium-formula { margin: 24px auto 8px; text-align: center; }
+    .medium-image img, .medium-formula img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+    .medium-image-caption { margin: 0 0 20px; color: #777; text-align: center; font: 14px/1.4 Arial, Helvetica, sans-serif; }
+    .medium-list-line { margin: 0 0 12px; }
     table { width: 100%; border-collapse: collapse; font: 15px/1.45 Arial, Helvetica, sans-serif; }
     th, td { padding: 8px 10px; border: 1px solid #ddd; text-align: left; }
   </style>
@@ -500,7 +605,7 @@ async function renderArticle(source, options) {
       footnoteLabel: options.language === "zh" ? "注释" : "Footnotes",
     })
     .use(mediumListCompatibilityPlugin)
-    .use(mediumFigurePlugin)
+    .use(mediumImageCompatibilityPlugin)
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(source);
   return String(result);

@@ -3,6 +3,7 @@ import { access, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
+import sharp from "sharp";
 import {
   generateConfiguredMediumImport,
   generateMediumImport,
@@ -68,20 +69,35 @@ test("generates a Medium import page with public PNG assets and compatible lists
   assert.doesNotMatch(html, /\.webp(?:["?#])/);
   assert.doesNotMatch(html, /data:image/);
   assert.doesNotMatch(html, /\$\$/);
-  assert.doesNotMatch(html, /<li>\s*<p>/);
+  assert.doesNotMatch(html, /<(?:ol|ul|li|pre)(?:\s|>)/);
   assert.match(html, /<code>Z_score<\/code>/);
-  assert.match(html, /<figure class="medium-formula"><img[^>]+formula-[a-f0-9]+\.png/);
+  assert.match(html, /<p class="medium-formula"><img[^>]+formula-[a-f0-9]+\.png/);
+  assert.equal((html.match(/code-python-[a-f0-9]+\.png/g) ?? []).length, 2);
 
   const imageUrls = [...html.matchAll(/<img[^>]+src="([^"]+)"/g)].map((match) => match[1]);
-  assert.equal(imageUrls.length, 7);
+  assert.equal(imageUrls.length, 9);
   assert.ok(imageUrls.every((url) => url.startsWith(`${result.importUrl}assets/`) && url.endsWith(".png")));
   for (const url of imageUrls) {
     const relativeAsset = new URL(url).pathname.replace(/^\/medium-import\//, "medium-import/");
     await access(join(outputRoot, relativeAsset));
   }
 
+  const formulaUrl = imageUrls.find((url) => url.includes("/formula-"));
+  const formulaPath = join(outputRoot, new URL(formulaUrl).pathname.replace(/^\/medium-import\//, "medium-import/"));
+  const formulaMetadata = await sharp(formulaPath).metadata();
+  assert.equal(formulaMetadata.width, 760);
+  assert.ok(formulaMetadata.height < 100);
+  assert.equal(formulaMetadata.hasAlpha, false);
+  const formulaStats = await sharp(formulaPath).stats();
+  assert.ok(formulaStats.channels[0].max > 245);
+  assert.ok(formulaStats.channels[0].min < 20);
+  const trimmedFormula = await sharp(formulaPath)
+    .trim({ background: "#ffffff" })
+    .toBuffer({ resolveWithObject: true });
+  assert.ok(trimmedFormula.info.width < 300);
+
   const attacks = html.slice(html.indexOf("<h2>Attacks and Evasion</h2>"), html.indexOf("<h2>Conclusion</h2>"));
-  assert.equal((attacks.match(/<li>/g) ?? []).length, 2);
-  assert.doesNotMatch(attacks, /<ul>/);
-  assert.match(attacks, /<br>• <strong>Model paraphrasing:<\/strong>/);
+  assert.doesNotMatch(attacks, /<(?:ol|ul|li)(?:\s|>)/);
+  assert.match(attacks, /2\. <strong>Rewrite or back-translate the text:<\/strong>/);
+  assert.match(attacks, /• <strong>Model paraphrasing:<\/strong>/);
 });

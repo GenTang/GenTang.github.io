@@ -67,7 +67,7 @@ test("exports the homepage with local assets and the intended section order", as
   assert.match(source, /解构大语言模型/);
   assert.match(source.replaceAll("<!-- -->", ""), /全书已完成 · 13 章/);
   assert.doesNotMatch(source, /class="chapter-line"/);
-  assert.match(source, /Anthropic要给文本加水印？Part 2：从有偏的KGW到无偏的SynthID-Text/);
+  assert.match(source, /Anthropic要给文本加水印 Part 2：从有偏的KGW到无偏的SynthID-Text/);
   assert.match(source, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc_2/"`));
   assert.match(source, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc/"`));
   assert.match(source, /持续更新/);
@@ -96,9 +96,9 @@ test("keeps the English homepage structurally aligned with the Chinese homepage"
   assert.match(source, /Read the latest blog/);
   assert.match(source, /Deconstructing Large Language Models/);
   assert.match(source, /BOOK COMPLETE · 13 CHAPTERS/);
-  assert.match(source, /Anthropic Is Adding Watermarks to Text\? Part 2: From Biased KGW to Unbiased SynthID-Text/);
+  assert.match(source, /Anthropic Is Adding Watermarks to Text Part 2: From Biased KGW to Unbiased SynthID-Text/);
   assert.match(source, new RegExp(`href="${basePath}/en/blog/watermarking_on_aigc_2/"`));
-  assert.match(source, /Anthropic Is Adding Watermarks to Text\. How Does It Work\?/);
+  assert.match(source, /Anthropic Is Adding Watermarks to Text Part 1: The Foundational Work—KGW/);
   assert.match(source, new RegExp(`href="${basePath}/en/blog/watermarking_on_aigc/"`));
   assert.match(source, /OPEN TO WORK/);
   assert.match(source, /Open to LLM \/ AI Systems Engineer opportunities/);
@@ -135,8 +135,8 @@ test("exports aligned bilingual blog landing pages that match the homepage state
   ]);
 
   assert.match(chinese, /<h1>博客<\/h1>/);
-  assert.match(chinese, /Anthropic要给文本加水印？Part 2：从有偏的KGW到无偏的SynthID-Text/);
-  assert.match(chinese, /Anthropic要给文本加水印？Part 1：奠基之作——KGW/);
+  assert.match(chinese, /Anthropic要给文本加水印 Part 2：从有偏的KGW到无偏的SynthID-Text/);
+  assert.match(chinese, /Anthropic要给文本加水印 Part 1：奠基之作——KGW/);
   assert.match(chinese, /class="essay-row"/);
   assert.doesNotMatch(chinese, /class="essay-row is-disabled"|name="robots" content="noindex, follow"/);
   assert.match(chinese, new RegExp(`href="${basePath}/en/blog/"`));
@@ -144,8 +144,8 @@ test("exports aligned bilingual blog landing pages that match the homepage state
   assert.match(chinese, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc/"`));
 
   assert.match(english, /<h1>Blog<\/h1>/);
-  assert.match(english, /Anthropic Is Adding Watermarks to Text\? Part 2: From Biased KGW to Unbiased SynthID-Text/);
-  assert.match(english, /Anthropic Is Adding Watermarks to Text\. How Does It Work\?/);
+  assert.match(english, /Anthropic Is Adding Watermarks to Text Part 2: From Biased KGW to Unbiased SynthID-Text/);
+  assert.match(english, /Anthropic Is Adding Watermarks to Text Part 1: The Foundational Work—KGW/);
   assert.match(english, /class="essay-row"/);
   assert.doesNotMatch(english, /class="essay-row is-disabled"|name="robots" content="noindex, follow"/);
   assert.match(english, new RegExp(`href="${basePath}/zh/blog/"`));
@@ -380,10 +380,10 @@ test("exports every current reading route", async () => {
     ["/en/books/deconstructing_LLM/chapter-1/1-2", /1.2 Data Foundation/],
     ["/en/books/deconstructing_LLM/chapter-1/1-3", /1.3 Model Architecture/],
     ["/en/books/deconstructing_LLM/chapter-1/1-4", /1.4 About This Book/],
-    ["/zh/blog/watermarking_on_aigc", /Anthropic要给文本加水印？Part 1：奠基之作——KGW/],
-    ["/zh/blog/watermarking_on_aigc_2", /Anthropic要给文本加水印？Part 2：从有偏的KGW到无偏的SynthID-Text/],
-    ["/en/blog/watermarking_on_aigc", /Anthropic Is Adding Watermarks to Text\. How Does It Work\?/],
-    ["/en/blog/watermarking_on_aigc_2", /Anthropic Is Adding Watermarks to Text\? Part 2: From Biased KGW to Unbiased SynthID-Text/],
+    ["/zh/blog/watermarking_on_aigc", /Anthropic要给文本加水印 Part 1：奠基之作——KGW/],
+    ["/zh/blog/watermarking_on_aigc_2", /Anthropic要给文本加水印 Part 2：从有偏的KGW到无偏的SynthID-Text/],
+    ["/en/blog/watermarking_on_aigc", /Anthropic Is Adding Watermarks to Text Part 1: The Foundational Work—KGW/],
+    ["/en/blog/watermarking_on_aigc_2", /Anthropic Is Adding Watermarks to Text Part 2: From Biased KGW to Unbiased SynthID-Text/],
   ];
 
   for (const [route, expected] of routes) {

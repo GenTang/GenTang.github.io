@@ -4,7 +4,7 @@ updated: 2026-08-20
 summary: Using a two-token example, we show why KGW distorts the model distribution, derive the unbiasedness of SynthID, implement SynthID-Text and Weighted Mean detection, and compare the two methods through detection performance and `Delta NLL`.
 ---
 
-# Anthropic Is Adding Watermarks to Text? Part 2: From Biased KGW to Unbiased SynthID-Text
+# Anthropic Is Adding Watermarks to Text Part 2: From Biased KGW to Unbiased SynthID-Text
 
 > **Key Takeaways / TL;DR**
 >
@@ -46,7 +46,7 @@ $$
 Because the two green-list assignments are equally likely, the expected probability of A is
 
 $$
-\mathbb{E}[p'(A)]=\frac{0.9474+0.8182}{2}\approx 0.8828.
+\mathbb{E}[p'(A)]=\frac{0.9474+0.8182}{2}\approx 0.8828
 $$
 
 The expected value, 0.8828, is clearly different from the original probability, 0.9. Thus, even after averaging over the random green list, KGW changes the model's original probability distribution: it is a biased algorithm.
@@ -72,7 +72,7 @@ Under this mechanism, there are four equally likely score assignments[^1]:
 Taking the expectation over all four cases gives
 
 $$
-\mathbb{E}[p'(A)]=\frac{0.90+0.90+0.99+0.81}{4}=0.90.
+\mathbb{E}[p'(A)]=\frac{0.90+0.90+0.99+0.81}{4}=0.90
 $$
 
 The expected probability of A is now exactly its original probability, 0.9. We therefore call the Tournament algorithm **unbiased**. Although each individual generation step still distorts the distribution to embed a watermark, there is no distribution shift at the level of expectation, so the model continues to operate at its original optimum on average.
@@ -107,7 +107,7 @@ Before discussing multiple rounds, let us derive the probability-equivalent form
 - Let the vocabulary size be $vs$, with model output distribution
 
 $$
-\sum_{i=1}^{vs}p_i=1.
+\sum_{i=1}^{vs}p_i=1
 $$
 
 - Assign each token a random watermark score, or g-value, distributed as
@@ -115,7 +115,7 @@ $$
 $$
 g_i\sim\operatorname{Bernoulli}\left(\frac{1}{2}\right),
 \qquad
-\Pr(g_i=1)=\Pr(g_i=0)=\frac{1}{2}.
+\Pr(g_i=1)=\Pr(g_i=0)=\frac{1}{2}
 $$
 
 - After one Tournament round, the output-token distribution becomes
@@ -126,7 +126,7 @@ p_i'=p_i(1+g_i-q)
 }
 $$
 $$
-q=\sum_{j=1}^{vs}p_jg_j.
+q=\sum_{j=1}^{vs}p_jg_j
 $$
 
 The formula immediately shows that
@@ -203,7 +203,7 @@ In each match, the candidate with the larger g-value for the current round advan
 3. **Compute the final probability distribution**: Let the model's original distribution be $p_i^{(0)}=p_i$. In Tournament round $r$, define $g_i^{(r)}\in\{0,1\}$ and let the probability mass assigned to $g=1$ in that round be
 
 $$
-q_r=\sum_{j=1}^{vs}p_j^{(r-1)}g_j^{(r)}.
+q_r=\sum_{j=1}^{vs}p_j^{(r-1)}g_j^{(r)}
 $$
 
 Each round updates the probability distribution as
@@ -211,7 +211,7 @@ Each round updates the probability distribution as
 $$
 p_i^{(r)}=
 p_i^{(r-1)}
-\left(1+g_i^{(r)}-q_r\right).
+\left(1+g_i^{(r)}-q_r\right)
 $$
 
 After $m$ Tournament rounds, the final generation probability of token $i$ is
@@ -329,19 +329,19 @@ Two implementation details are essential for high detection accuracy and robustn
 In a multi-round Tournament, the watermark signal is not equally strong at every layer. Under the watermarked hypothesis $H_1$, the probability that a token has $g=1$ at layer $\ell$ can be written as
 
 $$
-P(g_{t,\ell}=1\mid H_1)=\frac{1}{2}+\delta_\ell.
+P(g_{t,\ell}=1\mid H_1)=\frac{1}{2}+\delta_\ell
 $$
 
 As the Tournament progresses to deeper layers, the signal shift $\delta$ decreases:
 
 $$
-\delta_1\geq\delta_2\geq\cdots\geq\delta_m.
+\delta_1\geq\delta_2\geq\cdots\geq\delta_m
 $$
 
 Therefore,
 
 $$
-P(g_{t,1}=1\mid H_1)\geq P(g_{t,2}=1\mid H_1)\geq\cdots.
+P(g_{t,1}=1\mid H_1)\geq P(g_{t,2}=1\mid H_1)\geq\cdots
 $$
 
 In other words, **shallower Tournament layers carry a stronger watermark signal** and should receive larger weights during detection.
@@ -429,14 +429,14 @@ $$
 \operatorname{NLL}_0(y)=
 -\frac{1}{T}
 \sum_{t=1}^{T}
-\log p_0(y_t\mid x,y_{<t}),
+\log p_0(y_t\mid x,y_{<t})
 $$
 
 where $p_0$ is the original model's conditional probability distribution. We then define
 
 $$
 \Delta\mathrm{NLL}=
-\operatorname{NLL}_0(y_{\mathrm{wm}})-\operatorname{NLL}_0(y_{\mathrm{base}}),
+\operatorname{NLL}_0(y_{\mathrm{wm}})-\operatorname{NLL}_0(y_{\mathrm{base}})
 $$
 
 where $y_{\mathrm{wm}}$ and $y_{\mathrm{base}}$ are the watermarked and unwatermarked outputs generated from the same input.
@@ -488,17 +488,17 @@ A comprehensive comparison will require more systematic ablation studies. That w
     * Combining the cases gives
 
     $$
-    p'(A)=0.81+0.18\times 0.5=0.90.
+    p'(A)=0.81+0.18\times 0.5=0.90
     $$
 
 [^2]: The algorithm does not permanently favor one set of tokens. Because
     $$
     \mathbb E[g_i]=\frac{1}{2},
     \qquad
-    \mathbb E[q]=\frac{1}{2},
+    \mathbb E[q]=\frac{1}{2}
     $$
     averaging over the pseudorandom g-values gives
     $$
-    \mathbb E_g[p_i']=p_i\left(1+\mathbb E[g_i]-\mathbb E[q]\right)=p_i.
+    \mathbb E_g[p_i']=p_i\left(1+\mathbb E[g_i]-\mathbb E[q]\right)=p_i
     $$
     A single generation step redistributes probability mass according to the g-values, but the original distribution is preserved on average. This is the mathematical source of SynthID's so-called unbiasedness.

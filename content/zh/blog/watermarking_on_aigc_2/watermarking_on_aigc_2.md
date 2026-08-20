@@ -5,7 +5,7 @@ summary: 从两个token的例子解释KGW为何会扭曲模型分布，再推导
 ---
 
 
-# Anthropic要给文本加水印？Part 2：从有偏的KGW到无偏的SynthID-Text
+# Anthropic要给文本加水印 Part 2：从有偏的KGW到无偏的SynthID-Text
 
 > **本文要点 / TL;DR**
 >
@@ -110,7 +110,7 @@ $$
 - 设模型词表的大小为$vs$，模型输出的概率分布为
 
 $$
-\sum_{i=1}^{vs}p_i=1.
+\sum_{i=1}^{vs}p_i=1
 $$
 
 - 为每个token随机分配的水印信号分数（g-values）分布为
@@ -118,7 +118,7 @@ $$
 $$
 g_i\sim\operatorname{Bernoulli}\left(\frac{1}{2}\right),
 \qquad
-\Pr(g_i=1)=\Pr(g_i=0)=\frac{1}{2}.
+\Pr(g_i=1)=\Pr(g_i=0)=\frac{1}{2}
 $$
 
 - 经过一轮Tournament后，最终输出token的概率分布将转变为
@@ -204,7 +204,7 @@ x1,…,x4独立采样自模型的原始概率分布p；
 3. **最终概率分布**：基于我们在上一节讨论的概率等价原则，设模型的原始概率分布为$p_i^{(0)}=p_i$。在第 $r$ 轮Tournament中，定义 $g_i^{(r)}\in\{0,1\}$，并令该轮 $g=1$ 的概率质量为
 
 $$
-q_r=\sum_{j=1}^{vs}p_j^{(r-1)}g_j^{(r)}.
+q_r=\sum_{j=1}^{vs}p_j^{(r-1)}g_j^{(r)}
 $$
 
 则每轮比赛都会按照下式更新概率分布：
@@ -212,7 +212,7 @@ $$
 $$
 p_i^{(r)}=
 p_i^{(r-1)}
-\left(1+g_i^{(r)}-q_r\right).
+\left(1+g_i^{(r)}-q_r\right)
 $$
 
 因此，经过$m$轮 Tournament 后，token $i$的最终生成概率为
@@ -426,14 +426,14 @@ $$
 \operatorname{NLL}_0(y)=
 -\frac{1}{T}
 \sum_{t=1}^{T}
-\log p_0(y_t\mid x,y_{<t}),
+\log p_0(y_t\mid x,y_{<t})
 $$
 
 其中，$p_0$表示原始模型的条件概率分布。进一步定义
 
 $$
 \Delta\mathrm{NLL}=
-\operatorname{NLL}_0(y_{\mathrm{wm}})-\operatorname{NLL}_0(y_{\mathrm{base}}),
+\operatorname{NLL}_0(y_{\mathrm{wm}})-\operatorname{NLL}_0(y_{\mathrm{base}})
 $$
 
 其中，$y_{\mathrm{wm}}$和$y_{\mathrm{base}}$ 分别表示同一输入下生成的水印文本和无水印文本。
@@ -493,10 +493,10 @@ $$
     $$
     \mathbb E[g_i]=\frac{1}{2},
     \qquad
-    \mathbb E[q]=\frac{1}{2}.
+    \mathbb E[q]=\frac{1}{2}
     $$
     对伪随机 $g$-value 取平均后，有
     $$
-    \mathbb E_g[p_i']=p_i\left(1+\mathbb E[g_i]-\mathbb E[q]\right)=p_i.
+    \mathbb E_g[p_i']=p_i\left(1+\mathbb E[g_i]-\mathbb E[q]\right)=p_i
     $$
     也就是说，单次生成中算法会根据$g$-value重新分配概率质量，但在平均的意义下，原始概率分布保持不变。这正是Synthid所谓“无偏性”的数学来源。
