@@ -565,7 +565,7 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
-function htmlDocument({ body, canonical, language, summary, title }) {
+function htmlDocument({ body, language, summary, title }) {
   return `<!doctype html>
 <html lang="${language === "zh" ? "zh-CN" : "en"}">
 <head>
@@ -574,7 +574,6 @@ function htmlDocument({ body, canonical, language, summary, title }) {
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(summary ?? "")}">
-  <link rel="canonical" href="${escapeHtml(canonical)}">
   <style>
     body { margin: 0; background: #fff; color: #242424; font: 20px/1.58 Georgia, "Times New Roman", serif; }
     article { box-sizing: border-box; max-width: 760px; margin: 0 auto; padding: 56px 24px 96px; }
@@ -651,7 +650,6 @@ export async function generateMediumImport({
   });
   await writeFile(join(outputDirectory, "index.html"), htmlDocument({
     body: rendered,
-    canonical,
     language: identity.language,
     summary: metadata.summary,
     title,

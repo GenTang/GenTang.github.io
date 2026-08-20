@@ -73,7 +73,7 @@ test("generates a Medium import page with public PNG assets and compatible lists
   const htmlPath = join(outputRoot, "medium-import/20260820153000123/en/blog/watermarking_on_aigc/index.html");
   const html = await readFile(htmlPath, "utf8");
   assert.match(html, /<meta name="robots" content="noindex,nofollow,noarchive">/);
-  assert.match(html, /<link rel="canonical" href="https:\/\/gentang\.github\.io\/en\/blog\/watermarking_on_aigc\/">/);
+  assert.doesNotMatch(html, /<link rel="canonical"/);
   assert.doesNotMatch(html, /\.webp(?:["?#])/);
   assert.doesNotMatch(html, /data:image/);
   assert.doesNotMatch(html, /\$\$/);
