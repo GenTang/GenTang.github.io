@@ -29,6 +29,16 @@ async function blogTitle(language, slug) {
   return title;
 }
 
+async function bookSectionTitle(language, chapter, section) {
+  const source = await readFile(
+    resolve("content", language, "books", "deconstructing_LLM", `chapter_${chapter}`, `${section}.md`),
+    "utf8",
+  );
+  const title = source.match(/^##\s+(.+?)\s*$/m)?.[1]?.trim();
+  assert.ok(title, `Missing H2 title in ${language}/chapter_${chapter}/${section}`);
+  return title;
+}
+
 function exactPattern(value) {
   return new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
 }
@@ -311,11 +321,24 @@ test("uses explicit content dates and bidirectional language alternates", async 
 });
 
 test("exports every current reading route", async () => {
-  const [chinesePartOne, chinesePartTwo, englishPartOne, englishPartTwo] = await Promise.all([
+  const [
+    chinesePartOne,
+    chinesePartTwo,
+    englishPartOne,
+    englishPartTwo,
+    englishChapterOneSectionOne,
+    englishChapterOneSectionTwo,
+    englishChapterOneSectionThree,
+    englishChapterOneSectionFour,
+  ] = await Promise.all([
     blogTitle("zh", "watermarking_on_aigc"),
     blogTitle("zh", "watermarking_on_aigc_2"),
     blogTitle("en", "watermarking_on_aigc"),
     blogTitle("en", "watermarking_on_aigc_2"),
+    bookSectionTitle("en", 1, "1_1"),
+    bookSectionTitle("en", 1, "1_2"),
+    bookSectionTitle("en", 1, "1_3"),
+    bookSectionTitle("en", 1, "1_4"),
   ]);
   const routes = [
     ["/zh/books/deconstructing_LLM", /READING MAP/],
@@ -404,10 +427,10 @@ test("exports every current reading route", async () => {
     ["/zh/books/deconstructing_LLM/chapter-13/13-5", /13.5 奇异值分解/],
     ["/zh/books/deconstructing_LLM/chapter-13/13-6", /13.6 本章小结/],
     ["/en/books/deconstructing_LLM/chapter-1", /Chapter 1: Introduction/],
-    ["/en/books/deconstructing_LLM/chapter-1/1-1", /1.1 Is It a Digital Parrot or Does It Possess Self-Awareness\?/],
-    ["/en/books/deconstructing_LLM/chapter-1/1-2", /1.2 Data Foundation/],
-    ["/en/books/deconstructing_LLM/chapter-1/1-3", /1.3 Model Architecture/],
-    ["/en/books/deconstructing_LLM/chapter-1/1-4", /1.4 About This Book/],
+    ["/en/books/deconstructing_LLM/chapter-1/1-1", exactPattern(englishChapterOneSectionOne)],
+    ["/en/books/deconstructing_LLM/chapter-1/1-2", exactPattern(englishChapterOneSectionTwo)],
+    ["/en/books/deconstructing_LLM/chapter-1/1-3", exactPattern(englishChapterOneSectionThree)],
+    ["/en/books/deconstructing_LLM/chapter-1/1-4", exactPattern(englishChapterOneSectionFour)],
     ["/zh/blog/watermarking_on_aigc", exactPattern(chinesePartOne)],
     ["/zh/blog/watermarking_on_aigc_2", exactPattern(chinesePartTwo)],
     ["/en/blog/watermarking_on_aigc", exactPattern(englishPartOne)],
@@ -561,12 +584,15 @@ test("derives the two-level book navigation from content files", async () => {
   assert.match(source, /<details class="toc-chapter is-open"[^>]*open/);
   assert.match(source, /<details class="toc-chapter"[^>]*>/);
 
-  const english = await html("/en/books/deconstructing_LLM/chapter-1");
+  const [english, englishChapterOneSectionOne] = await Promise.all([
+    html("/en/books/deconstructing_LLM/chapter-1"),
+    bookSectionTitle("en", 1, "1_1"),
+  ]);
   assert.doesNotMatch(english, /Begin with the question/);
   assert.match(english, /Deconstructing Large Language Models/);
   assert.match(english, /Chapter 1: Introduction/);
   assert.match(english, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/chapter-1/1-4/"`));
-  assert.match(english, /Next.*1\.1 Is It a Digital Parrot or Does It Possess Self-Awareness\?/s);
+  assert.match(english, new RegExp(`Next.*${exactPattern(englishChapterOneSectionOne).source}`, "s"));
   assert.match(english, /Expand all/);
   assert.match(english, /Collapse all/);
   assert.doesNotMatch(english, /Models and representations|The role of context/);

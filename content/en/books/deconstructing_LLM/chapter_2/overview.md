@@ -13,9 +13,9 @@ There is no doubt that mathematics is the soul of artificial intelligence. Altho
 
 This chapter therefore aims to familiarize readers with the mathematical concepts and notation commonly used in artificial intelligence, so that they will not feel lost when reading later chapters of this book or other literature. Specifically, the chapter briefly introduces three areas of mathematics.
 
-- **Vectors, matrices, and tensors**: Tensors are the fundamental form of data in artificial intelligence. Nearly all discussions in later chapters of this book are based on tensor computations.
+- **Vectors, matrices, and tensors**: Tensors are the fundamental data structure in artificial intelligence. Nearly all discussions in later chapters of this book are based on tensor computations.
 - **Probability**: Probability is a tool for quantifying randomness, and nearly every model can be regarded as a probabilistic model.
-- **Calculus**: Calculus provides the foundation for efficiently solving optimization problems—finding the extrema of functions—and gives theoretical support to model training.
+- **Calculus**: Calculus provides the foundation for efficiently solving optimization problems—finding the extrema of functions—and supplies the theoretical basis for model training.
 
 Readers who are less interested in mathematics are advised to skim this material first and then continue with the other chapters. When encountering an unfamiliar mathematical concept, they can return and read the relevant part of this chapter more carefully. To make concepts easier to locate, mathematical terms introduced in the main text are shown in bold.
 
