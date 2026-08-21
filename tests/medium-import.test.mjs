@@ -121,3 +121,36 @@ test("generates a Medium import page with public PNG assets and compatible lists
   assert.match(attacks, /2\. <strong>Rewrite or back-translate the text:<\/strong>/);
   assert.match(attacks, /• <strong>Model paraphrasing:<\/strong>/);
 });
+
+test("converts tables and footnotes into structures that Medium preserves", async () => {
+  const outputRoot = await mkdtemp(join(tmpdir(), "xiaopang-medium-tables-"));
+  const result = await generateMediumImport({
+    importVersion: "20260821093000123",
+    input: "/en/blog/watermarking_on_aigc_2/",
+    outputRoot,
+    siteUrl,
+  });
+  const htmlPath = join(outputRoot, "medium-import/20260821093000123/en/blog/watermarking_on_aigc_2/index.html");
+  const html = await readFile(htmlPath, "utf8");
+
+  assert.doesNotMatch(html, /<(?:table|thead|tbody|tr|th|td)(?:\s|>)/);
+  assert.doesNotMatch(html, /<(?:section|sup)(?:\s|>)/);
+  assert.doesNotMatch(html, /data-footnote-(?:ref|backref)/);
+  assert.match(html, /<img[^>]+table-[a-f0-9]+\.png[^>]+class="medium-table-image"/);
+  assert.match(html, /<strong class="medium-footnote-ref">\[1\]<\/strong>/);
+  assert.match(html, /<h2>Footnotes<\/h2>/);
+  assert.match(html, /1\. To make the first case/);
+  assert.match(html, /2\. The algorithm does not permanently favor/);
+
+  const tableUrls = [...html.matchAll(/<img[^>]+src="([^"]+table-[^"]+\.png)"/g)].map((match) => match[1]);
+  assert.equal(tableUrls.length, 2);
+  for (const url of tableUrls) {
+    assert.ok(url.startsWith(`${result.importUrl}assets/`));
+    const relativeAsset = new URL(url).pathname.replace(/^\/medium-import\//, "medium-import/");
+    const tablePath = join(outputRoot, relativeAsset);
+    await access(tablePath);
+    const metadata = await sharp(tablePath).metadata();
+    assert.ok((metadata.width ?? 0) >= 1400);
+    assert.ok((metadata.height ?? 0) > 150);
+  }
+});

@@ -256,6 +256,111 @@ async function formulaSvg(tex) {
   return mathJax.startup.adaptor.serializeXML(svg);
 }
 
+function markdownPlainText(node) {
+  if (!node) return "";
+  if (["text", "inlineCode", "code"].includes(node.type)) return node.value ?? "";
+  if (node.type === "inlineMath" || node.type === "math") return plainInlineFormula(node.value ?? "");
+  if (node.type === "image") return node.alt ?? "";
+  return (node.children ?? []).map(markdownPlainText).join("");
+}
+
+function tableRows(table) {
+  return (table.children ?? []).map((row) => (row.children ?? []).map((cell) => markdownPlainText(cell).trim()));
+}
+
+function escapeXml(value) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
+function textUnits(value) {
+  return [...value].reduce((total, character) => total + (character.codePointAt(0) > 0x2ff ? 1 : 0.56), 0);
+}
+
+function wrapTableText(value, maxUnits) {
+  const words = value.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [""];
+  const lines = [];
+  let line = "";
+
+  function appendWord(word) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (textUnits(candidate) <= maxUnits) {
+      line = candidate;
+      return;
+    }
+    if (line) lines.push(line);
+    line = "";
+    if (textUnits(word) <= maxUnits) {
+      line = word;
+      return;
+    }
+    let fragment = "";
+    for (const character of word) {
+      if (fragment && textUnits(`${fragment}${character}`) > maxUnits) {
+        lines.push(fragment);
+        fragment = character;
+      } else {
+        fragment += character;
+      }
+    }
+    line = fragment;
+  }
+
+  for (const word of words) appendWord(word);
+  if (line) lines.push(line);
+  return lines;
+}
+
+function tableSvg(table) {
+  const rows = tableRows(table);
+  const columns = Math.max(1, ...rows.map((row) => row.length));
+  const width = 1400;
+  const fontSize = 30;
+  const lineHeight = 42;
+  const horizontalPadding = 24;
+  const verticalPadding = 20;
+  const columnWeights = Array.from({ length: columns }, (_, column) => {
+    const longest = Math.max(8, ...rows.map((row) => textUnits(row[column] ?? "")));
+    return Math.min(32, longest);
+  });
+  const weightTotal = columnWeights.reduce((sum, value) => sum + value, 0);
+  const columnWidths = columnWeights.map((weight) => width * weight / weightTotal);
+  const wrappedRows = rows.map((row) => row.map((value, column) => {
+    const availableUnits = Math.max(6, (columnWidths[column] - horizontalPadding * 2) / fontSize);
+    return wrapTableText(value, availableUnits);
+  }));
+  const rowHeights = wrappedRows.map((row) => Math.max(1, ...row.map((lines) => lines.length)) * lineHeight + verticalPadding * 2);
+  const height = rowHeights.reduce((sum, value) => sum + value, 0) + 2;
+  const parts = [`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
+    `<rect width="100%" height="100%" fill="#ffffff"/>`];
+  let y = 1;
+  for (let row = 0; row < wrappedRows.length; row += 1) {
+    let x = 0;
+    for (let column = 0; column < columns; column += 1) {
+      const cellWidth = columnWidths[column];
+      parts.push(`<rect x="${x}" y="${y}" width="${cellWidth}" height="${rowHeights[row]}" fill="${row === 0 ? "#f5f7fa" : "#ffffff"}" stroke="#d6d9df" stroke-width="2"/>`);
+      const alignment = table.align?.[column] ?? "left";
+      const anchor = alignment === "center" ? "middle" : alignment === "right" ? "end" : "start";
+      const textX = alignment === "center" ? x + cellWidth / 2 : alignment === "right" ? x + cellWidth - horizontalPadding : x + horizontalPadding;
+      const lines = wrappedRows[row][column] ?? [""];
+      parts.push(`<text x="${textX}" y="${y + verticalPadding + fontSize}" text-anchor="${anchor}" fill="#242424" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="${row === 0 ? 700 : 400}">`);
+      for (let line = 0; line < lines.length; line += 1) {
+        parts.push(`<tspan x="${textX}" dy="${line === 0 ? 0 : lineHeight}">${escapeXml(lines[line])}</tspan>`);
+      }
+      parts.push("</text>");
+      x += cellWidth;
+    }
+    y += rowHeights[row];
+  }
+  parts.push("</svg>");
+  return { height, rows, svg: parts.join(""), width };
+}
+
 class AssetManager {
   constructor({ assetBaseUrl, assetDirectory }) {
     this.assetBaseUrl = assetBaseUrl;
@@ -312,6 +417,22 @@ class AssetManager {
     return record;
   }
 
+  async table(table) {
+    const rendered = tableSvg(table);
+    const key = `table:${JSON.stringify(rendered.rows)}`;
+    if (this.records.has(key)) return this.records.get(key);
+
+    const fileName = `table-${shortHash(`${mediumAssetVersion}:${key}`)}.png`;
+    const outputPath = join(this.assetDirectory, fileName);
+    await sharp(Buffer.from(rendered.svg), { density: 144 })
+      .flatten({ background: "#ffffff" })
+      .png({ compressionLevel: 9 })
+      .toFile(outputPath);
+    const record = { fileName, rows: rendered.rows, url: new URL(fileName, this.assetBaseUrl).href };
+    this.records.set(key, record);
+    return record;
+  }
+
 }
 
 function localImage(url) {
@@ -343,6 +464,22 @@ function absoluteContentUrl(url, { canonical, language, siteRoot }) {
 
 function mediumAssetPlugin(options) {
   return async (tree) => {
+    const tables = [];
+    visit(tree, "table", (node, index, parent) => {
+      if (parent && typeof index === "number") tables.push({ index, node, parent });
+    });
+    for (const { index, node, parent } of tables) {
+      const table = await options.assets.table(node);
+      const header = table.rows[0]?.join(" | ") ?? "";
+      parent.children[index] = {
+        alt: header ? `Table: ${header}` : "Table",
+        data: { hProperties: { className: ["medium-table-image"], dataMediumTable: "generated" } },
+        title: undefined,
+        type: "image",
+        url: table.url,
+      };
+    }
+
     const images = [];
     const formulas = [];
     visit(tree, "image", (node) => images.push(node));
@@ -355,11 +492,12 @@ function mediumAssetPlugin(options) {
     for (const node of images) {
       const rawUrl = node.url?.split(/[?#]/, 1)[0];
       const { caption, width } = parseImagePresentation(node.alt ?? "");
+      const generatedTable = node.data?.hProperties?.dataMediumTable === "generated";
       node.alt = caption;
       node.data ??= {};
       node.data.hProperties = {
         ...node.data.hProperties,
-        ...(caption ? { dataMediumCaption: caption } : {}),
+        ...(caption && !generatedTable ? { dataMediumCaption: caption } : {}),
         ...(width ? { dataMediumWidth: width } : {}),
         ...(width ? { style: `width:${width};max-width:100%;height:auto` } : {}),
       };
@@ -597,6 +735,59 @@ function mediumListCompatibilityPlugin() {
   };
 }
 
+function hasProperty(node, property) {
+  return node?.properties && Object.prototype.hasOwnProperty.call(node.properties, property);
+}
+
+function hastText(node) {
+  if (node?.type === "text") return node.value ?? "";
+  return (node?.children ?? []).map(hastText).join("");
+}
+
+function mediumFootnoteCompatibilityPlugin({ language }) {
+  const label = language === "zh" ? "注释" : "Footnotes";
+
+  return (tree) => {
+    visit(tree, "element", (node) => {
+      if (!isElement(node, "sup")) return;
+      const reference = (node.children ?? []).find((child) => isElement(child, "a") && hasProperty(child, "dataFootnoteRef"));
+      if (!reference) return;
+      const number = hastText(reference).trim();
+      node.tagName = "strong";
+      node.properties = { className: ["medium-footnote-ref"] };
+      node.children = [{ type: "text", value: `[${number}]` }];
+    });
+
+    function removeBacklinks(parent) {
+      if (!Array.isArray(parent.children)) return;
+      parent.children = parent.children.filter((child) => !(isElement(child, "a") && hasProperty(child, "dataFootnoteBackref")));
+      for (const child of parent.children) removeBacklinks(child);
+    }
+    removeBacklinks(tree);
+
+    function flattenFootnotes(parent) {
+      if (!Array.isArray(parent.children)) return;
+      const children = [];
+      for (const child of parent.children) {
+        flattenFootnotes(child);
+        if (isElement(child, "section") && hasProperty(child, "dataFootnotes")) {
+          const notes = (child.children ?? []).filter((nested) => !(isElement(nested, "h2") && nested.properties?.id === "footnote-label"));
+          children.push({
+            children: [{ type: "text", value: label }],
+            properties: {},
+            tagName: "h2",
+            type: "element",
+          }, ...notes);
+          continue;
+        }
+        children.push(child);
+      }
+      parent.children = children;
+    }
+    flattenFootnotes(tree);
+  };
+}
+
 function escapeHtml(value) {
   return value
     .replaceAll("&", "&amp;")
@@ -658,6 +849,7 @@ async function renderArticle(source, options) {
     .use(mediumSubheadingCompatibilityPlugin)
     .use(mediumListingCompatibilityPlugin)
     .use(mediumListCompatibilityPlugin)
+    .use(mediumFootnoteCompatibilityPlugin, { language: options.language })
     .use(mediumImageCompatibilityPlugin)
     .use(mediumBlockSpacingPlugin)
     .use(rehypeStringify, { allowDangerousHtml: true })
