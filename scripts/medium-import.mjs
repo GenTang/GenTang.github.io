@@ -493,6 +493,18 @@ function mediumTldrCompatibilityPlugin() {
   };
 }
 
+function mediumSubheadingCompatibilityPlugin() {
+  return (tree) => {
+    visit(tree, "element", (node) => {
+      // Medium treats imported <h3> elements as its largest in-article heading.
+      // Demote Markdown level-three headings so they remain visually subordinate
+      // to the level-two section headings after import.
+      if (!isElement(node, "h3")) return;
+      node.tagName = "h4";
+    });
+  };
+}
+
 function mediumListingCompatibilityPlugin() {
   return (tree) => {
     visit(tree, "element", (node) => {
@@ -643,6 +655,7 @@ async function renderArticle(source, options) {
     })
     .use(mediumCodeCompatibilityPlugin)
     .use(mediumTldrCompatibilityPlugin)
+    .use(mediumSubheadingCompatibilityPlugin)
     .use(mediumListingCompatibilityPlugin)
     .use(mediumListCompatibilityPlugin)
     .use(mediumImageCompatibilityPlugin)

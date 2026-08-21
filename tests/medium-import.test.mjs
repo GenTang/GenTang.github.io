@@ -80,6 +80,10 @@ test("generates a Medium import page with public PNG assets and compatible lists
   assert.doesNotMatch(html, /<(?:ol|ul|li|blockquote)(?:\s|>)/);
   assert.doesNotMatch(html, /<p>\s*<\/p>/);
   assert.match(html, /<p><em>Originally published[^]*?<\/em><\/p><h2>Key Takeaways \/ TL;DR<\/h2>/);
+  assert.match(html, /<h2>How KGW Works<\/h2>/);
+  assert.match(html, /<h4>Algorithm and Implementation<\/h4>/);
+  assert.match(html, /<h4>Detection<\/h4>/);
+  assert.doesNotMatch(html, /<h3>/);
   assert.match(html, /<pre><code class="language-python">[^]*<br>/);
   assert.match(html, /<p class="medium-listing-title"><strong>Listing 1 \(<a href="[^"]+">Complete Notebook<\/a>\)<\/strong><\/p>/);
   assert.doesNotMatch(html, /<h4>Listing 1/);

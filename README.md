@@ -43,32 +43,6 @@ git push
 
 线上地址：<https://gentang.github.io/>
 
-### 通知 IndexNow
-
-IndexNow 用于在内容新增、修改、删除或迁移后通知 Bing 等支持该协议的搜索引擎。首次使用先生成公开验证文件：
-
-```bash
-./scripts/indexnow.sh --init
-```
-
-脚本按 IndexNow 官方约定生成 `public/<Key>.txt`，其中**文件名（不含 `.txt`）与文件内容相同**。
-如果已经手工创建了这种 Key 文件，脚本会自动识别，无需再次运行 `--init`。将文件一并提交、推送，
-并等待 GitHub Pages 部署完成；确认 `https://gentang.github.io/<Key>.txt` 可以打开后，
-全站迁移或首次接入可执行一次：
-
-```bash
-./scripts/indexnow.sh --all
-```
-
-日常更新只提交真正发生变化的页面，并且要在 GitHub Pages 部署完成后执行：
-
-```bash
-./scripts/indexnow.sh /zh/blog/example/ /en/blog/example/
-```
-
-提交前可以用 `--dry-run` 检查 URL。`--all` 会读取 `out/sitemap.xml`，因此需要先运行
-`./scripts/publish.sh`。IndexNow 不替代 sitemap，也不会加快 Google 收录。
-
 ### 临时生成 Medium 导入页
 
 Medium 的网页导入对公式、WebP 图片和嵌套列表支持有限。下面的命令会在构建时生成专用的临时 HTML：本地图片只在 `out/medium-import/` 中转换为 PNG，块级公式转换为图片，原始 Markdown 和 `images/` 不会被修改。临时页不会出现在站内导航、RSS 或 sitemap 中，并带有 `noindex`；但 URL 是公开且可预测的，不是带密码的私有页面。
