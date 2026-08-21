@@ -1,14 +1,14 @@
 ---
 published: 2026-08-20
 updated: 2026-08-20
-summary: Using a two-token example, we show why KGW distorts the model distribution, derive the unbiasedness of SynthID, implement SynthID-Text and Weighted Mean detection, and compare the two methods through detection performance and `Delta NLL`.
+summary: Using a two-token example, we show why KGW distorts the model distribution, derive the non-distortion property of SynthID-Text, implement SynthID-Text and Weighted Mean detection, and compare the two methods through detection performance and `Delta NLL`.
 ---
 
 # Anthropic Is Adding Watermarks to Text Part 2: From Biased KGW to Unbiased SynthID-Text
 
 > **Key Takeaways / TL;DR**
 >
-> **Question**: Why does KGW distort the model's original probability distribution, and how does SynthID-Text produce a watermark that is unbiased in expectation?
+> **Question**: Why does KGW distort the model's original probability distribution, and how does SynthID-Text achieve single-token non-distortion—that is, remain unbiased in expectation?
 >
 > **Method**: Starting with a two-token example, we derive the probability transformations behind single- and multi-round Tournaments, implement SynthID-Text and a Weighted Mean detector from scratch, and compare them with KGW using the same data and generation settings.
 >
@@ -18,7 +18,7 @@ summary: Using a two-token example, we show why KGW distorts the model distribut
 
 ## What Does It Mean for KGW to Be Biased?
 
-In the [previous article](https://gentang.github.io/en/blog/watermarking_on_aigc/), we used KGW to explain how a watermark can be embedded while a large language model generates text, and how that watermark can later be recovered with a statistical test. KGW is one of the most representative text-watermarking algorithms. Its simple mechanism and intuitive detection rule make it an excellent starting point for understanding generative-text watermarks.
+In the [previous article](https://gentang.github.io/en/blog/watermarking_on_aigc/), we used KGW to explain how a watermark can be embedded while a large language model generates text, and how that watermark can later be detected with a statistical test. KGW is one of the most representative text-watermarking algorithms. Its simple mechanism and intuitive detection rule make it an excellent starting point for understanding generative-text watermarks.
 
 Anthropic later disclosed in an [official announcement](https://www.anthropic.com/news/claude-text-watermark) that Claude actually uses **a watermarking scheme based on Google DeepMind's SynthID-Text**, rather than KGW. Both approaches embed a statistical signal during token generation, but they differ in one crucial respect: KGW systematically changes the model's original next-token distribution, whereas SynthID-Text attempts to make those probability perturbations cancel out in expectation while preserving a detectable watermark signal.
 
@@ -53,7 +53,7 @@ The expected value, 0.8828, is clearly different from the original probability, 
 
 ### An Unbiased Tournament Example
 
-To obtain an unbiased watermark under the same probability setting, we can use a mechanism called a Tournament to select the final token. This is also the central idea behind unbiased watermarking algorithms such as Google SynthID.
+To obtain an unbiased watermark under the same probability setting, we can use a mechanism called a Tournament to select the final token. This is also the central idea behind non-distortionary watermarking algorithms such as SynthID-Text.
 
 **The rules are as follows:**
 
@@ -75,7 +75,7 @@ $$
 \mathbb{E}[p'(A)]=\frac{0.90+0.90+0.99+0.81}{4}=0.90
 $$
 
-The expected probability of A is now exactly its original probability, 0.9. We therefore call the Tournament algorithm **unbiased**. Although each individual generation step still distorts the distribution to embed a watermark, there is no distribution shift at the level of expectation, so the model continues to operate at its original optimum on average.
+The expected probability of A is now exactly its original probability, 0.9. The paper calls this property **single-token non-distortion**; informally, the algorithm is unbiased in expectation. Although each generation step still changes the distribution to embed a watermark, averaging over the watermark randomness recovers the model's original next-token distribution.
 
 ### Comparing the Watermark Signal Strengths
 
@@ -92,17 +92,17 @@ The following table compares the signal strengths of the two algorithms under th
 | **KGW** ($e^\delta=2$) | 50% | 56.46% | **+6.46** percentage points |
 | **One-round Tournament** | 50% | 54.50% | **+4.50** percentage points |
 
-The comparison reveals a fundamental design trade-off: **the Tournament algorithm is unbiased, but its watermark signal is inherently weaker than KGW's**. Practical systems therefore need an additional mechanism to amplify the Tournament signal.
+The comparison reveals a design trade-off in this two-token example with the specified boost factor: **the one-round Tournament is unbiased in expectation, but its watermark signal is weaker than KGW's**. Additional mechanisms, such as multiple Tournament rounds, can amplify the signal.
 
-## An Introduction to SynthID
+## An Introduction to SynthID-Text
 
-With the Tournament mechanism in place, we can now examine the core of Google SynthID. In short, SynthID is a multi-round Tournament.
+With the Tournament mechanism in place, we can now examine SynthID-Text. At its core is multilayer Tournament sampling.
 
-Why extend a single round to multiple rounds? The answer follows directly from the previous section: a one-round Tournament is unbiased, but its watermark signal is relatively weak. SynthID stacks multiple rounds to amplify that signal.
+Why extend a single round to multiple rounds? The preceding example provides the intuition: a one-round Tournament is unbiased in expectation, but its watermark signal is relatively weak. SynthID-Text stacks multiple rounds to amplify that signal.
 
-### The Probability-equivalent Form of a Tournament
+### An Equivalent Probability-Domain Formulation
 
-Before discussing multiple rounds, let us derive the probability-equivalent form of a single Tournament round.
+Before discussing multiple rounds, let us derive an equivalent probability-domain formulation for a single Tournament round.
 
 - Let the vocabulary size be $vs$, with model output distribution
 
@@ -179,7 +179,7 @@ torch.testing.assert_close(explicit_tournament(prob, g),
 
 ### The Core Multi-round Tournament Algorithm
 
-Once the one-round mechanism is clear, we can extend it to SynthID's multi-round Tournament. The system contains $m$ rounds and works as follows:
+Once the one-round mechanism is clear, we can extend it to SynthID-Text's multi-round Tournament. The system contains $m$ rounds and works as follows:
 
 1. **Select the initial contestants**: Independently sample $2^m$ tokens from the model's original distribution. Contestants face each other in pairs during each round; the winners advance until a single champion remains.
 
@@ -254,22 +254,20 @@ def update_logits(logits, g_values):
     return torch.where(torch.isfinite(log_probs), log_probs, torch.finfo(log_probs.dtype).min)
 ```
 
-### Implementation Detail: Balancing Pseudorandomness and Unbiasedness
+### Implementation Detail: Pseudorandomness and Sequence-Level Non-Distortion
 
-The multi-round Tournament is conceptually intuitive, but its engineering details hide a subtle challenge. Our argument has repeatedly relied on one key premise: **randomly generated** g-values.
+The multi-round Tournament is conceptually intuitive, but its implementation contains one important detail: how to generate the g-values.
 
-Computers, however, do not provide absolute randomness by themselves. To construct the required randomness during text generation, SynthID follows an approach similar to KGW and uses a pseudorandom number generator. More specifically, it concatenates the context preceding the current token, the current candidate token, and the current Tournament layer, hashes the result, and uses that value to generate the corresponding g-value.
+In practice, SynthID-Text uses keyed pseudorandom functions. A recent context window and the watermarking key determine a random seed; that seed is then combined with the candidate token and Tournament layer to generate the corresponding g-value. Viewed over the watermark randomness or key distribution, the g-values have the required random behavior. Once the key, context, candidate token, and layer are fixed, however, the result is deterministic.
 
-This creates a difficult tension. SynthID's central promise is **unbiasedness**, which requires the g-values for any token and Tournament layer to behave as random variables. Only under that assumption does the previous derivation remain valid.
+Consequently, if the model encounters exactly the same context window twice, it reuses the same random seed and applies the same directional bias to the candidate tokens. Repeatedly applying that bias can degrade text quality and break non-distortion at the sequence level.
 
-Hashing, however, is deterministic. If the model encounters exactly the same context twice during generation, the hash—and therefore the resulting g-values—will be identical. The g-values then collapse from random variables into fixed values. Without intervention, the algorithm would repeatedly resample from one particular modified distribution, breaking the balance in expectation and making an otherwise unbiased algorithm biased again.
+SynthID-Text addresses this problem with **repeated-context masking**:
 
-SynthID resolves this engineering problem with a simple fallback mechanism:
-
-- the **first** time a particular context appears, run the hash procedure normally and inject the watermark signal;
+- the **first** time a particular context appears, run the pseudorandom computation normally and inject the watermark signal;
 - if exactly the same context appears **again**, skip watermark injection and preserve the model's original output probabilities.
 
-This conditional fallback prevents repeated sampling from distorting the distribution.
+This mechanism prevents repeated bias from the same random seed and extends the non-distortion guarantee from individual tokens to sequences.
 
 The core logic can be implemented as follows:
 
@@ -318,9 +316,9 @@ class MinimalSynthID(LogitsProcessor):
 
 ### Watermark Detection and Layer Weighting
 
-Like KGW, SynthID detects its watermark through hypothesis testing.
+Like KGW, SynthID-Text detects its watermark through hypothesis testing.
 
-In naturally generated text without a watermark, the score $g$ of any token in every Tournament layer follows a Bernoulli distribution with parameter 0.5: $g=1$ and $g=0$ each occur with probability 50%. The most direct detection rule is therefore to average the g-values over every token and every Tournament layer, then test whether the result deviates significantly from the natural expectation of 50%.
+Under the usual unwatermarked null approximation, each token's score $g$ at each Tournament layer can be treated as Bernoulli with parameter 0.5: $g=1$ and $g=0$ each occur with probability 50%. The most direct detection rule is therefore to average the g-values over all tokens and Tournament layers, then test whether the result deviates significantly from the null expectation of 50%.
 
 Two implementation details are essential for high detection accuracy and robustness.
 
@@ -346,13 +344,19 @@ $$
 
 In other words, **shallower Tournament layers carry a stronger watermark signal** and should receive larger weights during detection.
 
-There is a useful statistical trick here. Under the unwatermarked null hypothesis, the Weighted Mean remains approximately normally distributed no matter how the layer weights are adjusted, and its standard deviation does not change dramatically. Under the watermarked hypothesis, however, assigning larger weights to shallower layers amplifies the signal's **statistical significance**, making detection easier.
+Under the usual null approximation, the Weighted Mean is approximately normal when the number of valid token positions is sufficiently large. Changing the layer weights also changes its null variance. If there are $T$ valid token positions, then
 
-Google proposes a practical, albeit coarse, weighting scheme based on an arithmetic sequence. For a nine-layer Tournament, for example, the weights from the first to the last layer are 10, 9, ..., 1.
+$$
+\operatorname{Var}(\bar g_w)=\frac{1}{4T}\frac{\sum_\ell w_\ell^2}{\left(\sum_\ell w_\ell\right)^2}
+$$
+
+The detector must therefore use the corresponding null variance when converting the Weighted Mean to a z-score or p-value. Under the watermarked hypothesis, assigning larger weights to shallower layers improves the signal-to-noise ratio and amplifies the signal's **statistical significance**.
+
+Google proposes a practical, albeit coarse, scheme in which the weights decrease linearly from 10 to 1. For a nine-layer Tournament, for example, `linspace(10, 1, 9)` produces nine weights.
 
 2. **Match the generation-time deduplication rule**
 
-As explained in the previous section, generation falls back to the original distribution whenever it encounters a repeated context, thereby preserving unbiasedness.
+As explained in the previous section, generation falls back to the original distribution whenever it encounters a repeated context, thereby preserving sequence-level non-distortion.
 
 The detector must follow exactly the same logic. While computing the final score, it tracks the context history and **excludes a token** whenever that token's context has already appeared.
 
@@ -419,9 +423,9 @@ class SynthIDWeightedMeanDetector:
 
 ## Evaluating the Algorithm
 
-To compare KGW and SynthID in practice, we use the same input data and generation settings to produce unwatermarked text, KGW-watermarked text, and SynthID-watermarked text.
+To compare KGW and SynthID-Text in practice, we use the same input data and generation settings to produce unwatermarked text, KGW-watermarked text, and SynthID-Text-watermarked text.
 
-In addition to `chrF`, `Semantic Cosine`, and `Length Ratio`, which were introduced earlier, we use `Delta NLL` to measure how much a watermark perturbs the model's original probability distribution.
+In addition to `chrF`, `Semantic Cosine`, and `Length Ratio`, which were introduced earlier, we use `Delta NLL` as an empirical proxy for how much a watermark perturbs the model's original probability distribution.
 
 For generated text $y=(y_1,\ldots,y_T)$, first compute its mean negative log-likelihood under the original, unwatermarked model:
 
@@ -441,37 +445,37 @@ $$
 
 where $y_{\mathrm{wm}}$ and $y_{\mathrm{base}}$ are the watermarked and unwatermarked outputs generated from the same input.
 
-The closer `Delta NLL` is to $0$, the closer the watermarked text remains to the unwatermarked text under the original model, and the smaller the perturbation introduced by watermarking. `Delta NLL` is usually positive in our experiments, so a smaller value generally indicates a lower probability cost.
+When aggregated over matched samples, a `Delta NLL` closer to $0$ means that the watermarked and unwatermarked outputs have more similar average negative log-likelihoods under the original model. As an empirical proxy, this generally suggests a smaller perturbation from watermarking. `Delta NLL` is usually positive in our experiments, so a smaller value generally indicates a lower average probability cost.
 
-Unlike the first three metrics, `Delta NLL` captures a distributional change that is not directly visible to a human reader. Even two texts that appear almost identical lexically and semantically can have noticeably different `Delta NLL` values.
+Unlike the first three metrics, `Delta NLL` reflects a probability change that is not directly visible to a human reader. Even two texts that appear almost identical lexically and semantically can have noticeably different average negative log-likelihoods under the original model.
 
 ![Figure 1 | 60%](./pic/p-1.webp)
 
-The figure shows only small differences between KGW and SynthID in `chrF`, `Semantic Cosine`, and `Length Ratio`, suggesting that their surface-level and semantic generation quality is similar.
+The figure shows only small differences between KGW and SynthID-Text in `chrF`, `Semantic Cosine`, and `Length Ratio`, suggesting that their surface-level and semantic generation quality is similar.
 
-Under the current experimental settings, however, SynthID has a lower `Delta NLL`. Its outputs therefore receive a higher average probability under the original model, suggesting that its watermarking mechanism perturbs the model's original generation distribution less than KGW does.
+Under the current experimental settings, however, SynthID-Text has a lower `Delta NLL`. Its outputs therefore have a higher average log-probability—or, equivalently, a lower mean NLL—under the original model, suggesting that its watermarking mechanism perturbs the model's original generation distribution less than KGW does.
 
-### Detection-score Distributions
+### Detection Score Distributions
 
 Next, we examine the detection-score distributions for different types of text.
 
-The overall pattern resembles KGW: scores for unwatermarked model text and human-written text roughly follow the theoretical null distribution, while the distribution shifts clearly after watermarking. This indicates that SynthID embeds a signal that the statistical detector can identify.
+The overall pattern resembles KGW: scores for unwatermarked model text and human-written text roughly follow the theoretical null distribution, while the distribution shifts clearly after watermarking. This indicates that SynthID-Text embeds a signal that the statistical detector can identify.
 
 ![Figure 2 | 90%](./pic/p-2.webp)
 
 We also average the g-values separately for each Tournament layer. As the layer index increases, the mean approaches the null-hypothesis expectation of $0.5$.
 
-### Watermark-detection Performance
+### Watermark Detection Performance
 
 Finally, we compare the detection performance of the two algorithms.
 
 ![Figure 3 | 70%](./pic/p-3.webp)
 
-Under the current experimental conditions, SynthID does not significantly outperform KGW in detection. Although its point estimates are slightly higher for some metrics or settings, a single experiment cannot tell us whether the difference comes from the algorithms themselves or from random sampling variation.
+Under the current experimental conditions, SynthID-Text does not clearly outperform KGW in detection. Although its point estimates are slightly higher for some metrics or settings, a single experiment cannot tell us whether the difference comes from the algorithms themselves or from random sampling variation.
 
 ## Conclusion
 
-Our experiments show that both KGW and SynthID can embed a detectable watermark signal in generated text. Their directly observable text-quality metrics are similar, but SynthID achieves a lower `Delta NLL` under the current configuration, suggesting less perturbation to the original model distribution.
+Our experiments show that both KGW and SynthID-Text can embed a detectable watermark signal in generated text. Their directly observable text-quality metrics are similar, but SynthID-Text achieves a lower `Delta NLL` under the current configuration, suggesting less perturbation to the original model distribution.
 
 A comprehensive comparison will require more systematic ablation studies. That will be the focus of the next article, including
 
@@ -501,4 +505,4 @@ A comprehensive comparison will require more systematic ablation studies. That w
     $$
     \mathbb E_g[p_i']=p_i\left(1+\mathbb E[g_i]-\mathbb E[q]\right)=p_i
     $$
-    A single generation step redistributes probability mass according to the g-values, but the original distribution is preserved on average. This is the mathematical source of SynthID's so-called unbiasedness.
+    A single generation step redistributes probability mass according to the g-values, but the original distribution is preserved on average. This is the mathematical source of SynthID-Text's single-token non-distortion property.
