@@ -22,6 +22,17 @@ async function html(route) {
   return readFile(exportedPage(route), "utf8");
 }
 
+async function blogTitle(language, slug) {
+  const source = await readFile(resolve("content", language, "blog", slug, `${slug}.md`), "utf8");
+  const title = source.match(/^#\s+(.+?)\s*$/m)?.[1]?.trim();
+  assert.ok(title, `Missing H1 title in ${language}/blog/${slug}`);
+  return title;
+}
+
+function exactPattern(value) {
+  return new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+}
+
 function expectedBookReferenceHref(label) {
   const chapter = label.match(/^第\s*(\d+)\s*章$/)?.[1];
   if (chapter) return `/books/deconstructing_LLM/chapter-${chapter}`;
@@ -57,6 +68,7 @@ function unlinkedBookReferences(source) {
 
 test("exports the homepage with local assets and the intended section order", async () => {
   const source = await html("/zh/");
+  const latestBlogTitle = await blogTitle("zh", "watermarking_on_aigc_2");
   assert.match(source, /<title>小胖笔记｜LLM技术笔记：模型架构、数据基础和工程实现<\/title>/);
   assert.ok(source.includes("《解构大语言模型》：从线性回归一路走向LLM；记录 AI、数学与智能系统的长期笔记。"));
   assert.match(source, /type="application\/ld\+json"/);
@@ -67,7 +79,7 @@ test("exports the homepage with local assets and the intended section order", as
   assert.match(source, /解构大语言模型/);
   assert.match(source.replaceAll("<!-- -->", ""), /全书已完成 · 13 章/);
   assert.doesNotMatch(source, /class="chapter-line"/);
-  assert.match(source, /Anthropic要给文本加水印 Part 2：从有偏的KGW到无偏的SynthID-Text/);
+  assert.match(source, exactPattern(latestBlogTitle));
   assert.match(source, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc_2/"`));
   assert.match(source, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc/"`));
   assert.match(source, /持续更新/);
@@ -90,15 +102,19 @@ test("exports the homepage with local assets and the intended section order", as
 
 test("keeps the English homepage structurally aligned with the Chinese homepage", async () => {
   const source = await html("/en/");
+  const [partOneTitle, partTwoTitle] = await Promise.all([
+    blogTitle("en", "watermarking_on_aigc"),
+    blogTitle("en", "watermarking_on_aigc_2"),
+  ]);
   assert.match(source, /<title>Xiaopang Notes \| LLM Technical Notes: Model Architectures, Data Foundations, and Engineering Implementation<\/title>/);
   assert.match(source, /If I ever prove the <em>Riemann Hypothesis<\/em>/);
   assert.match(source, /this page should have more room than the <em>margin<\/em>\./);
   assert.match(source, /Read the latest blog/);
   assert.match(source, /Deconstructing Large Language Models/);
   assert.match(source, /BOOK COMPLETE · 13 CHAPTERS/);
-  assert.match(source, /Anthropic Is Adding Watermarks to Text Part 2: From Biased KGW to Unbiased SynthID-Text/);
+  assert.match(source, exactPattern(partTwoTitle));
   assert.match(source, new RegExp(`href="${basePath}/en/blog/watermarking_on_aigc_2/"`));
-  assert.match(source, /Anthropic Is Adding Watermarks to Text Part 1: The Foundational Work—KGW/);
+  assert.match(source, exactPattern(partOneTitle));
   assert.match(source, new RegExp(`href="${basePath}/en/blog/watermarking_on_aigc/"`));
   assert.match(source, /OPEN TO WORK/);
   assert.match(source, /Open to LLM \/ AI Systems Engineer opportunities/);
@@ -133,10 +149,16 @@ test("exports aligned bilingual blog landing pages that match the homepage state
     html("/zh/blog"),
     html("/en/blog"),
   ]);
+  const [chinesePartOne, chinesePartTwo, englishPartOne, englishPartTwo] = await Promise.all([
+    blogTitle("zh", "watermarking_on_aigc"),
+    blogTitle("zh", "watermarking_on_aigc_2"),
+    blogTitle("en", "watermarking_on_aigc"),
+    blogTitle("en", "watermarking_on_aigc_2"),
+  ]);
 
   assert.match(chinese, /<h1>博客<\/h1>/);
-  assert.match(chinese, /Anthropic要给文本加水印 Part 2：从有偏的KGW到无偏的SynthID-Text/);
-  assert.match(chinese, /Anthropic要给文本加水印 Part 1：奠基之作——KGW/);
+  assert.match(chinese, exactPattern(chinesePartTwo));
+  assert.match(chinese, exactPattern(chinesePartOne));
   assert.match(chinese, /class="essay-row"/);
   assert.doesNotMatch(chinese, /class="essay-row is-disabled"|name="robots" content="noindex, follow"/);
   assert.match(chinese, new RegExp(`href="${basePath}/en/blog/"`));
@@ -144,8 +166,8 @@ test("exports aligned bilingual blog landing pages that match the homepage state
   assert.match(chinese, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc/"`));
 
   assert.match(english, /<h1>Blog<\/h1>/);
-  assert.match(english, /Anthropic Is Adding Watermarks to Text Part 2: From Biased KGW to Unbiased SynthID-Text/);
-  assert.match(english, /Anthropic Is Adding Watermarks to Text Part 1: The Foundational Work—KGW/);
+  assert.match(english, exactPattern(englishPartTwo));
+  assert.match(english, exactPattern(englishPartOne));
   assert.match(english, /class="essay-row"/);
   assert.doesNotMatch(english, /class="essay-row is-disabled"|name="robots" content="noindex, follow"/);
   assert.match(english, new RegExp(`href="${basePath}/zh/blog/"`));
@@ -289,6 +311,12 @@ test("uses explicit content dates and bidirectional language alternates", async 
 });
 
 test("exports every current reading route", async () => {
+  const [chinesePartOne, chinesePartTwo, englishPartOne, englishPartTwo] = await Promise.all([
+    blogTitle("zh", "watermarking_on_aigc"),
+    blogTitle("zh", "watermarking_on_aigc_2"),
+    blogTitle("en", "watermarking_on_aigc"),
+    blogTitle("en", "watermarking_on_aigc_2"),
+  ]);
   const routes = [
     ["/zh/books/deconstructing_LLM", /READING MAP/],
     ["/en/books/deconstructing_LLM", /Deconstructing Large Language Models/],
@@ -380,10 +408,10 @@ test("exports every current reading route", async () => {
     ["/en/books/deconstructing_LLM/chapter-1/1-2", /1.2 Data Foundation/],
     ["/en/books/deconstructing_LLM/chapter-1/1-3", /1.3 Model Architecture/],
     ["/en/books/deconstructing_LLM/chapter-1/1-4", /1.4 About This Book/],
-    ["/zh/blog/watermarking_on_aigc", /Anthropic要给文本加水印 Part 1：奠基之作——KGW/],
-    ["/zh/blog/watermarking_on_aigc_2", /Anthropic要给文本加水印 Part 2：从有偏的KGW到无偏的SynthID-Text/],
-    ["/en/blog/watermarking_on_aigc", /Anthropic Is Adding Watermarks to Text Part 1: The Foundational Work—KGW/],
-    ["/en/blog/watermarking_on_aigc_2", /Anthropic Is Adding Watermarks to Text Part 2: From Biased KGW to Unbiased SynthID-Text/],
+    ["/zh/blog/watermarking_on_aigc", exactPattern(chinesePartOne)],
+    ["/zh/blog/watermarking_on_aigc_2", exactPattern(chinesePartTwo)],
+    ["/en/blog/watermarking_on_aigc", exactPattern(englishPartOne)],
+    ["/en/blog/watermarking_on_aigc_2", exactPattern(englishPartTwo)],
   ];
 
   for (const [route, expected] of routes) {

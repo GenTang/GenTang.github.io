@@ -36,6 +36,10 @@ export function getBlogMarkdownMetadata(lang: "zh" | "en", href: string) {
   return getMarkdownMetadata(getBlogMarkdownPath(lang, href));
 }
 
+export function getBlogMarkdownTitle(lang: "zh" | "en", href: string) {
+  return getMarkdownTitle(getMarkdownContent(getBlogMarkdownPath(lang, href)));
+}
+
 export function getBlogImages(lang: "zh" | "en", slug: string) {
   return blogImagesByLanguage[lang]?.[slug] ?? {};
 }

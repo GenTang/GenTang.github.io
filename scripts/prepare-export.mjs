@@ -138,10 +138,11 @@ async function blogEntries() {
 
       const document = parseContentDocument(source, path);
       const dates = effectiveContentDates(document.metadata);
+      const title = headingTitle(document.content, post.title);
       return {
         route: post.href,
-        title: post.title,
-        summary: document.metadata.summary || section.sectionDescription || post.title,
+        title,
+        summary: document.metadata.summary || section.sectionDescription || title,
         ...dates,
       };
     }));
