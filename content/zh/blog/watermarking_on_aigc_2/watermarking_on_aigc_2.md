@@ -12,10 +12,10 @@ summary: 从两个token的例子解释KGW为何会扭曲模型分布，再推导
 > **问题**：KGW为什么会扭曲模型的原始概率分布？SynthID-Text又如何实现单词元非失真，即期望意义下的无偏？
 >
 > **方法**：从两个token的例子出发，推导单轮及多轮Tournament的概率变换，从零实现SynthID-Text与Weighted Mean检测器，并在相同数据和生成配置下与KGW进行比较。
+> 
+> **结论**：SynthID-Text在期望意义下保持模型原始分布；实验中，其生成质量与KGW接近，`Delta NLL`更低。但它与KGW仍然遵循相似的统计水印原理，因此截断、翻译和模型改写等规避方法依然有效。
 >
-> **结论**：SynthID-Text在期望意义下保持模型原始分布；实验中，其生成质量与KGW接近，`Delta NLL`更低。
->
-> 配套资源：[完整 Notebook（代码、数据与实验结果）](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc_2/code/synthid_weighted_mean_from_scratch.ipynb)
+> 配套资源：[完整 Notebook（代码、数据与实验结果）](https://github.com/GenTang/GenTang.github.io/blob/main/content/zh/blog/watermarking_on_aigc_2/code/synthid_weighted_mean_from_scratch.ipynb) 
 
 ## 如何理解KGW算法是有偏的？
 
@@ -472,17 +472,38 @@ $$
 
 从当前结果来看，在相同实验条件下，SynthID-Text的检测效果并未明显超过KGW。虽然SynthID-Text在部分指标或实验设置中的点估计略高，但仅凭单次实验还无法判断这种差异来自算法本身，还是随机采样造成的波动。
 
+
+### 水印的攻击与规避
+
+虽然SynthID-Text在算法实现上比KGW复杂，但二者的基本原理其实非常接近：它们都会根据当前上下文生成一组伪随机信号，在模型生成token的过程中改变其采样概率，最后再从整段文本中寻找累积的统计偏差。因此，SynthID-Text的非失真性质并没有从根本上改变水印的攻防逻辑：上一篇文章中针对KGW讨论的规避方法，大多同样适用于SynthID-Text。
+
+不同规避方法的预期效果可以简单总结如下：
+
+| 规避方法 | 预期效果 | 主要原因 |
+| :---: | :---: | :--- |
+| 截断文本 | 较弱到中等 | 减少检测器能够利用的有效token数量，使统计结果更加不稳定 |
+| 少量插入、删除或替换 | 较弱到中等 | 破坏局部token及其附近n-gram的水印信号，但通常不会消除全文中的信号 |
+| 调整语序或修改部分句子 | 中等 | 同时改变多个token及其上下文，使一部分原始水印信号失效 |
+| 混入无水印文本 | 中等到较强 | 稀释水印文本在整体检测统计量中所占的比例 |
+| 翻译或回译 | 较强 | 大范围改变原文的措辞、语序和token序列 |
+| 使用大语言模型复述或改写 | 较强 | 在保留主要语义的同时，重新生成大部分token及其上下文 |
+
+需要强调的是，上表中的强弱只是定性判断，并不是本文实验直接测量得到的结果。实际效果还会受到文本长度、水印强度、改写幅度和检测阈值等因素的影响。
+
+在现实场景中，最容易实施、同时通常也最有效的方式，是直接让另一个大语言模型对原文进行复述或改写。攻击者不需要知道水印密钥、哈希函数或检测器参数，只需要给出类似“在不改变含义的前提下重新表达这段文字”的指令，就可以大范围改变原文的token及其上下文。改写后的文本可能与原文保持很高的语义相似度，但其中原有的统计水印信号已经被显著削弱。
+
+Google公开的实验也呈现出了类似的结果：SynthID-Text对文本裁剪、少量词语修改和轻度释义具有一定的鲁棒性，但彻底改写或翻译仍可能显著降低检测置信度[^3]。换言之，SynthID-Text提高了水印嵌入过程的非失真性质，但并没有将水印变成一种无法删除的数字签名。
+
+
 ## 结论
 
-当前实验表明，KGW与SynthID-Text都能够在生成文本中嵌入可检测的水印信号。二者在可直接观察的文本质量指标上差异不大，但SynthID-Text在当前配置下表现出了更低的`Delta NLL`，说明其对原始模型分布的扰动更小。
+当前实验表明，KGW与SynthID-Text都能够在生成文本中嵌入可检测的水印信号。二者在可直接观察的文本质量指标上差异不大，但SynthID-Text在当前配置下表现出了更低的`Delta NLL`，说明其对原始模型分布的扰动相对更小。
 
-不过，要全面比较两种算法的优劣，还需要进行更加系统的消融实验。这也将是下一篇文章的主要内容，具体包括：
+从算法设计上看，SynthID-Text最重要的改进并不是让水印更难被移除，而是通过多轮Tournament，使水印对模型概率分布造成的扰动能够在期望意义下相互抵消。这里的“无偏”描述的是水印对生成分布的影响，并不代表它天然具有更强的抗攻击能力。
 
-- 在不同水印强度下，比较检测效果与生成质量之间的权衡；
-- 在相同`Delta NLL`或文本质量约束下进行公平比较；
-- 比较两种算法在不同语言上的检测效果；
-- 测试两种水印面对改写、翻译、截断和重采样等规避方法时的鲁棒性；
+事实上，SynthID-Text与KGW仍然遵循相似的统计水印原理。因此，截断、局部编辑、文本混合、翻译以及模型改写等规避方法，对二者大多都有效。其中，直接让另一个大语言模型复述或改写原文，是现实中最容易实施、同时也最可能显著削弱水印的方法。
 
+因此，SynthID-Text的主要优势体现在更小的分布失真，而不是绝对的抗规避能力。无论采用KGW还是SynthID-Text，文本水印都更适合作为一种辅助性的统计证据，而不应被单独视为判断文本来源的最终依据。
 
 [^1]: 为了更直观地理解，我们可以详细拆解第一种情况（分数均为 0，即平局）的计算过程：
 
@@ -506,3 +527,5 @@ $$
     \mathbb E_g[p_i']=p_i\left(1+\mathbb E[g_i]-\mathbb E[q]\right)=p_i
     $$
     也就是说，单次生成中算法会根据$g$-value重新分配概率质量，但在平均意义下，原始概率分布保持不变。这正是SynthID-Text单词元非失真性质的数学来源。
+    
+[^3]: Google DeepMind, [Watermarking AI-generated text and video with SynthID](https://deepmind.google/blog/watermarking-ai-generated-text-and-video-with-synthid/); Dathathri et al., [Scalable watermarking for identifying large language model outputs](https://www.nature.com/articles/s41586-024-08025-4), *Nature*, 2024.

@@ -12,7 +12,7 @@ summary: Using a two-token example, we show why KGW distorts the model distribut
 >
 > **Method**: Starting with a two-token example, we derive the probability transformations behind single- and multi-round Tournaments, implement SynthID-Text and a Weighted Mean detector from scratch, and compare them with KGW using the same data and generation settings.
 >
-> **Conclusion**: SynthID-Text preserves the model's original distribution in expectation. In our experiments, its generation quality is comparable to KGW while its `Delta NLL` is lower.
+> **Conclusion**: SynthID-Text preserves the model's original distribution in expectation. In our experiments, its generation quality is comparable to KGW while its `Delta NLL` is lower. However, it still follows the same basic statistical-watermarking principle as KGW, so evasion methods such as truncation, translation, and model-based rewriting remain effective.
 >
 > Companion resource: [Complete Notebook (code, data, and experimental results)](https://github.com/GenTang/GenTang.github.io/blob/main/content/en/blog/watermarking_on_aigc_2/code/synthid_weighted_mean_from_scratch.ipynb)
 
@@ -473,16 +473,38 @@ Finally, we compare the detection performance of the two algorithms.
 
 Under the current experimental conditions, SynthID-Text does not clearly outperform KGW in detection. Although its point estimates are slightly higher for some metrics or settings, a single experiment cannot tell us whether the difference comes from the algorithms themselves or from random sampling variation.
 
+## Attacks and Evasion
+
+Although SynthID-Text is more complex to implement than KGW, the basic principles behind the two algorithms are quite similar. Both derive a pseudorandom signal from the current context, use that signal to alter token-sampling probabilities, and then look for the accumulated statistical bias across the resulting text.
+
+KGW steers token sampling with a green list, whereas SynthID-Text redistributes candidate-token probabilities through multiple Tournament rounds. The two algorithms construct their watermark signals differently, but both distribute those signals across a sequence of tokens and their contexts. SynthID-Text's non-distortion property therefore does not fundamentally change the logic of watermark attacks and evasion: most of the methods discussed for KGW in the previous article also apply to SynthID-Text.
+
+The expected effects of common evasion methods can be summarized as follows:
+
+| Evasion method | Expected effect | Main reason |
+| :---: | :---: | :--- |
+| Text truncation | Weak to moderate | Reduces the number of valid tokens available to the detector, making the statistic less stable |
+| A small number of insertions, deletions, or substitutions | Weak to moderate | Disrupts the watermark signal for local tokens and nearby n-grams, but usually leaves the signal elsewhere in the text intact |
+| Reordering or rewriting some sentences | Moderate | Changes multiple tokens and their contexts, invalidating part of the original watermark signal |
+| Mixing in unwatermarked text | Moderate to strong | Dilutes the contribution of the watermarked portion to the overall detection statistic |
+| Translation or back-translation | Strong | Changes wording, sentence structure, and token sequences across much of the text |
+| LLM-based paraphrasing or rewriting | Strong | Regenerates most tokens and their contexts while largely preserving the original meaning |
+
+The ratings in this table are qualitative rather than direct measurements from the experiments in this article. Actual effectiveness also depends on factors such as text length, watermark strength, the extent of rewriting, and the detection threshold. Replacing only a few words in a long watermarked passage, for example, is usually not enough to erase the watermark entirely. For a short passage, however, even a small deletion or edit may substantially reduce detection confidence.
+
+In practice, the most realistic—and usually one of the most effective—approaches is simply to ask another large language model to paraphrase or rewrite the text. An attacker does not need to know the watermark key, hash function, or detector parameters. A prompt such as “Rewrite this passage without changing its meaning” can alter a large proportion of the original tokens and their contexts. The rewritten text may remain semantically very close to the original while carrying a substantially weaker version of the original statistical watermark signal.
+
+Google's published experiments show a similar pattern: SynthID-Text retains some robustness against cropping, a small number of word changes, and mild paraphrasing, while thorough rewriting or translation can substantially reduce detection confidence.[^3] In other words, SynthID-Text improves the non-distortion properties of watermark embedding, but it does not turn a watermark into an indelible digital signature.
+
 ## Conclusion
 
 Our experiments show that both KGW and SynthID-Text can embed a detectable watermark signal in generated text. Their directly observable text-quality metrics are similar, but SynthID-Text achieves a lower `Delta NLL` under the current configuration, suggesting less perturbation to the original model distribution.
 
-A comprehensive comparison will require more systematic ablation studies. That will be the focus of the next article, including
+From an algorithm-design perspective, SynthID-Text's most important improvement is not that it makes the watermark harder to remove. Rather, its multi-round Tournament allows the probability perturbations introduced by watermarking to cancel out in expectation. Here, “unbiased” describes the watermark's effect on the generation distribution; it does not imply inherently stronger resistance to attacks.
 
-- comparing the trade-off between detection performance and generation quality at different watermark strengths;
-- making fair comparisons under the same `Delta NLL` or text-quality constraint;
-- comparing detection performance across languages;
-- testing robustness against evasion methods such as paraphrasing, translation, truncation, and resampling.
+In fact, SynthID-Text and KGW still follow similar statistical-watermarking principles. Evasion methods such as truncation, local editing, mixing text, translation, and model-based rewriting therefore remain applicable to both. Among them, asking another large language model to paraphrase or rewrite the original text is the most practical approach and one of the most likely to weaken the watermark substantially.
+
+SynthID-Text's main advantage, then, is lower distributional distortion rather than absolute resistance to evasion. Whether a system uses KGW or SynthID-Text, a text watermark is best treated as supporting statistical evidence—not as conclusive proof of a text's origin.
 
 [^1]: To make the first case—both scores are 0, so every match is a tie—more concrete, we can break it down as follows:
 
@@ -506,3 +528,5 @@ A comprehensive comparison will require more systematic ablation studies. That w
     \mathbb E_g[p_i']=p_i\left(1+\mathbb E[g_i]-\mathbb E[q]\right)=p_i
     $$
     A single generation step redistributes probability mass according to the g-values, but the original distribution is preserved on average. This is the mathematical source of SynthID-Text's single-token non-distortion property.
+
+[^3]: Google DeepMind, [Watermarking AI-generated text and video with SynthID](https://deepmind.google/blog/watermarking-ai-generated-text-and-video-with-synthid/); Dathathri et al., [Scalable watermarking for identifying large language model outputs](https://www.nature.com/articles/s41586-024-08025-4), *Nature*, 2024.
