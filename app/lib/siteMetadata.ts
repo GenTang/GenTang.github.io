@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { sitePath } from "./sitePath";
 
 export const siteName = "小胖笔记";
+export const englishSiteName = "Xiaopang Notes";
 export const homeTitle = "小胖笔记｜LLM技术笔记：模型架构、数据基础和工程实现";
 export const siteDescription = "《解构大语言模型》：从线性回归一路走向LLM；记录 AI、数学与智能系统的长期笔记。";
 export const englishHomeTitle = "Xiaopang Notes | LLM Technical Notes: Model Architectures, Data Foundations, and Engineering Implementation";
@@ -41,6 +42,7 @@ export function createPageMetadata({
 }: PageMetadataOptions): Metadata {
   const canonical = absoluteSiteUrl(path);
   const image = absoluteSiteUrl("/og.png");
+  const localizedSiteName = locale === "en_US" ? englishSiteName : siteName;
   const languages = alternatePath
     ? locale === "zh_CN"
       ? { "zh-CN": canonical, en: absoluteSiteUrl(alternatePath), "x-default": canonical }
@@ -52,25 +54,25 @@ export function createPageMetadata({
         title,
         description,
         url: canonical,
-        siteName,
+        siteName: localizedSiteName,
         type: "article" as const,
         locale,
         publishedTime,
         modifiedTime,
-        images: [{ url: image, width: 1728, height: 910, alt: `${title} · ${siteName}` }],
+        images: [{ url: image, width: 1728, height: 910, alt: `${title} · ${localizedSiteName}` }],
       }
     : {
         title,
         description,
         url: canonical,
-        siteName,
+        siteName: localizedSiteName,
         type: "website" as const,
         locale,
-        images: [{ url: image, width: 1728, height: 910, alt: `${title} · ${siteName}` }],
+        images: [{ url: image, width: 1728, height: 910, alt: `${title} · ${localizedSiteName}` }],
       };
 
   return {
-    title,
+    title: locale === "en_US" ? { absolute: `${title} · ${englishSiteName}` } : title,
     description,
     keywords,
     alternates: {

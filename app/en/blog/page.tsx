@@ -4,7 +4,7 @@ import { BlogIndexPage } from "@/app/components/BlogIndexPage";
 import { createPageMetadata } from "@/app/lib/siteMetadata";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Blog",
+  title: "AI Engineering Blog: LLMs, Watermarking, and Model Implementation",
   description: enContent.essay.sectionDescription,
   path: "/en/blog",
   alternatePath: "/zh/blog",

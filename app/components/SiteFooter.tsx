@@ -6,7 +6,7 @@ export function SiteFooter({ lang }: { lang: "zh" | "en" }) {
   return (
     <footer className="site-footer">
       <div>
-        <strong>小胖笔记</strong>
+        <strong>{isZh ? "小胖笔记" : "Xiaopang Notes"}</strong>
         <p>{isZh ? "把复杂的问题想清楚，再慢慢写下来。" : "Think through hard questions, then write them down slowly."}</p>
       </div>
       <div className="footer-meta">

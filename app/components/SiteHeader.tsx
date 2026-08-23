@@ -19,6 +19,9 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
   const labels = lang === "zh"
     ? { home: "首页", book: "书籍", blog: "博客", about: "关于", contact: "联系作者", search: "搜索", lang: "EN", theme: "切换深色模式", menu: "打开导航", closeMenu: "关闭导航" }
     : { home: "Home", book: "Book", blog: "Blog", about: "About", contact: "Contact", search: "Search", lang: "中文", theme: "Toggle dark mode", menu: "Open navigation", closeMenu: "Close navigation" };
+  const brand = lang === "zh"
+    ? { mark: "胖", title: "小胖笔记", descriptor: "XIAOPANG NOTES" }
+    : { mark: "XN", title: "Xiaopang Notes", descriptor: "AI · MATH · SYSTEMS" };
 
   useEffect(() => {
     const saved = window.localStorage.getItem("xp-theme");
@@ -45,10 +48,10 @@ export function SiteHeader({ lang, active = "home", languageHref }: SiteHeaderPr
       </a>
       <header className="site-header">
         <a className="site-brand" href={sitePath(`${prefix}/`)} aria-label={lang === "zh" ? "小胖笔记首页" : "Xiaopang Notes home"}>
-          <span className="brand-mark">胖</span>
+          <span className={`brand-mark ${lang === "en" ? "brand-mark-en" : ""}`}>{brand.mark}</span>
           <span className="brand-copy">
-            <strong>小胖笔记</strong>
-            <small>XIAOPANG NOTES</small>
+            <strong>{brand.title}</strong>
+            <small>{brand.descriptor}</small>
           </span>
         </a>
 

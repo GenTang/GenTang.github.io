@@ -186,6 +186,13 @@ a {
   font-size: 20px;
 }
 
+.brand-mark-en {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+}
+
 .brand-copy {
   display: grid;
   gap: 1px;

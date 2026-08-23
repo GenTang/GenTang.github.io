@@ -4,7 +4,7 @@ import { BlogIndexPage } from "@/app/components/BlogIndexPage";
 import { createPageMetadata } from "@/app/lib/siteMetadata";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "博客",
+  title: "AI 技术博客：LLM、文本水印与模型实现",
   description: zhContent.essay.sectionDescription,
   path: "/zh/blog",
   alternatePath: "/en/blog",

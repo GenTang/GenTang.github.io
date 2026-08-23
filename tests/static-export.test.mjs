@@ -117,6 +117,9 @@ test("keeps the English homepage structurally aligned with the Chinese homepage"
     blogTitle("en", "watermarking_on_aigc_2"),
   ]);
   assert.match(source, /<title>Xiaopang Notes \| LLM Technical Notes: Model Architectures, Data Foundations, and Engineering Implementation<\/title>/);
+  assert.match(source, /class="brand-mark brand-mark-en">XN<\/span>/);
+  assert.match(source, /<strong>Xiaopang Notes<\/strong><small>AI · MATH · SYSTEMS<\/small>/);
+  assert.doesNotMatch(source, /class="brand-mark">胖<\/span>/);
   assert.match(source, /If I ever prove the <em>Riemann Hypothesis<\/em>/);
   assert.match(source, /this page should have more room than the <em>margin<\/em>\./);
   assert.match(source, /Read the latest blog/);
@@ -167,6 +170,8 @@ test("exports aligned bilingual blog landing pages that match the homepage state
   ]);
 
   assert.match(chinese, /<h1>博客<\/h1>/);
+  assert.match(chinese, /<title>AI 技术博客：LLM、文本水印与模型实现 · 小胖笔记<\/title>/);
+  assert.match(chinese, /<meta name="description" content="小胖笔记的人工智能技术文章，围绕大语言模型、文本水印、统计检测与模型实现/);
   assert.match(chinese, exactPattern(chinesePartTwo));
   assert.match(chinese, exactPattern(chinesePartOne));
   assert.match(chinese, /class="essay-row"/);
@@ -176,6 +181,10 @@ test("exports aligned bilingual blog landing pages that match the homepage state
   assert.match(chinese, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc/"`));
 
   assert.match(english, /<h1>Blog<\/h1>/);
+  assert.match(english, /<title>AI Engineering Blog: LLMs, Watermarking, and Model Implementation · Xiaopang Notes<\/title>/);
+  assert.match(english, /<meta name="description" content="Technical essays on LLMs, text watermarking, statistical detection, and model implementation/);
+  assert.match(english, /class="brand-mark brand-mark-en">XN<\/span>/);
+  assert.doesNotMatch(english, /class="brand-mark">胖<\/span>/);
   assert.match(english, exactPattern(englishPartTwo));
   assert.match(english, exactPattern(englishPartOne));
   assert.match(english, /class="essay-row"/);

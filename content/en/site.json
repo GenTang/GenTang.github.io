@@ -36,7 +36,7 @@
   "essay": {
     "sectionLabel": "BLOG",
     "sectionTitle": "Blog",
-    "sectionDescription": "",
+    "sectionDescription": "Technical essays on LLMs, text watermarking, statistical detection, and model implementation, with derivations, reproducible experiments, Python code, and notebooks.",
     "posts": [
       {
         "date": "2026-08-20",
