@@ -25,7 +25,7 @@ topic: TOKENIZATION
 
 To a user, a large language model appears to do something simple: take in text and return text. Underneath that interface, however, several engineering components work together. Before the model can process an input, a tokenizer splits the text into tokens and maps each token to a numeric ID—its position in the vocabulary. At every generation step, the model predicts a probability distribution over that vocabulary for the next token.
 
-Tokens are therefore the basic units through which a model reads and writes the world, and the tokenizer can materially affect model behavior. Consider an extreme example. Suppose a vocabulary contains only three tokens: `我想` (“I want”), `想要` (“want”), and `你` (“you”). The model can produce `你想要` (“you want”), but it cannot produce `我想要` (“I want”) exactly from those units.
+Tokens are therefore the basic units through which a model reads and writes the world, and the tokenizer can materially affect model behavior. Consider an extreme example. Suppose a vocabulary contains only three tokens: `I want`, `want to eat`, and `you`. The model can produce `you want to eat`, but it cannot produce `I want to eat` exactly from those units.
 
 A more concrete example is decimal comparison. GPT-4-era models often struggled with questions such as “Which is larger, 9.11 or 9.8?” One factor that can make this task harder is irregular number segmentation—for example, splitting 9.11 into `9` + `.` + `11`, but 9.8 into `9` + `.` + `8`. Such representations can encourage the wrong shortcut: because 11 is greater than 8, the model may incorrectly conclude that 9.11 is greater than 9.8. A tokenizer may look like a minor implementation detail, but it can shape the representation on which the model must reason.
 
