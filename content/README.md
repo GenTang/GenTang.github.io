@@ -40,7 +40,29 @@ NEXT_PUBLIC_GISCUS_CATEGORY_ID=DIC_kwDOTyPYts4DDMt3
 - 第一章小节：`content/zh/books/deconstructing_LLM/chapter_1/1_1.md` 等
 - 英文书稿目录：`content/en/books/deconstructing_LLM/`，目录结构与中文版本一致；英文全书总览为该目录下的 `overview.md`
 - 中文博客：`content/zh/blog/<slug>/<slug>.md`，文章图片放在同目录的 `pic/` 中
-- 英文博客：`content/en/blog/ai-as-collaborator.md`
+- 英文博客：`content/en/blog/<slug>/<slug>.md`，结构与中文版一致
+
+新增博客只需要建立正文和资源目录，不需要修改 `site.json` 或新增 `page.tsx`。例如：
+
+```text
+content/zh/blog/my-new-post/
+├── my-new-post.md
+└── pic/
+    └── figure-1.webp
+```
+
+Markdown 的一级标题会成为页面标题，目录名会成为 URL：`/zh/blog/my-new-post/`。建议在文件开头填写：
+
+```yaml
+---
+published: 2026-08-27
+updated: 2026-08-27
+summary: 一句话说明文章讨论的问题、方法和结论。
+topic: LLM
+---
+```
+
+`topic` 可省略；未填写时会显示“技术文章”或 `TECHNICAL ESSAY`。尚未准备公开的文章可增加 `draft: true`，它不会进入列表、正文路由、搜索、RSS 或 sitemap。开发服务运行时，保存文件后会自动发现文章并刷新；正式发布时，构建脚本会重新生成全部内容索引。
 
 Markdown 支持标题、列表、引用、表格、代码高亮和数学公式。行内公式写作 `$E=mc^2$`，独立公式使用一对 `$$` 包裹。
 

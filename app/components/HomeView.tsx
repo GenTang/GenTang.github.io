@@ -3,7 +3,7 @@ import enContent from "@/content/en/site.json";
 import zhContent from "@/content/zh/site.json";
 import { getDeconstructingLlmNavigation } from "@/app/lib/deconstructingLlmContent";
 import { sitePath } from "@/app/lib/sitePath";
-import { getBlogMarkdownMetadata, getBlogMarkdownTitle } from "@/app/lib/content";
+import { getBlogPosts } from "@/app/lib/content";
 import { BlogStatus } from "./BlogStatus";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
@@ -19,11 +19,7 @@ function highlightedTitle(line: string) {
 export function HomeView({ lang }: { lang: "zh" | "en" }) {
   const content = lang === "en" ? enContent : zhContent;
   const { hero, book } = content;
-  const posts = content.essay.posts.slice(0, 3).map((post) => {
-    const blogDates = getBlogMarkdownMetadata(lang, post.href);
-    const title = getBlogMarkdownTitle(lang, post.href);
-    return { ...post, date: blogDates.published ?? post.date, title: title || post.title };
-  });
+  const posts = getBlogPosts(lang).slice(0, 3);
   const essay = {
     ...content.essay,
     posts,

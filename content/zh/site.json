@@ -36,22 +36,6 @@
   "essay": {
     "sectionLabel": "BLOG",
     "sectionTitle": "博客",
-    "sectionDescription": "小胖笔记的人工智能技术文章，围绕大语言模型、文本水印、统计检测与模型实现，结合数学推导、可复现实验、Python 代码和完整 Notebook 解释算法原理。",
-    "posts": [
-      {
-        "date": "2026-08-20",
-        "title": "Anthropic要给文本加水印 Part 2：从有偏的KGW到无偏的SynthID-Text",
-        "topic": "LLM WATERMARKING",
-        "href": "/zh/blog/watermarking_on_aigc_2",
-        "available": true
-      },
-      {
-        "date": "2026-08-17",
-        "title": "Anthropic要给文本加水印 Part 1：奠基之作——KGW",
-        "topic": "LLM WATERMARKING",
-        "href": "/zh/blog/watermarking_on_aigc",
-        "available": true
-      }
-    ]
+    "sectionDescription": "小胖笔记的人工智能技术文章，围绕大语言模型、文本水印、统计检测与模型实现，结合数学推导、可复现实验、Python 代码和完整 Notebook 解释算法原理。"
   }
 }

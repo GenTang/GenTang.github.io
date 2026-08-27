@@ -2,13 +2,16 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { effectiveContentDates, parseContentDocument } from "./lib/content-metadata.mjs";
-import { generateConfiguredMediumImport } from "./medium-import.mjs";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputRoot = join(projectRoot, "out");
 const bookRoots = {
   zh: join(projectRoot, "content", "zh", "books", "deconstructing_LLM"),
   en: join(projectRoot, "content", "en", "books", "deconstructing_LLM"),
+};
+const blogRoots = {
+  zh: join(projectRoot, "content", "zh", "blog"),
+  en: join(projectRoot, "content", "en", "blog"),
 };
 const defaultSiteUrl = "https://gentang.github.io/";
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || defaultSiteUrl;
@@ -113,39 +116,43 @@ async function overviewEntries() {
 
 async function blogEntries() {
   const entriesByLanguage = await Promise.all(["zh", "en"].map(async (language) => {
-    const siteConfig = JSON.parse(await readFile(join(projectRoot, "content", language, "site.json"), "utf8"));
-    const section = siteConfig.essay;
-    const posts = section?.posts?.filter((post) => post.available) ?? [];
-
-    return Promise.all(posts.map(async (post) => {
-      const relativePath = post.href.replace(new RegExp(`^/${language}/blog/`), "");
-      const candidates = [
-        join(projectRoot, "content", language, "blog", `${relativePath}.md`),
-        join(projectRoot, "content", language, "blog", relativePath, `${relativePath}.md`),
-      ];
-      let path;
-      let source;
-      for (const candidate of candidates) {
-        try {
-          source = await readFile(candidate, "utf8");
-          path = candidate;
-          break;
-        } catch (error) {
-          if (error?.code !== "ENOENT") throw error;
-        }
+    const blogRoot = blogRoots[language];
+    const directoryEntries = await readdir(blogRoot, { withFileTypes: true });
+    const candidates = directoryEntries.flatMap((entry) => {
+      if (entry.isFile() && extname(entry.name).toLowerCase() === ".md") {
+        return [{ slug: entry.name.replace(/\.md$/i, ""), path: join(blogRoot, entry.name) }];
       }
-      if (!path || !source) throw new Error(`找不到博客正文：${relativePath}`);
+      if (entry.isDirectory()) {
+        return [{ slug: entry.name, path: join(blogRoot, entry.name, `${entry.name}.md`) }];
+      }
+      return [];
+    });
+    const entries = [];
 
-      const document = parseContentDocument(source, path);
+    for (const candidate of candidates) {
+      let source;
+      try {
+        source = await readFile(candidate.path, "utf8");
+      } catch (error) {
+        if (error?.code === "ENOENT") continue;
+        throw error;
+      }
+
+      const document = parseContentDocument(source, candidate.path);
+      if (document.metadata.draft?.toLowerCase() === "true") continue;
       const dates = effectiveContentDates(document.metadata);
-      const title = headingTitle(document.content, post.title);
-      return {
-        route: post.href,
+      const title = headingTitle(document.content, candidate.slug.replaceAll(/[-_]/g, " "));
+      entries.push({
+        route: `/${language}/blog/${candidate.slug}`,
         title,
-        summary: document.metadata.summary || section.sectionDescription || title,
+        summary: document.metadata.summary || title,
         ...dates,
-      };
-    }));
+      });
+    }
+
+    return entries.sort((left, right) =>
+      (right.published ?? right.updated ?? "").localeCompare(left.published ?? left.updated ?? ""),
+    );
   }));
 
   return entriesByLanguage.flat();
@@ -299,20 +306,13 @@ export async function prepareExport() {
     ...feedEntries,
     ...await bookEntries("en"),
   ];
-  const [, , , , mediumImports] = await Promise.all([
+  await Promise.all([
     writeFile(join(outputRoot, ".nojekyll"), "", "utf8"),
     writeCrawlerFiles(crawlerEntries, overviews),
     writeFeeds(feedEntries),
     markEnglishPages(),
-    generateConfiguredMediumImport(),
   ]);
-  const mediumMessage = mediumImports?.length ? `，${mediumImports.length} 篇 Medium 临时导入页` : "";
-  console.log(`静态站点已生成到 out/，包含 ${feedEntries.length} 个订阅条目${mediumMessage}。\n`);
-  if (mediumImports?.length) {
-    console.log("本次构建的 Medium 临时导入地址：");
-    for (const page of mediumImports) console.log(page.importUrl);
-    console.log("");
-  }
+  console.log(`静态站点已生成到 out/，包含 ${feedEntries.length} 个订阅条目。\n`);
 }
 
 const invokedDirectly = process.argv[1]

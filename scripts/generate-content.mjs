@@ -96,13 +96,92 @@ function markdownPlainText(source) {
     .trim();
 }
 
+function canonicalBlogIdentity(key) {
+  const match = key.match(/^\/content\/(zh|en)\/blog\/(.+)\.md$/);
+  if (!match) return;
+
+  const [, language, relativePath] = match;
+  const parts = relativePath.split("/");
+  const slug = parts.length === 1
+    ? parts[0]
+    : parts.length === 2 && parts[0] === parts[1]
+      ? parts[0]
+      : undefined;
+  if (!slug) return;
+
+  return {
+    language,
+    slug,
+    href: `/${language}/blog/${slug}`,
+    contentPath: key,
+  };
+}
+
+function markdownDescription(source, fallback) {
+  const paragraph = source.split(/\r?\n\s*\r?\n/)
+    .map((block) => block.trim())
+    .find((block) => block && !/^(?:#|```|[-*>]\s|!\[)/.test(block));
+  return paragraph ? markdownPlainText(paragraph) : fallback;
+}
+
+function blogReadingMinutes(source, language) {
+  const prose = source
+    .replace(/```[^\n]*\n[^]*?```/g, " ")
+    .replace(/!\[[^\]]*]\([^)]+\)/g, " ");
+  const hanCharacters = prose.match(/[\p{Script=Han}]/gu)?.length ?? 0;
+  const latinWords = prose.match(/[A-Za-z0-9]+(?:['’-][A-Za-z0-9]+)*/g)?.length ?? 0;
+  const rawMinutes = language === "zh"
+    ? hanCharacters / 300 + latinWords / 150
+    : latinWords / 140;
+  return Math.max(5, Math.ceil(rawMinutes / 5) * 5);
+}
+
+function collectBlogPosts(markdown, metadata) {
+  const posts = { zh: [], en: [] };
+
+  for (const [key, source] of Object.entries(markdown)) {
+    const identity = canonicalBlogIdentity(key);
+    if (!identity || metadata[key]?.draft?.toLowerCase() === "true") continue;
+
+    const language = identity.language;
+    const published = metadata[key]?.published;
+    const updated = metadata[key]?.updated ?? published;
+    const fallbackTitle = identity.slug.replaceAll(/[-_]/g, " ");
+    const title = markdownTitle(source, fallbackTitle);
+    const summary = metadata[key]?.summary || markdownDescription(source, title);
+
+    posts[language].push({
+      ...identity,
+      title,
+      summary,
+      date: published ?? updated ?? "",
+      published,
+      updated,
+      topic: metadata[key]?.topic || (language === "zh" ? "技术文章" : "TECHNICAL ESSAY"),
+      readingMinutes: blogReadingMinutes(source, language),
+      available: true,
+    });
+  }
+
+  for (const language of Object.keys(posts)) {
+    posts[language].sort((left, right) => {
+      const byDate = (right.published ?? right.updated ?? "").localeCompare(
+        left.published ?? left.updated ?? "",
+      );
+      return byDate || left.slug.localeCompare(right.slug, language === "zh" ? "zh-CN" : "en");
+    });
+  }
+
+  return posts;
+}
+
 function searchEntryForMarkdown(key, source) {
   const match = key.match(/^\/content\/(zh|en)\/(.+)\.md$/);
   if (!match) return;
 
   const [, language, relativePath] = match;
   const bookMatch = relativePath.match(/^books\/deconstructing_LLM\/(?:chapter_(\d+)\/)?(overview|\d+_\d+)$/);
-  const blogMatch = relativePath.match(/^blog\/(.+)$/);
+  const blog = canonicalBlogIdentity(key);
   let url;
   let kind;
   let fallback;
@@ -122,14 +201,10 @@ function searchEntryForMarkdown(key, source) {
     }
     kind = language === "zh" ? "书籍" : "Book";
     fallback = language === "zh" ? "解构大语言模型" : "Deconstructing Large Language Models";
-  } else if (blogMatch) {
-    const parts = blogMatch[1].split("/");
-    const blogPath = parts.length > 1 && parts.at(-1) === parts.at(-2)
-      ? parts.slice(0, -1).join("/")
-      : blogMatch[1];
-    url = `/${language}/blog/${blogPath}`;
+  } else if (blog) {
+    url = blog.href;
     kind = language === "zh" ? "博客" : "Blog";
-    fallback = blogPath.replaceAll("-", " ");
+    fallback = blog.slug.replaceAll(/[-_]/g, " ");
   } else {
     return;
   }
@@ -143,19 +218,11 @@ function searchEntryForMarkdown(key, source) {
   };
 }
 
-async function writeSearchIndex(markdown) {
-  const siteConfigs = Object.fromEntries(await Promise.all(["zh", "en"].map(async (language) => [
-    language,
-    JSON.parse(await readFile(join(contentRoot, language, "site.json"), "utf8")),
-  ])));
-  const availableBlogs = new Set(Object.values(siteConfigs).flatMap((config) =>
-    config.essay?.posts?.filter((post) => post.available).map((post) => post.href) ?? []
-  ));
+async function writeSearchIndex(markdown, metadata) {
   const entries = Object.entries(markdown)
+    .filter(([key]) => metadata[key]?.draft?.toLowerCase() !== "true")
     .map(([key, source]) => searchEntryForMarkdown(key, source))
-    .filter((entry) => entry && (
-      entry.kind !== "博客" && entry.kind !== "Blog" || availableBlogs.has(entry.url)
-    ));
+    .filter(Boolean);
 
   await mkdir(dirname(generatedSearchIndex), { recursive: true });
   await writeFile(generatedSearchIndex, `${JSON.stringify(entries)}\n`, "utf8");
@@ -236,12 +303,15 @@ export async function generateContent() {
     ])),
   ]);
   const { markdown, metadata } = documents;
+  const blogPostsByLanguage = collectBlogPosts(markdown, metadata);
   const imagesByLanguage = Object.fromEntries(imageEntries);
   const blogImagesByLanguage = Object.fromEntries(blogImageEntries);
   const source = [
     "// Generated by scripts/generate-content.mjs. Do not edit by hand.",
     `export const markdownContent: Record<string, string> = ${JSON.stringify(markdown, null, 2)};`,
-    `export const markdownMetadata: Record<string, { published?: string; updated?: string; summary?: string }> = ${JSON.stringify(metadata, null, 2)};`,
+    `export const markdownMetadata: Record<string, { published?: string; updated?: string; summary?: string; topic?: string; draft?: string }> = ${JSON.stringify(metadata, null, 2)};`,
+    "export type GeneratedBlogPost = { language: \"zh\" | \"en\"; slug: string; href: string; contentPath: string; title: string; summary: string; date: string; published?: string; updated?: string; topic: string; readingMinutes: number; available: true };",
+    `export const blogPostsByLanguage: Record<"zh" | "en", GeneratedBlogPost[]> = ${JSON.stringify(blogPostsByLanguage, null, 2)};`,
     `export const bookChapterIds: string[] = ${JSON.stringify(idsByLanguage.zh, null, 2)};`,
     `export const bookChapterIdsByLanguage: Record<"zh" | "en", string[]> = ${JSON.stringify(idsByLanguage, null, 2)};`,
     `export const bookImages: Record<string, Record<string, string>> = ${JSON.stringify(imagesByLanguage.zh, null, 2)};`,
@@ -251,12 +321,12 @@ export async function generateContent() {
   ].join("\n\n");
 
   await mkdir(generatedRoot, { recursive: true });
-  const searchEntryCount = await writeSearchIndex(markdown);
+  const searchEntryCount = await writeSearchIndex(markdown, metadata);
   const temporaryModule = `${generatedModule}.tmp`;
   await writeFile(temporaryModule, source, "utf8");
   await rename(temporaryModule, generatedModule);
   console.log(
-    `内容索引已更新：${Object.keys(markdown).length} 篇 Markdown，中文 ${idsByLanguage.zh.length} 章，英文 ${idsByLanguage.en.length} 章，搜索收录 ${searchEntryCount} 页。`,
+    `内容索引已更新：${Object.keys(markdown).length} 篇 Markdown，博客 ${blogPostsByLanguage.zh.length + blogPostsByLanguage.en.length} 篇，中文 ${idsByLanguage.zh.length} 章，英文 ${idsByLanguage.en.length} 章，搜索收录 ${searchEntryCount} 页。`,
   );
 }
 

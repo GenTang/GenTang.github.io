@@ -43,49 +43,6 @@ git push
 
 线上地址：<https://gentang.github.io/>
 
-### 临时生成 Medium 导入页
-
-Medium 的网页导入对公式、WebP 图片和嵌套列表支持有限。下面的命令会在构建时生成专用的临时 HTML：本地图片只在 `out/medium-import/` 中转换为 PNG，块级公式转换为图片，原始 Markdown 和 `images/` 不会被修改。临时页不会出现在站内导航、RSS 或 sitemap 中，并带有 `noindex`；但 URL 是公开且可预测的，不是带密码的私有页面。
-
-生成单篇内容，可以传 Markdown 路径或线上页面路径：
-
-```bash
-pnpm medium:stage -- /en/blog/watermarking_on_aigc/
-```
-
-一次生成多篇内容，传入多个参数：
-
-```bash
-pnpm medium:stage -- /en/blog/watermarking_on_aigc/ /en/blog/watermarking_on_aigc_2/
-```
-
-生成整章时传入章节目录；脚本会递归读取该目录内的全部 Markdown：
-
-```bash
-pnpm medium:stage -- content/en/books/deconstructing_LLM/chapter_3
-```
-
-生成全部中英文博客和书稿：
-
-```bash
-pnpm medium:stage -- --all
-```
-
-`medium:stage` 会覆盖上一次选择，并把文件列表写入 `medium-import.json`。每次运行 `./scripts/publish.sh` 都会先把新的时间版本写入这个配置，再生成对应路径，并在终端末尾打印完整 URL；请把这次修改过的 `medium-import.json` 一并 commit、push，使 GitHub Actions 使用和本地相同的版本号。旧版本会从本次 `out/` 中清除，避免 Medium 继续使用上一次的导入缓存。也可以在构建后运行 `pnpm medium:status` 再次查看本次 URL。等待 GitHub Pages 部署完成后，再把这个地址粘贴到 Medium Import Tool。导入完成后请先做两项检查：
-
-1. 在 Medium 中把 canonical link 改为“小胖笔记”的原始文章 URL，避免 canonical 留在临时导入页。
-2. 复制 Medium 正文中每张图片的地址，确认已经是 `miro.medium.com` 等 Medium 自有地址，不再依赖 `gentang.github.io/medium-import/`。
-
-确认无误后可以撤下某一篇、一个章节，或全部临时页：
-
-```bash
-pnpm medium:remove -- /en/blog/watermarking_on_aigc/
-pnpm medium:remove -- content/en/books/deconstructing_LLM/chapter_3
-pnpm medium:remove
-```
-
-提交并推送删除后的状态；下次部署会清除 `/medium-import/`，原临时 URL 随后返回 404。
-
 ## 更新博客和书籍
 
 日常内容都在 `content/` 目录中。
@@ -95,12 +52,10 @@ pnpm medium:remove
 - 中文博客：`content/zh/blog/`
 - 英文博客：`content/en/blog/`
 
-每篇博客使用一个 Markdown 文件。
-
-目录型博客统一使用 `content/{语言}/blog/{slug}/{slug}.md`，并在
-`content/{语言}/site.json` 的 `essay.posts` 中登记。页面路由位于
-`app/{语言}/blog/{slug}/page.tsx`，可以复制现有博客路由后修改正文路径、URL 和图片目录。
-首页展示 `essay.posts` 中的第一篇，博客页展示其中的全部文章，因此请按发布时间倒序排列。
+每篇博客使用一个独立目录，正文统一放在 `content/{语言}/blog/{slug}/{slug}.md`，
+图片放在同目录的 `pic/` 中。保存 Markdown 后，开发服务会自动把文章加入首页、博客列表、
+正文路由和搜索；发布构建还会自动更新 sitemap 与订阅源，不需要登记 `site.json` 或复制页面代码。
+文章按 `published` 日期自动倒序排列。
 
 已发布的博客在文件顶部维护日期，统一使用 `YYYY-MM-DD`：
 
@@ -108,10 +63,13 @@ pnpm medium:remove
 ---
 published: 2026-08-12
 updated: 2026-08-12
+summary: 一句话概括文章内容。
+topic: LLM
 ---
 ```
 
-首次发布后保留 `published` 不变；正文有实质修改时再更新 `updated`。草稿可以暂不填写日期。
+首次发布后保留 `published` 不变；正文有实质修改时再更新 `updated`。未准备公开的文章请增加
+`draft: true`，发布时改为 `false` 或删除这一行。
 
 ### 《解构大语言模型》
 

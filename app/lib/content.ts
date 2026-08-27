@@ -1,4 +1,5 @@
 import {
+  blogPostsByLanguage,
   bookChapterIds,
   bookChapterIdsByLanguage,
   bookImages,
@@ -9,6 +10,7 @@ import {
 } from "@/.generated/content";
 
 export {
+  blogPostsByLanguage,
   bookChapterIds,
   bookChapterIdsByLanguage,
   bookImages,
@@ -17,6 +19,16 @@ export {
   markdownContent,
   markdownMetadata,
 };
+
+export type BlogLanguage = "zh" | "en";
+
+export function getBlogPosts(lang: BlogLanguage) {
+  return blogPostsByLanguage[lang];
+}
+
+export function getBlogPost(lang: BlogLanguage, slug: string) {
+  return getBlogPosts(lang).find((post) => post.slug === slug);
+}
 
 export function getMarkdownContent(path: keyof typeof markdownContent) {
   return markdownContent[path];

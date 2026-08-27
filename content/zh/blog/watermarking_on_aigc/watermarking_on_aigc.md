@@ -2,6 +2,7 @@
 published: 2026-08-17
 updated: 2026-08-20
 summary: 从绿名单概率偏置到z-score统计检验：从零实现KGW文本水印，并验证文本长度对检测效果的影响。
+topic: LLM WATERMARKING
 ---
 
 # Anthropic要给文本加水印 Part 1：奠基之作——KGW

@@ -2,6 +2,7 @@
 published: 2026-08-20
 updated: 2026-08-20
 summary: Using a two-token example, we show why KGW distorts the model distribution, derive the non-distortion property of SynthID-Text, implement SynthID-Text and Weighted Mean detection, and compare the two methods through detection performance and `Delta NLL`.
+topic: LLM WATERMARKING
 ---
 
 # Anthropic Is Adding Watermarks to Text Part 2: From Biased KGW to Unbiased SynthID-Text

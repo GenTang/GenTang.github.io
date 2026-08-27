@@ -2,6 +2,7 @@
 published: 2026-08-20
 updated: 2026-08-20
 summary: 从两个token的例子解释KGW为何会扭曲模型分布，再推导SynthID-Text的非失真性质、实现SynthID-Text及Weighted Mean检测，并通过检测率和`Delta NLL`比较两种算法。
+topic: LLM WATERMARKING
 ---
 
 

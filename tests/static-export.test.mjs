@@ -29,6 +29,42 @@ async function blogTitle(language, slug) {
   return title;
 }
 
+async function discoveredBlogPosts(language) {
+  const blogRoot = resolve("content", language, "blog");
+  const entries = await readdir(blogRoot, { withFileTypes: true });
+  const candidates = entries.flatMap((entry) => {
+    if (entry.isFile() && entry.name.endsWith(".md")) {
+      return [{ slug: entry.name.replace(/\.md$/i, ""), path: join(blogRoot, entry.name) }];
+    }
+    if (entry.isDirectory()) {
+      return [{ slug: entry.name, path: join(blogRoot, entry.name, `${entry.name}.md`) }];
+    }
+    return [];
+  });
+  const posts = [];
+
+  for (const candidate of candidates) {
+    let source;
+    try {
+      source = await readFile(candidate.path, "utf8");
+    } catch (error) {
+      if (error?.code === "ENOENT") continue;
+      throw error;
+    }
+    if (/^draft:\s*true\s*$/im.test(source)) continue;
+    const title = source.match(/^#\s+(.+?)\s*$/m)?.[1]?.trim();
+    assert.ok(title, `Missing H1 title in ${candidate.path}`);
+    posts.push({
+      ...candidate,
+      title,
+      route: `/${language}/blog/${candidate.slug}`,
+      published: source.match(/^published:\s*(.+?)\s*$/m)?.[1] ?? "",
+    });
+  }
+
+  return posts.sort((left, right) => right.published.localeCompare(left.published));
+}
+
 async function bookSectionTitle(language, chapter, section) {
   const source = await readFile(
     resolve("content", language, "books", "deconstructing_LLM", `chapter_${chapter}`, `${section}.md`),
@@ -192,6 +228,32 @@ test("exports aligned bilingual blog landing pages that match the homepage state
   assert.match(english, new RegExp(`href="${basePath}/zh/blog/"`));
   assert.match(english, new RegExp(`href="${basePath}/en/blog/watermarking_on_aigc_2/"`));
   assert.match(english, new RegExp(`href="${basePath}/en/blog/watermarking_on_aigc/"`));
+});
+
+test("automatically exports every canonical blog Markdown without a manual post registry", async () => {
+  const [searchIndex, sitemap, rss, generated] = await Promise.all([
+    readFile(join(outputRoot, "generated", "search-index.json"), "utf8"),
+    readFile(join(outputRoot, "sitemap.xml"), "utf8"),
+    readFile(join(outputRoot, "rss.xml"), "utf8"),
+    readFile(resolve(".generated/content.ts"), "utf8"),
+  ]);
+  const searchEntries = JSON.parse(searchIndex);
+  assert.match(generated, /export const blogPostsByLanguage/);
+
+  for (const language of ["zh", "en"]) {
+    const posts = await discoveredBlogPosts(language);
+    const [home, landing] = await Promise.all([html(`/${language}`), html(`/${language}/blog`)]);
+
+    for (const [index, post] of posts.entries()) {
+      const page = await html(post.route);
+      assert.match(page, exactPattern(post.title), post.route);
+      assert.ok(landing.includes(`href="${basePath}${post.route}/"`), `${post.route} missing from blog index`);
+      assert.ok(searchEntries.some((entry) => entry.lang === language && entry.url === post.route));
+      assert.ok(sitemap.includes(`<loc>${publicUrl(post.route)}</loc>`));
+      assert.ok(rss.includes(`<link>${publicUrl(post.route)}</link>`));
+      if (index < 3) assert.ok(home.includes(`href="${basePath}${post.route}/"`));
+    }
+  }
 });
 
 test("exports bilingual About pages and the static search index", async () => {

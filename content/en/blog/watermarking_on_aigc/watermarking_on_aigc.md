@@ -2,6 +2,7 @@
 published: 2026-08-17
 updated: 2026-08-20
 summary: From green-list probability bias to z-score hypothesis testing: implementing KGW text watermarking from scratch and measuring how text length affects detection.
+topic: LLM WATERMARKING
 ---
 
 # Anthropic Is Adding Watermarks to Text Part 1: KGW, the Foundational Approach

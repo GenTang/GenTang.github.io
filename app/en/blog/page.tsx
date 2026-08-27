@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import enContent from "@/content/en/site.json";
 import { BlogIndexPage } from "@/app/components/BlogIndexPage";
+import { getBlogPosts } from "@/app/lib/content";
 import { createPageMetadata } from "@/app/lib/siteMetadata";
 
 export const metadata: Metadata = createPageMetadata({
@@ -10,7 +11,7 @@ export const metadata: Metadata = createPageMetadata({
   alternatePath: "/zh/blog",
   locale: "en_US",
   kind: "website",
-  noIndex: !enContent.essay.posts.some((post) => post.available),
+  noIndex: getBlogPosts("en").length === 0,
 });
 
 export default function EnglishBlogIndex() {
