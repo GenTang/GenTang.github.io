@@ -17,6 +17,7 @@ export default function LanguageEntry() {
     <>
       <meta httpEquiv="refresh" content={`0; url=${target}`} />
       <main className="root-language-entry">
+        <h1>小胖笔记</h1>
         <p>
           正在进入中文站点…… <a href={target}>继续访问</a>
         </p>

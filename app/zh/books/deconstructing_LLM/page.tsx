@@ -2,12 +2,13 @@
 import type { Metadata } from "next";
 import bookConfig from "@/content/zh/books/deconstructing_LLM/book.json";
 import outlineImage from "@/content/zh/books/deconstructing_LLM/deconstructing-llm-outline.webp";
+import { JsonLd } from "@/app/components/JsonLd";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
 import { SiteFooter } from "@/app/components/SiteFooter";
 import { SiteHeader } from "@/app/components/SiteHeader";
 import { getMarkdownContent } from "@/app/lib/content";
 import { sitePath } from "@/app/lib/sitePath";
-import { createPageMetadata } from "@/app/lib/siteMetadata";
+import { absoluteSiteUrl, createPageMetadata } from "@/app/lib/siteMetadata";
 
 const overviewSource = getMarkdownContent("/content/zh/books/deconstructing_LLM/overview.md");
 const firstChapterHref = "/zh/books/deconstructing_LLM/chapter-1";
@@ -20,11 +21,51 @@ export const metadata: Metadata = createPageMetadata({
   alternatePath: "/en/books/deconstructing_LLM",
   kind: "website",
   keywords: bookConfig.overview.keywords,
+  imagePath: bookConfig.overview.coverImage,
+  imageAlt: `${bookConfig.title}：${bookConfig.subtitle}`,
 });
+
+const bookHref = "/zh/books/deconstructing_LLM";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Book",
+      "@id": `${absoluteSiteUrl(bookHref)}#book`,
+      name: bookConfig.title,
+      alternateName: `${bookConfig.title}：${bookConfig.subtitle}`,
+      description: bookConfig.overview.seoDescription,
+      url: absoluteSiteUrl(bookHref),
+      image: absoluteSiteUrl(bookConfig.overview.coverImage),
+      inLanguage: "zh-CN",
+      datePublished: bookConfig.dates.completed,
+      dateModified: bookConfig.dates.updated,
+      isAccessibleForFree: true,
+      author: {
+        "@type": "Person",
+        name: bookConfig.author,
+        url: absoluteSiteUrl("/zh/about"),
+      },
+      hasPart: Object.entries(bookConfig.chapterTitles).map(([chapterId, title]) => ({
+        "@type": "TechArticle",
+        name: title,
+        url: absoluteSiteUrl(`${bookHref}/chapter-${chapterId.replace("chapter_", "")}`),
+      })),
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "首页", item: absoluteSiteUrl("/zh/") },
+        { "@type": "ListItem", position: 2, name: bookConfig.title, item: absoluteSiteUrl(bookHref) },
+      ],
+    },
+  ],
+};
 
 export default function DeconstructingLlmOverview() {
   return (
     <div className="site-shell book-overview-shell">
+      <JsonLd data={structuredData} />
       <SiteHeader
         lang="zh"
         active="book"

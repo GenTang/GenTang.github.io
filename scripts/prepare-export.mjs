@@ -16,7 +16,7 @@ const blogRoots = {
 const defaultSiteUrl = "https://gentang.github.io/";
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || defaultSiteUrl;
 const siteRoot = new URL(configuredSiteUrl.endsWith("/") ? configuredSiteUrl : `${configuredSiteUrl}/`);
-const siteDescription = "《解构大语言模型》在线书稿，以及关于人工智能、数学与智能系统的长期笔记。";
+const siteDescription = "小胖笔记提供《解构大语言模型》完整在线书稿与 AI 技术博客，记录数学基础、模型架构和工程实现。";
 
 function absoluteUrl(route) {
   if (route === "/") return siteRoot.toString();
@@ -87,6 +87,7 @@ async function bookEntries(language = "zh") {
       const title = headingTitle(source, fallback);
 
       entries.push({
+        language,
         route,
         title,
         summary: language === "zh"
@@ -105,6 +106,7 @@ async function overviewEntries() {
   return Promise.all(Object.entries(bookRoots).map(async ([language, bookRoot]) => {
     const config = JSON.parse(await readFile(join(bookRoot, "book.json"), "utf8"));
     return {
+      language,
       route: `/${language}/books/deconstructing_LLM`,
       title: `${config.title}: ${config.subtitle}`,
       summary: config.overview.seoDescription,
@@ -143,6 +145,7 @@ async function blogEntries() {
       const dates = effectiveContentDates(document.metadata);
       const title = headingTitle(document.content, candidate.slug.replaceAll(/[-_]/g, " "));
       entries.push({
+        language,
         route: `/${language}/blog/${candidate.slug}`,
         title,
         summary: document.metadata.summary || title,
@@ -159,24 +162,51 @@ async function blogEntries() {
 }
 
 async function writeCrawlerFiles(entries, overviews) {
+  const newestDate = (items) => items
+    .map((entry) => entry.updated || entry.published)
+    .filter(Boolean)
+    .sort()
+    .at(-1);
+  const newestByLanguage = (language) => newestDate([
+    ...overviews.filter((entry) => entry.language === language),
+    ...entries.filter((entry) => entry.language === language),
+  ]);
+  const newestBlogByLanguage = (language) => newestDate(
+    entries.filter((entry) => entry.language === language && entry.route.startsWith(`/${language}/blog/`)),
+  );
   const routes = [
-    { route: "/zh/", updated: overviews.find((entry) => entry.route.startsWith("/zh/"))?.updated },
-    { route: "/en/", updated: overviews.find((entry) => entry.route.startsWith("/en/"))?.updated },
-    { route: "/zh/about" },
-    { route: "/en/about" },
+    { language: "zh", route: "/zh/", updated: newestByLanguage("zh") },
+    { language: "en", route: "/en/", updated: newestByLanguage("en") },
+    { language: "zh", route: "/zh/blog", updated: newestBlogByLanguage("zh") },
+    { language: "en", route: "/en/blog", updated: newestBlogByLanguage("en") },
+    { language: "zh", route: "/zh/about" },
+    { language: "en", route: "/en/about" },
     ...overviews,
     ...entries,
   ];
   const uniqueRoutes = [...new Map(routes.map((entry) => [entry.route, entry])).values()];
+  const routeSet = new Set(uniqueRoutes.map((entry) => entry.route));
   const sitemap = [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ...uniqueRoutes.map(({ route, updated }) => [
-      "  <url>",
-      `    <loc>${xmlEscape(absoluteUrl(route))}</loc>`,
-      ...(updated ? [`    <lastmod>${xmlEscape(updated)}</lastmod>`] : []),
-      "  </url>",
-    ].join("\n")),
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">',
+    ...uniqueRoutes.map(({ language, route, updated }) => {
+      const alternateLanguage = language === "zh" ? "en" : "zh";
+      const alternateRoute = route.replace(new RegExp(`^/${language}(?=/)`), `/${alternateLanguage}`);
+      const hasAlternate = routeSet.has(alternateRoute);
+      const chineseRoute = language === "zh" ? route : alternateRoute;
+
+      return [
+        "  <url>",
+        `    <loc>${xmlEscape(absoluteUrl(route))}</loc>`,
+        ...(updated ? [`    <lastmod>${xmlEscape(updated)}</lastmod>`] : []),
+        ...(hasAlternate ? [
+          `    <xhtml:link rel="alternate" hreflang="${language === "zh" ? "zh-CN" : "en"}" href="${xmlEscape(absoluteUrl(route))}" />`,
+          `    <xhtml:link rel="alternate" hreflang="${alternateLanguage === "zh" ? "zh-CN" : "en"}" href="${xmlEscape(absoluteUrl(alternateRoute))}" />`,
+          `    <xhtml:link rel="alternate" hreflang="x-default" href="${xmlEscape(absoluteUrl(chineseRoute))}" />`,
+        ] : []),
+        "  </url>",
+      ].join("\n");
+    }),
     "</urlset>",
     "",
   ].join("\n");

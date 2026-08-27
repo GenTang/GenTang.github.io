@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { HomeView } from "../components/HomeView";
+import { JsonLd } from "../components/JsonLd";
 import {
   absoluteSiteUrl,
+  authorName,
   createPageMetadata,
   homeTitle,
   siteDescription,
@@ -35,22 +37,24 @@ export const metadata: Metadata = {
 const websiteStructuredData = {
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": `${absoluteSiteUrl("/zh/")}#website`,
   name: siteName,
   alternateName: "Xiaopang Notes",
   url: absoluteSiteUrl("/zh/"),
   description: siteDescription,
   inLanguage: ["zh-CN", "en"],
+  publisher: {
+    "@type": "Person",
+    "@id": `${absoluteSiteUrl("/zh/about")}#person`,
+    name: authorName,
+    url: absoluteSiteUrl("/zh/about"),
+  },
 };
 
 export default function ChineseHome() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(websiteStructuredData).replace(/</g, "\\u003c"),
-        }}
-      />
+      <JsonLd data={websiteStructuredData} />
       <HomeView lang="zh" />
     </>
   );

@@ -64,12 +64,17 @@ git push
 published: 2026-08-12
 updated: 2026-08-12
 summary: 一句话概括文章内容。
+seo_title: 可选；用于搜索结果的精简标题。
+seo_description: 可选；用于搜索结果的独立摘要。
 topic: LLM
 ---
 ```
 
 首次发布后保留 `published` 不变；正文有实质修改时再更新 `updated`。未准备公开的文章请增加
 `draft: true`，发布时改为 `false` 或删除这一行。
+
+页面标题和摘要默认从正文标题及 `summary` 自动生成；只有正文标题较长，或希望搜索结果使用不同文案时，
+才需要填写 `seo_title` 与 `seo_description`。发布脚本会自动清理 Markdown 标记并限制过长的元数据。
 
 ### 《解构大语言模型》
 

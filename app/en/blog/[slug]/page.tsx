@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReadingPage } from "@/app/components/ReadingPage";
+import { BlogPostJsonLd } from "@/app/components/BlogPostJsonLd";
 import {
   getBlogImages,
   getBlogPost,
@@ -28,8 +29,8 @@ export async function generateMetadata({ params }: BlogPageProps): Promise<Metad
 
   return post
     ? createPageMetadata({
-        title: post.title,
-        description: post.summary,
+        title: post.seoTitle,
+        description: post.seoDescription,
         path: post.href,
         alternatePath: alternate?.href,
         locale: "en_US",
@@ -56,22 +57,33 @@ export default async function EnglishBlogPost({ params }: BlogPageProps) {
   const source = withoutLeadingMarkdownTitle(markdown);
 
   return (
-    <ReadingPage
-      lang="en"
-      kind="blog"
-      source={source}
-      images={getBlogImages("en", slug)}
-      languageHref={alternate?.href ?? "/zh/blog"}
-      article={{
-        title: post.title,
-        summary: post.summary,
-        readingTime: `About ${post.readingMinutes} minutes`,
-        date: post.date,
-        outline: getMarkdownOutline(source),
-        showDraftNotice: false,
-        showComments: true,
-        showEndmark: false,
-      }}
-    />
+    <>
+      <BlogPostJsonLd
+        lang="en"
+        title={post.title}
+        description={post.seoDescription}
+        href={post.href}
+        published={post.published}
+        updated={post.updated}
+        topic={post.topic}
+      />
+      <ReadingPage
+        lang="en"
+        kind="blog"
+        source={source}
+        images={getBlogImages("en", slug)}
+        languageHref={alternate?.href ?? "/zh/blog"}
+        article={{
+          title: post.title,
+          summary: post.summary,
+          readingTime: `About ${post.readingMinutes} minutes`,
+          date: post.date,
+          outline: getMarkdownOutline(source),
+          showDraftNotice: false,
+          showComments: true,
+          showEndmark: false,
+        }}
+      />
+    </>
   );
 }

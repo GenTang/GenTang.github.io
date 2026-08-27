@@ -2,7 +2,9 @@
 published: 2026-08-20
 updated: 2026-08-20
 summary: 从两个token的例子解释KGW为何会扭曲模型分布，再推导SynthID-Text的非失真性质、实现SynthID-Text及Weighted Mean检测，并通过检测率和`Delta NLL`比较两种算法。
-topic: LLM WATERMARKING
+seo_title: SynthID-Text原理：无偏文本水印与检测方法
+seo_description: 解释 KGW 文本水印为何扭曲模型概率分布，并推导 SynthID-Text 的无偏性质、Weighted Mean 检测方法及实验结果。
+topic: 文本水印
 ---
 
 

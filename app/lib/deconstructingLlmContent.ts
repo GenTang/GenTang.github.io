@@ -50,7 +50,21 @@ function headingTitle(source: string, fallback: string) {
     .trim() || fallback;
 }
 
-function markdownDescription(source: string, fallback: string) {
+function truncateDescription(value: string, maximumLength: number) {
+  if (value.length <= maximumLength) return value;
+
+  const shortened = value.slice(0, maximumLength + 1);
+  const boundary = shortened.lastIndexOf(" ");
+  const end = boundary >= maximumLength * 0.72 ? boundary : maximumLength;
+  return `${shortened.slice(0, end).replace(/[，。；、,:;\s]+$/u, "")}…`;
+}
+
+function markdownDescription(
+  source: string,
+  fallback: string,
+  context: string,
+  language: BookLanguage,
+) {
   const paragraphs = source
     .replace(/^---[\s\S]*?---\s*/m, "")
     .replace(/^#{1,6}\s+.+$/gm, "")
@@ -58,6 +72,7 @@ function markdownDescription(source: string, fallback: string) {
     .replace(/!\[[^\]]*]\([^)]+\)/g, "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/\$\$[\s\S]*?\$\$/g, "")
+    .replace(/\$[^$\n]+\$/g, "")
     .split(/\n\s*\n/)
     .map((paragraph) => paragraph
       .replace(/^[-*+]\s+/gm, "")
@@ -65,12 +80,20 @@ function markdownDescription(source: string, fallback: string) {
       .replace(/[*_`~]/g, "")
       .replace(/<[^>]+>/g, "")
       .replace(/\[\^[^\]]+]/g, "")
+      .replace(/\\[a-zA-Z]+(?:\{([^{}]*)\})?/g, "$1")
       .replace(/\s+/g, " ")
       .trim())
     .filter((paragraph) => paragraph.length >= 18 && !/^[-—–]/.test(paragraph));
-  const description = paragraphs[0] || fallback;
+  const minimumLength = language === "zh" ? 42 : 88;
+  const maximumLength = language === "zh" ? 110 : 165;
+  let description = paragraphs[0] || fallback;
 
-  return description.length > 128 ? `${description.slice(0, 125).trimEnd()}…` : description;
+  if (description.length < minimumLength && context) {
+    const separator = language === "zh" ? "。" : ". ";
+    description = `${description.replace(/[。.!?]+$/u, "")}${separator}${context}`;
+  }
+
+  return truncateDescription(description, maximumLength);
 }
 
 function sectionOrder(sectionId: string) {
@@ -108,6 +131,7 @@ function buildSections(language: BookLanguage) {
       const fallbackDescription = language === "zh"
         ? `《${bookConfig.title}》${fallbackTitle}`
         : `${bookConfig.title}: ${fallbackTitle}`;
+      const chapterSeo = (bookConfig.chapterSeo as Record<string, BookChapterSeo>)[chapterId];
       const chapterOverviewPath = `/content/${language}/books/deconstructing_LLM/${chapterId}/overview.md`;
       const chapterDates = markdownMetadata[chapterOverviewPath] ?? {};
       const sectionDates = markdownMetadata[path] ?? {};
@@ -118,7 +142,12 @@ function buildSections(language: BookLanguage) {
         id: sectionId,
         chapterId,
         title: headingTitle(source, fallbackTitle),
-        description: markdownDescription(source, fallbackDescription),
+        description: markdownDescription(
+          source,
+          fallbackDescription,
+          chapterSeo?.description ?? "",
+          language,
+        ),
         href: `${chapterHref}${routeSegment}`,
         source,
         dates: { published, updated },

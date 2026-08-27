@@ -2,30 +2,71 @@
 import type { Metadata } from "next";
 import bookConfig from "@/content/en/books/deconstructing_LLM/book.json";
 import outlineImage from "@/content/en/books/deconstructing_LLM/deconstructing-llm-outline.webp";
+import { JsonLd } from "@/app/components/JsonLd";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
 import { SiteFooter } from "@/app/components/SiteFooter";
 import { SiteHeader } from "@/app/components/SiteHeader";
 import { getMarkdownContent } from "@/app/lib/content";
 import { sitePath } from "@/app/lib/sitePath";
-import { createPageMetadata } from "@/app/lib/siteMetadata";
+import { absoluteSiteUrl, createPageMetadata } from "@/app/lib/siteMetadata";
 
 const overviewSource = getMarkdownContent("/content/en/books/deconstructing_LLM/overview.md");
 const firstChapterHref = "/en/books/deconstructing_LLM/chapter-1";
 const chapterCount = Object.keys(bookConfig.chapterTitles).length;
 
 export const metadata: Metadata = createPageMetadata({
-  title: `${bookConfig.title}: ${bookConfig.subtitle}`,
+  title: "Deconstructing Large Language Models",
   description: bookConfig.overview.seoDescription,
   path: "/en/books/deconstructing_LLM",
   locale: "en_US",
   alternatePath: "/zh/books/deconstructing_LLM",
   kind: "website",
   keywords: bookConfig.overview.keywords,
+  imagePath: bookConfig.overview.coverImage,
+  imageAlt: `${bookConfig.title}: ${bookConfig.subtitle}`,
 });
+
+const bookHref = "/en/books/deconstructing_LLM";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Book",
+      "@id": `${absoluteSiteUrl(bookHref)}#book`,
+      name: bookConfig.title,
+      alternateName: `${bookConfig.title}: ${bookConfig.subtitle}`,
+      description: bookConfig.overview.seoDescription,
+      url: absoluteSiteUrl(bookHref),
+      image: absoluteSiteUrl(bookConfig.overview.coverImage),
+      inLanguage: "en",
+      datePublished: bookConfig.dates.completed,
+      dateModified: bookConfig.dates.updated,
+      isAccessibleForFree: true,
+      author: {
+        "@type": "Person",
+        name: bookConfig.author,
+        url: absoluteSiteUrl("/en/about"),
+      },
+      hasPart: Object.entries(bookConfig.chapterTitles).map(([chapterId, title]) => ({
+        "@type": "TechArticle",
+        name: title,
+        url: absoluteSiteUrl(`${bookHref}/chapter-${chapterId.replace("chapter_", "")}`),
+      })),
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: absoluteSiteUrl("/en/") },
+        { "@type": "ListItem", position: 2, name: bookConfig.title, item: absoluteSiteUrl(bookHref) },
+      ],
+    },
+  ],
+};
 
 export default function EnglishDeconstructingLlmOverview() {
   return (
     <div className="site-shell book-overview-shell">
+      <JsonLd data={structuredData} />
       <SiteHeader
         lang="en"
         active="book"

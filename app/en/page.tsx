@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { HomeView } from "../components/HomeView";
+import { JsonLd } from "../components/JsonLd";
 import {
   absoluteSiteUrl,
   createPageMetadata,
+  englishAuthorName,
   englishHomeTitle,
   englishSiteDescription,
 } from "../lib/siteMetadata";
@@ -35,22 +37,24 @@ export const metadata: Metadata = {
 const websiteStructuredData = {
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": `${absoluteSiteUrl("/en/")}#website`,
   name: "Xiaopang Notes",
   alternateName: "小胖笔记",
   url: absoluteSiteUrl("/en/"),
   description: englishSiteDescription,
   inLanguage: "en",
+  publisher: {
+    "@type": "Person",
+    "@id": `${absoluteSiteUrl("/en/about")}#person`,
+    name: englishAuthorName,
+    url: absoluteSiteUrl("/en/about"),
+  },
 };
 
 export default function EnglishHome() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(websiteStructuredData).replace(/</g, "\\u003c"),
-        }}
-      />
+      <JsonLd data={websiteStructuredData} />
       <HomeView lang="en" />
     </>
   );

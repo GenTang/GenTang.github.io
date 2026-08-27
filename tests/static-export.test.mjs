@@ -116,7 +116,7 @@ test("exports the homepage with local assets and the intended section order", as
   const source = await html("/zh/");
   const latestBlogTitle = await blogTitle("zh", "watermarking_on_aigc_2");
   assert.match(source, /<title>小胖笔记｜LLM技术笔记：模型架构、数据基础和工程实现<\/title>/);
-  assert.ok(source.includes("《解构大语言模型》：从线性回归一路走向LLM；记录 AI、数学与智能系统的长期笔记。"));
+  assert.ok(source.includes("小胖笔记提供《解构大语言模型》完整在线书稿与 AI 技术博客"));
   assert.match(source, /type="application\/ld\+json"/);
   assert.match(source, /"@type":"WebSite"/);
   assert.match(source, /小胖笔记/);
@@ -152,7 +152,7 @@ test("keeps the English homepage structurally aligned with the Chinese homepage"
     blogTitle("en", "watermarking_on_aigc"),
     blogTitle("en", "watermarking_on_aigc_2"),
   ]);
-  assert.match(source, /<title>Xiaopang Notes \| LLM Technical Notes: Model Architectures, Data Foundations, and Engineering Implementation<\/title>/);
+  assert.match(source, /<title>Xiaopang Notes \| LLM Architecture, Data, and Engineering<\/title>/);
   assert.match(source, /class="brand-mark brand-mark-en">XN<\/span>/);
   assert.match(source, /<strong>Xiaopang Notes<\/strong><small>AI · MATH · SYSTEMS<\/small>/);
   assert.doesNotMatch(source, /class="brand-mark">胖<\/span>/);
@@ -188,6 +188,7 @@ test("keeps the root URL as a static entry to the Chinese site", async () => {
   assert.match(source, new RegExp(`rel="canonical" href="${publicUrl("/zh/").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
   assert.doesNotMatch(source, /name="robots" content="noindex, follow"/);
   assert.doesNotMatch(source, /window\.location\.replace/);
+  assert.match(source, /<h1>小胖笔记<\/h1>/);
   assert.match(source, new RegExp(`href="${basePath}/zh/"`));
   await assert.rejects(access(join(outputRoot, "books")));
   await assert.rejects(access(join(outputRoot, "blog")));
@@ -217,7 +218,7 @@ test("exports aligned bilingual blog landing pages that match the homepage state
   assert.match(chinese, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc/"`));
 
   assert.match(english, /<h1>Blog<\/h1>/);
-  assert.match(english, /<title>AI Engineering Blog: LLMs, Watermarking, and Model Implementation · Xiaopang Notes<\/title>/);
+  assert.match(english, /<title>LLM Engineering: Watermarking, Models, and Code · Xiaopang Notes<\/title>/);
   assert.match(english, /<meta name="description" content="Technical essays on LLMs, text watermarking, statistical detection, and model implementation/);
   assert.match(english, /class="brand-mark brand-mark-en">XN<\/span>/);
   assert.doesNotMatch(english, /class="brand-mark">胖<\/span>/);
@@ -292,6 +293,8 @@ test("exports bilingual About pages and the static search index", async () => {
   assert.ok(!entries.some((entry) => entry.url.includes("ai-as-collaborator")));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/about")}</loc>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/about")}</loc>`));
+  assert.match(chineseAbout, /"@type":"ProfilePage"/);
+  assert.match(englishAbout, /"@type":"ProfilePage"/);
   assert.ok(!sitemap.includes(`<loc>${publicUrl("/zh/search")}</loc>`));
 });
 
@@ -320,7 +323,13 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
   assert.match(robots, new RegExp(`Sitemap: ${publicUrl("/sitemap.xml").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
 
   assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/")}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/blog")}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${publicUrl("/en/blog")}</loc>`));
   assert.ok(!sitemap.includes(`<loc>${publicUrl("/")}</loc>`));
+  assert.match(sitemap, /xmlns:xhtml="http:\/\/www\.w3\.org\/1999\/xhtml"/);
+  assert.ok(sitemap.includes(`<xhtml:link rel="alternate" hreflang="en" href="${publicUrl("/en/")}" />`));
+  assert.ok(sitemap.includes(`<xhtml:link rel="alternate" hreflang="zh-CN" href="${publicUrl("/zh/")}" />`));
+  assert.ok(sitemap.includes(`<xhtml:link rel="alternate" hreflang="x-default" href="${publicUrl("/zh/")}" />`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/zh/books/deconstructing_LLM/chapter-13/13-6")}</loc>`));
   assert.match(sitemap, new RegExp(`<loc>${publicUrl("/zh/books/deconstructing_LLM/chapter-13/13-6").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc>\\s*<lastmod>2026-08-10</lastmod>`));
   assert.ok(sitemap.includes(`<loc>${publicUrl("/en/books/deconstructing_LLM")}</loc>`));
@@ -355,6 +364,8 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
   assert.ok(publishedBlog.includes(`rel="canonical" href="${publicUrl("/zh/blog/watermarking_on_aigc")}"`));
   assert.match(publishedBlog, new RegExp(`hrefLang="en" href="${publicUrl("/en/blog/watermarking_on_aigc").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
   assert.match(publishedBlog, /property="article:published_time" content="2026-08-17"/);
+  assert.match(publishedBlog, /"@type":"BlogPosting"/);
+  assert.match(publishedBlog, /"@type":"BreadcrumbList"/);
   assert.doesNotMatch(englishBlog, /name="robots" content="noindex, follow"/);
   assert.ok(englishBlog.includes(`rel="canonical" href="${publicUrl("/en/blog/watermarking_on_aigc")}"`));
   assert.match(englishBlog, new RegExp(`hrefLang="zh-CN" href="${publicUrl("/zh/blog/watermarking_on_aigc").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
@@ -389,6 +400,30 @@ test("uses explicit content dates and bidirectional language alternates", async 
   assert.match(chineseSynthId, new RegExp(`hrefLang="en" href="${publicUrl("/en/blog/watermarking_on_aigc_2").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
   assert.match(englishSynthId, new RegExp(`hrefLang="zh-CN" href="${publicUrl("/zh/blog/watermarking_on_aigc_2").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
   assert.match(englishSynthId, /property="article:published_time" content="2026-08-20"/);
+});
+
+test("gives every indexable route complete page-level SEO semantics", async () => {
+  const sitemap = await readFile(join(outputRoot, "sitemap.xml"), "utf8");
+  const routes = [...sitemap.matchAll(/<loc>(https?:\/\/[^<]+)<\/loc>/g)]
+    .map((match) => new URL(match[1]).pathname);
+
+  for (const route of routes) {
+    const source = await html(route);
+    const title = source.match(/<title>([^<]+)<\/title>/)?.[1] ?? "";
+    const description = source.match(/<meta name="description" content="([^"]+)"/)?.[1] ?? "";
+    const h1Count = source.match(/<h1\b/g)?.length ?? 0;
+    const language = route.startsWith("/en/") ? "en" : "zh-CN";
+
+    assert.ok(title.length > 0, `${route}: missing title`);
+    assert.ok(title.length <= 75, `${route}: title is too long (${title.length})`);
+    assert.ok(description.length >= 30, `${route}: description is too short`);
+    assert.ok(description.length <= 170, `${route}: description is too long (${description.length})`);
+    assert.doesNotMatch(description, /[*_`$]|\\[a-zA-Z]+/, `${route}: description contains Markdown or LaTeX`);
+    assert.equal(h1Count, 1, `${route}: expected exactly one H1`);
+    assert.ok(source.includes(`rel="canonical" href="${publicUrl(route)}"`), `${route}: missing canonical`);
+    assert.match(source, new RegExp(`<html lang="${language}"`), `${route}: incorrect language`);
+    assert.doesNotMatch(source, /name="robots" content="noindex/, `${route}: sitemap route is noindex`);
+  }
 });
 
 test("exports every current reading route", async () => {
@@ -577,6 +612,8 @@ test("exports the concise book overview with its outline and resources", async (
   assert.ok(overviewMarkdown.trim().length > 0);
   assert.match(source, /在理论基础方面/);
   assert.match(source, /READING MAP/);
+  assert.match(source, /"@type":"Book"/);
+  assert.match(source, /"@type":"BreadcrumbList"/);
   for (const part of bookConfig.parts) {
     assert.ok(source.includes(part.title));
     for (const chapter of part.chapters) {
@@ -614,6 +651,7 @@ test("exports the English book overview with its own content and outline", async
   assert.match(source, /theoretical foundations/);
   assert.match(source, /engineering implementation/);
   assert.match(source, /READING MAP/);
+  assert.match(source, /"@type":"Book"/);
   for (const part of bookConfig.parts) assert.ok(source.includes(part.title));
   assert.match(source.replaceAll("<!-- -->", ""), /Book complete · 13 chapters/);
   assert.match(source, new RegExp(`src="${basePath}/images/deconstructing-llm-cover-en\\.webp"`));

@@ -21,6 +21,7 @@ type ReadingPageProps = {
   nextPage?: PaginationPage;
   contentOnly?: boolean;
   dates?: ContentDates;
+  promoteFirstHeading?: boolean;
 };
 
 type PaginationPage = {
@@ -72,6 +73,7 @@ export function ReadingPage({
   nextPage,
   contentOnly = false,
   dates,
+  promoteFirstHeading = false,
 }: ReadingPageProps) {
   const en = lang === "en";
   const isBook = kind === "book";
@@ -183,7 +185,12 @@ export function ReadingPage({
 
           {contentOnly && dates?.published && <PublicationDates lang={lang} dates={dates} />}
 
-          <MarkdownContent lang={lang} source={source} images={images} />
+          <MarkdownContent
+            lang={lang}
+            source={source}
+            images={images}
+            promoteFirstHeading={promoteFirstHeading}
+          />
 
           {isBook ? (
             <nav className="article-pagination" aria-label={en ? "Section navigation" : "小节导航"}>

@@ -11,12 +11,14 @@ type MarkdownContentProps = {
   lang?: "zh" | "en";
   source: string;
   images?: Record<string, string>;
+  promoteFirstHeading?: boolean;
 };
 
 type MarkdownNode = {
   type: string;
   value?: string;
   url?: string;
+  depth?: number;
   children?: MarkdownNode[];
   data?: {
     hProperties?: Record<string, unknown>;
@@ -164,6 +166,13 @@ function referenceAnchors() {
   };
 }
 
+function promoteLeadingHeading() {
+  return (tree: MarkdownNode) => {
+    const firstHeading = tree.children?.find((node) => node.type === "heading");
+    if (firstHeading) firstHeading.depth = 1;
+  };
+}
+
 function htmlNodeText(node: HtmlNode): string {
   if (typeof node.value === "string") return node.value;
   return node.children?.map(htmlNodeText).join("") ?? "";
@@ -280,11 +289,21 @@ function localizedContentHref(href: string | undefined, lang: "zh" | "en") {
   return href;
 }
 
-export function MarkdownContent({ lang = "zh", source, images }: MarkdownContentProps) {
+export function MarkdownContent({
+  lang = "zh",
+  source,
+  images,
+  promoteFirstHeading = false,
+}: MarkdownContentProps) {
   return (
-    <div className="markdown-content">
+    <div className={`markdown-content${promoteFirstHeading ? " promoted-first-heading" : ""}`}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath, referenceAnchors]}
+        remarkPlugins={[
+          remarkGfm,
+          remarkMath,
+          ...(promoteFirstHeading ? [promoteLeadingHeading] : []),
+          referenceAnchors,
+        ]}
         remarkRehypeOptions={{
           footnoteLabel: lang === "en" ? "Footnotes" : "注释",
           footnoteBackLabel: lang === "en" ? "Back to content" : "返回正文",
