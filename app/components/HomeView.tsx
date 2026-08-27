@@ -35,12 +35,15 @@ export function HomeView({ lang }: { lang: "zh" | "en" }) {
     >
       <SiteHeader lang={lang} languageHref={lang === "en" ? "/zh/" : "/en/"} />
       <main>
-        <section className="home-hero">
+        <section className={`home-hero home-hero-${lang}`}>
           <div className="hero-copy">
             {hero.eyebrow && <p className="eyebrow">{hero.eyebrow}</p>}
             <h1>
-              {highlightedTitle(hero.title[0])}<br />
-              {highlightedTitle(hero.title[1])}
+              {hero.title.map((line, index) => (
+                <span className="hero-title-line" key={`${line}-${index}`}>
+                  {highlightedTitle(line)}
+                </span>
+              ))}
             </h1>
             <p className="hero-intro">{hero.intro}</p>
             <div className="hero-actions">

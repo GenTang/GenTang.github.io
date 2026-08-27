@@ -114,7 +114,7 @@ function unlinkedBookReferences(source) {
 
 test("exports the homepage with local assets and the intended section order", async () => {
   const source = await html("/zh/");
-  const latestBlogTitle = await blogTitle("zh", "watermarking_on_aigc_2");
+  const latestBlogPosts = (await discoveredBlogPosts("zh")).slice(0, 3);
   assert.match(source, /<title>小胖笔记｜LLM技术笔记：模型架构、数据基础和工程实现<\/title>/);
   assert.ok(source.includes("小胖笔记提供《解构大语言模型》完整在线书稿与 AI 技术博客"));
   assert.match(source, /type="application\/ld\+json"/);
@@ -125,9 +125,10 @@ test("exports the homepage with local assets and the intended section order", as
   assert.match(source, /解构大语言模型/);
   assert.match(source.replaceAll("<!-- -->", ""), /全书已完成 · 13 章/);
   assert.doesNotMatch(source, /class="chapter-line"/);
-  assert.match(source, exactPattern(latestBlogTitle));
-  assert.match(source, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc_2/"`));
-  assert.match(source, new RegExp(`href="${basePath}/zh/blog/watermarking_on_aigc/"`));
+  for (const post of latestBlogPosts) {
+    assert.match(source, exactPattern(post.title));
+    assert.match(source, new RegExp(`href="${basePath}${post.route}/"`));
+  }
   assert.match(source, /持续更新/);
   assert.match(source, /OPEN TO WORK/);
   assert.match(source, /寻找 LLM \/ AI Systems Engineer 机会/);
@@ -148,10 +149,7 @@ test("exports the homepage with local assets and the intended section order", as
 
 test("keeps the English homepage structurally aligned with the Chinese homepage", async () => {
   const source = await html("/en/");
-  const [partOneTitle, partTwoTitle] = await Promise.all([
-    blogTitle("en", "watermarking_on_aigc"),
-    blogTitle("en", "watermarking_on_aigc_2"),
-  ]);
+  const latestBlogPosts = (await discoveredBlogPosts("en")).slice(0, 3);
   assert.match(source, /<title>Xiaopang Notes \| LLM Architecture, Data, and Engineering<\/title>/);
   assert.match(source, /class="brand-mark brand-mark-en">XN<\/span>/);
   assert.match(source, /<strong>Xiaopang Notes<\/strong><small>AI · MATH · SYSTEMS<\/small>/);
@@ -161,10 +159,10 @@ test("keeps the English homepage structurally aligned with the Chinese homepage"
   assert.match(source, /Read the latest blog/);
   assert.match(source, /Deconstructing Large Language Models/);
   assert.match(source, /BOOK COMPLETE · 13 CHAPTERS/);
-  assert.match(source, exactPattern(partTwoTitle));
-  assert.match(source, new RegExp(`href="${basePath}/en/blog/watermarking_on_aigc_2/"`));
-  assert.match(source, exactPattern(partOneTitle));
-  assert.match(source, new RegExp(`href="${basePath}/en/blog/watermarking_on_aigc/"`));
+  for (const post of latestBlogPosts) {
+    assert.match(source, exactPattern(post.title));
+    assert.match(source, new RegExp(`href="${basePath}${post.route}/"`));
+  }
   assert.match(source, /OPEN TO WORK/);
   assert.match(source, /Open to LLM \/ AI Systems Engineer opportunities/);
   assert.doesNotMatch(source, /class="chapter-line"|Notes on AI Systems \(working title\)|UPDATED CONTINUOUSLY/);

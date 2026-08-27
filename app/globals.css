@@ -813,6 +813,22 @@ a {
   font-weight: 500;
   line-height: 1.12;
   letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.hero-title-line {
+  display: block;
+}
+
+.home-hero-en h1 {
+  max-width: 720px;
+  font-size: clamp(38px, 3.8vw, 50px);
+  line-height: 1.1;
+  letter-spacing: -0.038em;
+}
+
+.home-hero-en .hero-title-line + .hero-title-line {
+  margin-top: 0.12em;
 }
 
 .home-hero h1 em {
@@ -2698,6 +2714,18 @@ a {
 
   .home-hero {
     grid-template-columns: 1fr;
+    gap: 44px;
+    padding: 64px clamp(28px, 7vw, 68px) 60px;
+  }
+
+  .home-hero::before {
+    display: none;
+  }
+
+  .home-hero-en h1 {
+    max-width: 700px;
+    font-size: clamp(36px, 5vw, 42px);
+    line-height: 1.11;
   }
 
   .home-hero::after {
@@ -3031,6 +3059,12 @@ a {
 
   .home-hero h1 {
     font-size: clamp(30px, 9vw, 40px);
+  }
+
+  .home-hero-en h1 {
+    font-size: clamp(29px, 8vw, 36px);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
   }
 
   .hero-intro {
