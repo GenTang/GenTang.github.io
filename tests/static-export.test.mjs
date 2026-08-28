@@ -206,7 +206,7 @@ test("exports aligned bilingual blog landing pages that match the homepage state
 
   assert.match(chinese, /<h1>博客<\/h1>/);
   assert.match(chinese, /<title>AI 技术博客：LLM、文本水印与模型实现 · 小胖笔记<\/title>/);
-  assert.match(chinese, /<meta name="description" content="小胖笔记的人工智能技术文章，围绕大语言模型、文本水印、统计检测与模型实现/);
+  assert.match(chinese, /<meta name="description" content="围绕大语言模型的关键机制与工程实践，记录分词器、文本水印与统计检测等主题/);
   assert.match(chinese, exactPattern(chinesePartTwo));
   assert.match(chinese, exactPattern(chinesePartOne));
   assert.match(chinese, /class="essay-row"/);
@@ -217,7 +217,7 @@ test("exports aligned bilingual blog landing pages that match the homepage state
 
   assert.match(english, /<h1>Blog<\/h1>/);
   assert.match(english, /<title>LLM Engineering: Watermarking, Models, and Code · Xiaopang Notes<\/title>/);
-  assert.match(english, /<meta name="description" content="Technical essays on LLMs, text watermarking, statistical detection, and model implementation/);
+  assert.match(english, /<meta name="description" content="Technical essays on the mechanisms and engineering of large language models/);
   assert.match(english, /class="brand-mark brand-mark-en">XN<\/span>/);
   assert.doesNotMatch(english, /class="brand-mark">胖<\/span>/);
   assert.match(english, exactPattern(englishPartTwo));

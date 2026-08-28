@@ -14,7 +14,7 @@ export const metadata: Metadata = createPageMetadata({
   alternatePath: "/en/blog",
   kind: "website",
   noIndex: posts.length === 0,
-  keywords: ["AI 技术博客", "LLM", "文本水印", "深度学习", "模型实现", "Python"],
+  keywords: ["AI 技术博客", "LLM", "分词器", "文本水印", "统计检测", "模型实现", "Python"],
 });
 
 const structuredData = {

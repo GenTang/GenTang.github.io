@@ -36,6 +36,6 @@
   "essay": {
     "sectionLabel": "BLOG",
     "sectionTitle": "Blog",
-    "sectionDescription": "Technical essays on LLMs, text watermarking, statistical detection, and model implementation, with derivations, reproducible experiments, Python code, and notebooks."
+    "sectionDescription": "Technical essays on the mechanisms and engineering of large language models—from tokenizers and text watermarking to statistical detection—grounded in mathematical derivations, reproducible experiments, Python code, and complete notebooks."
   }
 }

@@ -15,7 +15,7 @@ export const metadata: Metadata = createPageMetadata({
   locale: "en_US",
   kind: "website",
   noIndex: posts.length === 0,
-  keywords: ["AI engineering blog", "LLM", "text watermarking", "deep learning", "model implementation", "Python"],
+  keywords: ["AI engineering blog", "LLM", "tokenizers", "text watermarking", "statistical detection", "model implementation", "Python"],
 });
 
 const structuredData = {

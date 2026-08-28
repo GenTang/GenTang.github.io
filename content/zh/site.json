@@ -36,6 +36,6 @@
   "essay": {
     "sectionLabel": "BLOG",
     "sectionTitle": "博客",
-    "sectionDescription": "小胖笔记的人工智能技术文章，围绕大语言模型、文本水印、统计检测与模型实现，结合数学推导、可复现实验、Python 代码和完整 Notebook 解释算法原理。"
+    "sectionDescription": "围绕大语言模型的关键机制与工程实践，记录分词器、文本水印与统计检测等主题；通过数学推导、可复现实验、Python 代码和完整 Notebook，把算法原理讲清楚，也把实现细节落到实处。"
   }
 }
