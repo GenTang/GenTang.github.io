@@ -81,73 +81,6 @@ a {
   background: var(--paper);
 }
 
-.site-note-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  min-height: 34px;
-  padding: 7px clamp(20px, 4vw, 56px);
-  color: #82b9bd;
-  background: #06151b;
-  border-bottom: 1px solid #17414a;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.site-note-bar:hover {
-  color: #bce8ec;
-  background: #0a2028;
-}
-
-.availability-state,
-.availability-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.availability-state {
-  color: #7dd3fc;
-  font-weight: 700;
-}
-
-.availability-state i {
-  width: 7px;
-  height: 7px;
-  background: #38bdf8;
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1), 0 0 14px rgba(56, 189, 248, 0.72);
-  animation: availability-pulse 2.4s ease-in-out infinite;
-}
-
-.availability-message {
-  color: #9dbec7;
-}
-
-.availability-action {
-  color: #dffeff;
-}
-
-.availability-action b {
-  font-size: 13px;
-  transition: transform 150ms ease;
-}
-
-.site-note-bar:hover .availability-action b {
-  transform: translateX(3px);
-}
-
-@keyframes availability-pulse {
-  50% {
-    opacity: 0.55;
-    transform: scale(0.82);
-  }
-}
-
 .site-header {
   position: sticky;
   top: 0;
@@ -2850,28 +2783,6 @@ a {
 }
 
 @media (max-width: 640px) {
-  .site-note-bar {
-    justify-content: center;
-    min-height: 38px;
-    padding-right: 14px;
-    padding-left: 14px;
-  }
-
-  .site-note-bar .availability-message {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .availability-action {
-    display: none;
-  }
-
-  .availability-state {
-    flex: 0 0 auto;
-    font-size: 9px;
-  }
-
   .site-header {
     min-height: 78px;
     padding-right: 14px;
@@ -3304,10 +3215,6 @@ a {
 }
 
 @media (max-width: 430px) {
-  .availability-message {
-    font-size: 8px;
-  }
-
   .header-actions .language-action,
   .header-actions .search-action,
   .header-actions .contact-action {

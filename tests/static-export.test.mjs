@@ -130,8 +130,7 @@ test("exports the homepage with local assets and the intended section order", as
     assert.match(source, new RegExp(`href="${basePath}${post.route}/"`));
   }
   assert.match(source, /持续更新/);
-  assert.match(source, /OPEN TO WORK/);
-  assert.match(source, /寻找 LLM \/ AI Systems Engineer 机会/);
+  assert.doesNotMatch(source, /OPEN TO WORK|寻找 LLM \/ AI Systems Engineer 机会/);
   assert.doesNotMatch(source, /NOTE \/ 001/);
   assert.match(source, new RegExp(`href="${basePath}/zh/books/deconstructing_LLM/"`));
   assert.match(source, new RegExp(`href="${basePath}/zh/blog/"`));
@@ -163,8 +162,7 @@ test("keeps the English homepage structurally aligned with the Chinese homepage"
     assert.match(source, exactPattern(post.title));
     assert.match(source, new RegExp(`href="${basePath}${post.route}/"`));
   }
-  assert.match(source, /OPEN TO WORK/);
-  assert.match(source, /Open to LLM \/ AI Systems Engineer opportunities/);
+  assert.doesNotMatch(source, /OPEN TO WORK|Open to LLM \/ AI Systems Engineer opportunities/);
   assert.doesNotMatch(source, /class="chapter-line"|Notes on AI Systems \(working title\)|UPDATED CONTINUOUSLY/);
   assert.ok(source.indexOf(">BLOG<") < source.indexOf(">BOOK<"));
   assert.match(source, new RegExp(`href="${basePath}/en/books/deconstructing_LLM/"`));
@@ -267,7 +265,7 @@ test("exports bilingual About pages and the static search index", async () => {
   const entries = JSON.parse(searchIndex);
 
   assert.match(chineseAbout, /唐亘，数据科学家，专注于人工智能与大数据/);
-  assert.match(chineseAbout, /目前正在寻找 LLM Engineer \/ AI Systems Engineer 方向的工作机会/);
+  assert.doesNotMatch(chineseAbout, /目前正在寻找|工作机会/);
   assert.match(chineseAbout, /复旦大学/);
   assert.match(chineseAbout, /巴黎综合理工学院/);
   assert.match(chineseAbout, /联系与反馈/);
@@ -276,7 +274,7 @@ test("exports bilingual About pages and the static search index", async () => {
   assert.match(chineseAbout, /gen\.tang86@gmail\.com/);
   assert.match(chineseAbout, new RegExp(`src="${basePath}/images/gen-tang\\.png"`));
   assert.match(englishAbout, /Gen Tang is a data scientist/);
-  assert.match(englishAbout, /currently looking for LLM Engineer \/ AI Systems Engineer opportunities/);
+  assert.doesNotMatch(englishAbout, /currently looking for|opportunities/);
   assert.match(englishAbout, /École Polytechnique/);
   assert.match(chineseSearch, /搜索小胖笔记/);
   assert.match(englishSearch, /Search Xiaopang Notes/);
