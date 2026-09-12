@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StaticRedirect } from "./components/StaticRedirect";
 import { createPageMetadata, siteDescription } from "./lib/siteMetadata";
 import { sitePath } from "./lib/sitePath";
 
@@ -14,14 +15,10 @@ export default function LanguageEntry() {
   const target = sitePath("/zh/");
 
   return (
-    <>
-      <meta httpEquiv="refresh" content={`0; url=${target}`} />
-      <main className="root-language-entry">
-        <h1>小胖笔记</h1>
-        <p>
-          正在进入中文站点…… <a href={target}>继续访问</a>
-        </p>
-      </main>
-    </>
+    <StaticRedirect
+      target={target}
+      title="小胖笔记"
+      message="正在进入中文站点……"
+    />
   );
 }

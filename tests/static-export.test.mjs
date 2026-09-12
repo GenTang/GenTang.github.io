@@ -186,8 +186,21 @@ test("keeps the root URL as a static entry to the Chinese site", async () => {
   assert.doesNotMatch(source, /window\.location\.replace/);
   assert.match(source, /<h1>小胖笔记<\/h1>/);
   assert.match(source, new RegExp(`href="${basePath}/zh/"`));
-  await assert.rejects(access(join(outputRoot, "books")));
   await assert.rejects(access(join(outputRoot, "blog")));
+});
+
+test("redirects locale-less book URLs to the Chinese book routes", async () => {
+  const [overview, chapter, section] = await Promise.all([
+    html("/books/deconstructing_LLM"),
+    html("/books/deconstructing_LLM/chapter-1"),
+    html("/books/deconstructing_LLM/chapter-1/1-1"),
+  ]);
+
+  assert.match(overview, new RegExp(`<meta http-equiv="refresh" content="0; url=${basePath}/zh/books/deconstructing_LLM/"`));
+  assert.match(overview, new RegExp(`rel="canonical" href="${publicUrl("/zh/books/deconstructing_LLM").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
+  assert.match(overview, new RegExp(`href="${basePath}/zh/books/deconstructing_LLM/"`));
+  assert.match(chapter, new RegExp(`<meta http-equiv="refresh" content="0; url=${basePath}/zh/books/deconstructing_LLM/chapter-1/"`));
+  assert.match(section, new RegExp(`<meta http-equiv="refresh" content="0; url=${basePath}/zh/books/deconstructing_LLM/chapter-1/1-1/"`));
 });
 
 test("exports aligned bilingual blog landing pages that match the homepage state", async () => {
