@@ -3,10 +3,10 @@ import { sitePath } from "./sitePath";
 
 export const siteName = "小胖笔记";
 export const englishSiteName = "Xiaopang Notes";
-export const homeTitle = "小胖笔记｜LLM技术笔记：模型架构、数据基础和工程实现";
-export const siteDescription = "小胖笔记提供《解构大语言模型》完整在线书稿与 AI 技术博客，从线性回归、深度学习一路讲到 Attention、Transformer、GPT 和 RLHF，并记录数学基础、模型架构与工程实现。";
-export const englishHomeTitle = "Xiaopang Notes | LLM Architecture, Data, and Engineering";
-export const englishSiteDescription = "Read Deconstructing Large Language Models and technical essays that connect linear regression, deep learning, Transformers, GPT, RLHF, data foundations, and engineering practice.";
+export const homeTitle = "小胖笔记｜大语言模型（LLM）技术笔记：架构、数据与工程实现";
+export const siteDescription = "小胖笔记：在线阅读《解构大语言模型》，并提供 LLM 技术博客。覆盖分词器、文本水印、Transformer、GPT、RLHF，以及从线性回归到深度学习的数学推导、可复现实验与 Python Notebook。";
+export const englishHomeTitle = "Xiaopang Notes | LLM Technical Notes: Architecture, Data, Engineering";
+export const englishSiteDescription = "Xiaopang Notes: read Deconstructing Large Language Models online and technical essays on tokenizers, text watermarking, Transformers, GPT, and RLHF—with math derivations, reproducible experiments, and Python notebooks.";
 export const authorName = "唐亘";
 export const englishAuthorName = "Gen Tang";
 

@@ -2,8 +2,8 @@
 published: 2026-08-26
 updated: 2026-08-27
 summary: 从BPE合并树出发，引入可感知UTF-8完整性的BPE结构分析，并用四种自然语言与三种编程语言比较主流分词器的结构差异与代际演进。
-seo_title: LLM分词器原理：BPE结构与跨语言比较
-seo_description: 从 BPE 合并树出发，用 UTF-8 感知的结构指标比较主流 LLM 分词器在四种自然语言和三种编程语言上的差异与代际演进。
+seo_title: LLM分词器原理：BPE结构、UTF-8指标与跨语言比较
+seo_description: 系统讲解大语言模型（LLM）分词器：从 BPE 合并树出发，用 UTF-8 感知结构指标比较主流 tokenizer 在自然语言与编程语言上的差异与代际演进。
 topic: 分词器
 ---
 

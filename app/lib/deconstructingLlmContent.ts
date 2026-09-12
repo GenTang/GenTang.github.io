@@ -232,6 +232,39 @@ export function getDeconstructingLlmLatestSection(language: BookLanguage = "zh")
   return sectionsByLanguage[language].at(-1);
 }
 
+export function getBookPageSeoTitle(section: BookSection, language: BookLanguage = "zh") {
+  const bookLabel = language === "zh" ? "解构大语言模型" : "Deconstructing LLMs";
+  if (
+    section.title.includes(bookLabel)
+    || /大语言模型|Large Language Models|\bLLMs?\b/i.test(section.title)
+  ) {
+    return section.title;
+  }
+
+  return language === "zh" ? `${section.title}｜${bookLabel}` : `${section.title} | ${bookLabel}`;
+}
+
+export function getBookPageSeoDescription(section: BookSection, language: BookLanguage = "zh") {
+  const chapterContext = getDeconstructingLlmChapterSeo(section.chapterId, language)?.description?.trim() || "";
+  if (section.id === "overview") {
+    return chapterContext || section.description;
+  }
+
+  if (language === "zh") {
+    const lead = `《解构大语言模型》${section.title}。`;
+    return truncateDescription(
+      chapterContext ? `${lead}${chapterContext}` : `${lead}${section.description}`,
+      110,
+    );
+  }
+
+  const lead = `Deconstructing Large Language Models — ${section.title}. `;
+  return truncateDescription(
+    chapterContext ? `${lead}${chapterContext}` : `${lead}${section.description}`,
+    165,
+  );
+}
+
 export function getDeconstructingLlmNeighbors(
   currentHref: string,
   language: BookLanguage = "zh",

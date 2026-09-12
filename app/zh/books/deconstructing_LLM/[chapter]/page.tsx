@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
+  getBookPageSeoDescription,
+  getBookPageSeoTitle,
   getDeconstructingLlmChapterId,
   getDeconstructingLlmChapterSeo,
   getDeconstructingLlmNavigation,
@@ -33,8 +35,8 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
 
   return overview
     ? createPageMetadata({
-        title: overview.title,
-        description: chapterSeo?.description || overview.description,
+        title: getBookPageSeoTitle(overview, "zh"),
+        description: getBookPageSeoDescription(overview, "zh"),
         path: overview.href,
         keywords: chapterSeo?.keywords,
         alternatePath: alternateSection?.href,

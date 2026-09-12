@@ -2,8 +2,8 @@
 published: 2026-08-17
 updated: 2026-08-20
 summary: From green-list probability bias to z-score hypothesis testing: implementing KGW text watermarking from scratch and measuring how text length affects detection.
-seo_title: KGW Text Watermarking: Green Lists and z-Score Detection
-seo_description: Implement KGW text watermarking from scratch, connect green-list probability bias to z-score testing, and measure how text length affects detection.
+seo_title: LLM Text Watermarking: KGW Green Lists and z-Score Detection
+seo_description: Implement KGW watermarking for large language models from scratch: connect green-list probability bias to z-score testing, and measure how text length affects LLM output detection.
 topic: LLM WATERMARKING
 ---
 

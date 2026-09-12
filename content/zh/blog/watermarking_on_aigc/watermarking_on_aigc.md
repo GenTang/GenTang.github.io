@@ -2,8 +2,8 @@
 published: 2026-08-17
 updated: 2026-08-20
 summary: 从绿名单概率偏置到z-score统计检验：从零实现KGW文本水印，并验证文本长度对检测效果的影响。
-seo_title: KGW文本水印原理：绿名单偏置与z-score检测
-seo_description: 从零实现 KGW 文本水印，解释绿名单概率偏置和 z-score 假设检验，并通过实验分析文本长度如何影响检测效果。
+seo_title: LLM文本水印：KGW绿名单偏置与z-score检测原理
+seo_description: 从零实现大语言模型文本水印 KGW：解释绿名单概率偏置、z-score 假设检验，并用实验分析文本长度如何影响 LLM 生成内容的检测效果。
 topic: 文本水印
 ---
 

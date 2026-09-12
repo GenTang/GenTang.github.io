@@ -115,12 +115,14 @@ function unlinkedBookReferences(source) {
 test("exports the homepage with local assets and the intended section order", async () => {
   const source = await html("/zh/");
   const latestBlogPosts = (await discoveredBlogPosts("zh")).slice(0, 3);
-  assert.match(source, /<title>小胖笔记｜LLM技术笔记：模型架构、数据基础和工程实现<\/title>/);
-  assert.ok(source.includes("小胖笔记提供《解构大语言模型》完整在线书稿与 AI 技术博客"));
+  assert.match(source, /<title>小胖笔记｜大语言模型（LLM）技术笔记：架构、数据与工程实现<\/title>/);
+  assert.ok(source.includes("小胖笔记：在线阅读《解构大语言模型》"));
   assert.match(source, /type="application\/ld\+json"/);
   assert.match(source, /"@type":"WebSite"/);
   assert.match(source, /小胖笔记/);
-  assert.match(source, /万一我证明了<em>黎曼猜想<\/em>/);
+  assert.match(source, /LLM 技术笔记/);
+  assert.match(source, /解构<em>大语言模型<\/em>/);
+  assert.match(source, /从线性回归到工程实现/);
   assert.match(source, /阅读最近博客/);
   assert.match(source, /解构大语言模型/);
   assert.match(source.replaceAll("<!-- -->", ""), /全书已完成 · 13 章/);
@@ -149,12 +151,13 @@ test("exports the homepage with local assets and the intended section order", as
 test("keeps the English homepage structurally aligned with the Chinese homepage", async () => {
   const source = await html("/en/");
   const latestBlogPosts = (await discoveredBlogPosts("en")).slice(0, 3);
-  assert.match(source, /<title>Xiaopang Notes \| LLM Architecture, Data, and Engineering<\/title>/);
+  assert.match(source, /<title>Xiaopang Notes \| LLM Technical Notes: Architecture, Data, Engineering<\/title>/);
   assert.match(source, /class="brand-mark brand-mark-en">XN<\/span>/);
   assert.match(source, /<strong>Xiaopang Notes<\/strong><small>AI · MATH · SYSTEMS<\/small>/);
   assert.doesNotMatch(source, /class="brand-mark">胖<\/span>/);
-  assert.match(source, /If I ever prove the <em>Riemann Hypothesis<\/em>/);
-  assert.match(source, /this page should have more room than the <em>margin<\/em>\./);
+  assert.match(source, /LLM technical notes/);
+  assert.match(source, /Deconstructing <em>Large Language Models<\/em>/);
+  assert.match(source, /From linear regression to engineering practice/);
   assert.match(source, /Read the latest blog/);
   assert.match(source, /Deconstructing Large Language Models/);
   assert.match(source, /BOOK COMPLETE · 13 CHAPTERS/);
@@ -363,7 +366,7 @@ test("exports crawl controls, sitemap, feeds, canonical metadata, and correct pa
   assert.ok(home.includes(`rel="canonical" href="${publicUrl("/zh/")}"`));
   assert.ok(home.includes(`type="application/rss+xml"`));
   assert.ok(latest.includes(`rel="canonical" href="${publicUrl("/zh/books/deconstructing_LLM/chapter-13/13-6")}"`));
-  assert.match(latest, /property="og:title" content="13\.6 本章小结"/);
+  assert.match(latest, /property="og:title" content="13\.6 本章小结｜解构大语言模型"/);
   assert.match(latest, /property="article:published_time" content="2026-08-10"/);
   assert.match(latest, /"@type":"TechArticle"/);
   assert.match(latest, /"datePublished":"2026-08-10"/);

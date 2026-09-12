@@ -2,8 +2,8 @@
 published: 2026-08-26
 updated: 2026-08-27
 summary: Starting from the BPE merge tree, this article introduces UTF-8-aware depth analysis and compares the structure and generational progress of leading tokenizers across four natural languages and three programming languages.
-seo_title: LLM Tokenizers: BPE Structure and Cross-Language Analysis
-seo_description: A structural analysis of BPE tokenizers across four natural languages and three programming languages, using UTF-8-aware depth metrics and model comparisons.
+seo_title: LLM Tokenizers Explained: BPE Structure and Cross-Language Analysis
+seo_description: A practical guide to large language model tokenizers: analyze BPE merge trees with UTF-8-aware depth metrics and compare leading LLM tokenizers across natural and programming languages.
 topic: TOKENIZATION
 ---
 

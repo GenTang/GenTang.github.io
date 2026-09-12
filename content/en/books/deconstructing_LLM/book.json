@@ -10,7 +10,7 @@
   "overview": {
     "kicker": "BOOK / 01",
     "description": "Starting with linear regression, follow the evolution of data foundations and model architectures to gradually understand large language models",
-    "seoDescription": "Read Deconstructing Large Language Models online: connect linear regression, deep learning, and large language models through data foundations and model architectures, with code examples that illuminate their engineering implementation.",
+    "seoDescription": "Read Deconstructing Large Language Models (LLMs) online: connect linear regression, deep learning, Transformers, GPT, and RLHF through data foundations and model architectures, with Python code and engineering examples.",
     "keywords": [
       "large language models",
       "LLM",

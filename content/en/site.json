@@ -1,8 +1,8 @@
 {
   "hero": {
-    "eyebrow": "",
-    "title": ["If I ever prove the 【Riemann Hypothesis】,", "this page should have more room than the 【margin】."],
-    "intro": "So that interesting ideas never disappear into the blank pages of memory, I keep the thoughts worth exploring here",
+    "eyebrow": "LLM technical notes",
+    "title": ["Deconstructing 【Large Language Models】", "From linear regression to engineering practice"],
+    "intro": "An online book and technical essays on tokenizers, text watermarking, Transformers, GPT, and RLHF—with math, reproducible experiments, and notebooks. And when inspiration strikes, this page still has more room than the margin.",
     "primaryCta": {
       "label": "Read the latest blog",
       "href": "/en/blog"
